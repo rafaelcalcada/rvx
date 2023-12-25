@@ -40,12 +40,11 @@ module system_bus #(
   parameter DEVICE0_START_ADDRESS = 32'h00000000,
   parameter DEVICE0_FINAL_ADDRESS = 32'h7fffffff,
   parameter DEVICE1_START_ADDRESS = 32'h80000000,
-  parameter DEVICE1_FINAL_ADDRESS = 32'hffffffff
+  parameter DEVICE1_FINAL_ADDRESS = 32'hffffffff,
+  parameter DEVICE2_START_ADDRESS = 32'hdeadbeef,
+  parameter DEVICE2_FINAL_ADDRESS = 32'hdeadbeef
 
   /* Uncomment to add new devices
-
-  parameter DEVICE2_START_ADDRESS = 32'hdeadbeef,
-  parameter DEVICE2_FINAL_ADDRESS = 32'hdeadbeef,
   
   parameter DEVICE3_START_ADDRESS = 32'hdeadbeef,
   parameter DEVICE3_FINAL_ADDRESS = 32'hdeadbeef
@@ -88,9 +87,7 @@ module system_bus #(
   output  wire  [31:0]  device1_write_data,
   output  wire  [3:0 ]  device1_write_strobe,
   output  wire          device1_write_request,
-  input   wire          device1_write_response
-
-  /* Uncomment to add new devices
+  input   wire          device1_write_response,
 
   // Device #2
 
@@ -101,7 +98,9 @@ module system_bus #(
   output  wire  [31:0]  device2_write_data,
   output  wire  [3:0 ]  device2_write_strobe,
   output  wire          device2_write_request,
-  input   wire          device2_write_response,
+  input   wire          device2_write_response
+
+  /* Uncomment to add new devices
 
   // Device #3
 
@@ -123,20 +122,20 @@ module system_bus #(
   localparam    RESET       = 7;
   localparam    DEVICE0     = 0;
   localparam    DEVICE1     = 1;
+  localparam    DEVICE2     = 2;
 
   /* Uncomment to add new devices
 
-  localparam    DEVICE2     = 2;
   localparam    DEVICE3     = 3;
 
   */
 
   wire          device0_valid_access;
   wire          device1_valid_access;
+  wire          device2_valid_access;
 
   /* Uncomment to add new devices
 
-  wire          device2_valid_access;
   wire          device3_valid_access;
 
   */
@@ -157,11 +156,11 @@ module system_bus #(
     $unsigned(rw_address) >= $unsigned(DEVICE1_START_ADDRESS) && 
     $unsigned(rw_address) <= $unsigned(DEVICE1_FINAL_ADDRESS);
 
-  /* Uncomment to add new devices
-
   assign device2_valid_access =
     $unsigned(rw_address) >= $unsigned(DEVICE2_START_ADDRESS) && 
     $unsigned(rw_address) <= $unsigned(DEVICE2_FINAL_ADDRESS);
+
+  /* Uncomment to add new devices
   
   assign device3_valid_access =
     $unsigned(rw_address) >= $unsigned(DEVICE3_START_ADDRESS) && 
@@ -181,13 +180,13 @@ module system_bus #(
   assign device1_read_request  = device1_valid_access ? read_request  : 1'b0;
   assign device1_write_request = device1_valid_access ? write_request : 1'b0;
 
-  /* Uncomment to add new devices
-
   assign device2_rw_address    = device2_valid_access ? rw_address    : 1'b0;
   assign device2_write_data    = device2_valid_access ? write_data    : 32'h0;
   assign device2_write_strobe  = device2_valid_access ? write_strobe  : 4'h0;
   assign device2_read_request  = device2_valid_access ? read_request  : 1'b0;
   assign device2_write_request = device2_valid_access ? write_request : 1'b0;
+
+  /* Uncomment to add new devices
 
   assign device3_rw_address    = device3_valid_access ? rw_address    : 1'b0;
   assign device3_write_data    = device3_valid_access ? write_data    : 32'h0;
@@ -207,12 +206,11 @@ module system_bus #(
     else if (device1_valid_access) begin
       selected_response <= DEVICE1;
     end
-
-    /* Uncomment to add new devices
-
     else if (device2_valid_access) begin
       selected_response <= DEVICE2;
     end
+
+    /* Uncomment to add new devices
 
     else if (device3_valid_access) begin
       selected_response <= DEVICE3;
@@ -247,14 +245,13 @@ module system_bus #(
         read_data       <= device1_read_data;
         read_response   <= device1_read_response;
       end
-
-      /* Uncomment to add new devices
-
       DEVICE2: begin
         write_response  <= device2_write_response;
         read_data       <= device2_read_data;
         read_response   <= device2_read_response;
       end
+
+      /* Uncomment to add new devices
 
       DEVICE3: begin
         write_response  <= device3_write_response;

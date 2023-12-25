@@ -50,7 +50,17 @@ module rvsteel_soc #(
   parameter MEMORY_INIT_FILE = "",
 
   // Address of the first instruction to fetch from memory
-  parameter BOOT_ADDRESS = 32'h00000000
+  parameter BOOT_ADDRESS = 32'h00000000,
+
+  // Choice of device to connect to system bus
+  parameter DEVICE2 = "",
+
+  parameter DEVICE2_START_ADDRESS = (DEVICE2 == "PKA") ? 32'hC0000000 :
+                                    (DEVICE2 == "")    ? 32'hC0000000 :
+                                                         32'hC0000000,
+  parameter DEVICE2_FINAL_ADDRESS = (DEVICE2 == "PKA") ? 32'hC0008050 :
+                                    (DEVICE2 == "")    ? 32'hC0000004 :
+                                                         32'hC0000004
 
   )(
 
@@ -97,8 +107,6 @@ module rvsteel_soc #(
   wire          device1_write_request;
   wire          device1_write_response;
 
-  /* Uncomment to add new devices
-
   // Device #2 <=> System Bus
 
   wire  [31:0]  device2_rw_address;
@@ -109,6 +117,8 @@ module rvsteel_soc #(
   wire  [3:0 ]  device2_write_strobe;
   wire          device2_write_request;
   wire          device2_write_response;
+
+  /* Uncomment to add new devices
 
   // Device #3 <=> System Bus
 
@@ -165,12 +175,12 @@ module rvsteel_soc #(
     .DEVICE0_START_ADDRESS          (32'h00000000                       ),
     .DEVICE0_FINAL_ADDRESS          (MEMORY_SIZE-1                      ),
     .DEVICE1_START_ADDRESS          (32'h80000000                       ),
-    .DEVICE1_FINAL_ADDRESS          (32'h80000004                       )
+    .DEVICE1_FINAL_ADDRESS          (32'h80000004                       ),
+    .DEVICE2_START_ADDRESS          (DEVICE2_START_ADDRESS              ),
+    .DEVICE2_FINAL_ADDRESS          (DEVICE2_FINAL_ADDRESS              )
 
     /* Uncomment to add new devices
 
-    .DEVICE2_START_ADDRESS          (32'hdeadbeef                       ),
-    .DEVICE2_FINAL_ADDRESS          (32'hdeadbeef                       ),
     .DEVICE3_START_ADDRESS          (32'hdeadbeef                       ),
     .DEVICE3_FINAL_ADDRESS          (32'hdeadbeef                       )
 
@@ -212,9 +222,7 @@ module rvsteel_soc #(
     .device1_write_data             (device1_write_data                 ),
     .device1_write_strobe           (device1_write_strobe               ),
     .device1_write_request          (device1_write_request              ),
-    .device1_write_response         (device1_write_response             )
-
-    /* Uncomment to add new devices
+    .device1_write_response         (device1_write_response             ),
 
     // Device #2 <=> System Bus
 
@@ -226,6 +234,8 @@ module rvsteel_soc #(
     .device2_write_strobe           (device2_write_strobe               ),
     .device2_write_request          (device2_write_request              ),
     .device2_write_response         (device2_write_response             )
+
+    /* Uncomment to add new devices
 
     // Device #3 <=> System Bus
 
@@ -301,22 +311,60 @@ module rvsteel_soc #(
 
   );
 
+  if (DEVICE2 == "PKA") begin : pka_gen
+
+    wire pka_cs = device2_read_request || device2_write_request;
+    wire pka_wr = device2_write_request;
+
+    reg pka_read_responce;
+    reg pka_write_responce;
+
+    always @(posedge clock or posedge reset) begin
+      if (reset) begin
+        pka_read_responce  <= 1'b0;
+        pka_write_responce <= 1'b0;
+      end else begin
+        pka_read_responce  <= device2_read_request;
+        pka_write_responce <= device2_write_request;
+      end
+    end
+
+    assign device2_read_response  = pka_read_responce;
+    assign device2_write_response = pka_write_responce;
+
+    pka_top
+    pka_top_inst (
+
+      // Global clock and active-low reset
+
+      .clk_i                          (clock                              ),
+      .reset_ni                       (!reset                             ),
+
+      // Interface to host
+
+      .data_i                         (device2_write_data                 ),
+      .address_i                      (device2_rw_address                 ),
+      .cs_i                           (pka_cs                             ),
+      .wr_i                           (pka_wr                             ),
+      .data_o                         (device2_read_data                  ),
+
+      // Pseudorandom data input
+
+      .prnd_valid_i                   (1'b1                               ),
+      .prnd_ready_o                   (                                   ),
+      .prnd_data_i                    (50'b0                              )
+
+    );
+
+  end else begin : empty_dev_gen
+
+    assign device2_read_data      = 32'b0;
+    assign device2_read_response  = 1'b0;
+    assign device2_write_response = 1'b0;
+
+  end
+
   /* Uncomment to add new devices
-
-  mydevice2
-  mydevice2_instance (
-
-    ... device 2 signals ...
-
-    .mydevice2_rw_address           (device2_rw_address                 ),
-    .mydevice2_read_data            (device2_read_data                  ),
-    .mydevice2_read_request         (device2_read_request               ),
-    .mydevice2_read_response        (device2_read_response              ),
-    .mydevice2_write_data           (device2_write_data                 ),
-    .mydevice2_write_request        (device2_write_request              ),
-    .mydevice2_write_response       (device2_write_response             )
-
-  );
 
   mydevice3
   mydevice3_instance (
