@@ -317,6 +317,8 @@ module rvsteel_soc #(
 
   if (DEVICE2 == "PKA") begin : pka_gen
 
+    assign irq_device = 1'b0;
+
     wire pka_cs = device2_read_request || device2_write_request;
     wire pka_wr = device2_write_request;
 
@@ -414,6 +416,7 @@ module rvsteel_soc #(
 
   end else begin : empty_dev_gen
 
+    assign irq_device = 1'b0;
     assign device2_read_data      = 32'b0;
     assign device2_read_response  = 1'b0;
     assign device2_write_response = 1'b0;
