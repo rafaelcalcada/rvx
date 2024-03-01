@@ -1,0 +1,16 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW2AR-18C" pn="GW2AR-LV18QN88C8/I7">gw2ar18c-000</Device>
+    <FileList>
+        <File path="../../examples/hello_world/hardware/hello-world-tang-nano-20k.v" type="file.verilog" enable="1"/>
+        <File path="../../../hardware/uart/rvsteel_uart.v" type="file.verilog" enable="1"/>
+        <File path="../../../hardware/ram/rvsteel_ram.v" type="file.verilog" enable="1"/>
+        <File path="../../../hardware/bus/rvsteel_bus.v" type="file.verilog" enable="1"/>
+        <File path="../../../hardware/core/rvsteel_core.v" type="file.verilog" enable="1"/>
+        <File path="../../../hardware/soc/rvsteel_soc.v" type="file.verilog" enable="1"/>
+        <File path="../../examples/hello_world/hardware/hello_world_tang_nano_20k_constraints.cst" type="file.cst" enable="1"/>
+    </FileList>
+</Project>

@@ -1,4 +1,5 @@
-# RISC-V Steel Processor Core IP </br><small>Reference Guide</small>
+# RISC-V Steel Processor Core { class="main-section-title" }
+<h2 class="main-section-subtitle">Documentation</h2>
 
 ## Introduction
 
@@ -10,7 +11,7 @@ RISC-V Steel Processor Core can run real-time operating systems and bare-metal e
 
 ## Source files
 
-RISC-V Steel Processor Core has a single source file, `rvsteel-core.v`, saved in the `riscv-steel/ip/` folder.
+RISC-V Steel Processor Core has a single source file, `rvsteel_core.v`, saved in the `hardware/core/` folder.
 
 ## I/O signals
 
@@ -20,8 +21,9 @@ RISC-V Steel Processor Core has a single source file, `rvsteel-core.v`, saved in
 | -------------- | --------- | | -------------------- |
 | **Signal name** | **Direction** | **Size** | **Description** |
 | clock      | Input | 1 bit     | Clock input.         |
-| reset      | Input | 1bit     | Reset (active-high). |
-| **I/O interface**{ class="rvsteel-core-io-table" } | 
+| reset      | Input | 1 bit     | Reset (active-high). |
+| halt       | Input | 1 bit     | Halts the processor core (active-high). |
+| **I/O interface**{ class="rvsteel-core-io-table" } |
 | **Signal name** | **Direction** | **Size** | **Description** |
 | rw_address | Output | 32 bits     | The address for the read/write operation.  |
 | read_data | Input | 32 bits     | The data read from the external device.  |
@@ -31,15 +33,17 @@ RISC-V Steel Processor Core has a single source file, `rvsteel-core.v`, saved in
 | write_strobe | Output | 4 bits | A signal indicating which byte lanes of **write_data** must be written. |
 | write_request | Output | 1 bit | This signal is set to logic `HIGH` when the processor requests to write to an external device.  |
 | write_response | Input | 1 bit | The response to the write request. |
-| **Interrupt handling**{ class="rvsteel-core-io-table" } | 
+| **Interrupt handling**{ class="rvsteel-core-io-table" } |
 | **Signal name** | **Direction** | **Size** | **Description** |
+| irq_fast | Input | 16 bit  | Provides 16 fast interrupt request lines to peripheral devices. The rightmost lines have higher priority. |
+| irq_fast_response | Output | 16 bit  | The responses to the fast interrupt requests. |
 | irq_external | Input | 1 bit  | Drive this signal to logic `HIGH` to request the processor an external interrupt. |
 | irq_external_response | Output | 1 bit  | The response to the external interrupt request. |
 | irq_timer | Input | 1 bit  | Drive this signal to logic `HIGH` to request the processor a timer interrupt. |
 | irq_timer_response | Output | 1 bit  | The response to the timer interrupt request. |
 | irq_software | Input | 1 bit  | Drive this signal to logic `HIGH` to request the processor a software interrupt. |
 | irq_software_response | Output | 1 bit  | The response to the software interrupt request. |
-| **Real time clock**{ class="rvsteel-core-io-table" } | 
+| **Real time clock**{ class="rvsteel-core-io-table" } |
 | **Signal name** | **Direction** | **Size** | **Description** |
 | real_time_clock | Input | 64 bits | The measured time from a real time clock. |
 
@@ -60,10 +64,11 @@ rvsteel_core #(
 
 ) rvsteel_core_instance (
 
-  // Global clock and active-high reset
+  // Global signals
 
   .clock                  (),
   .reset                  (), // reset is active-high
+  .halt                   (), // halt is active-high
 
   // IO interface
 
@@ -78,6 +83,8 @@ rvsteel_core #(
 
   // Interrupt signals
 
+  .irq_fast               (), // hardwire to 16'b0 if unused
+  .irq_fast_response      (), // leave blank if unused
   .irq_external           (), // hardwire to 1'b0 if unused
   .irq_external_response  (), // leave blank if unused
   .irq_timer              (), // hardwire to 1'b0 if unused
@@ -108,7 +115,7 @@ The two sections below explain how read and write operations are requested by th
 
 ### Read operation
 
-The processor core drives the I/O interface signals as follows when making a read request:
+The processor core drives the I/O interface signals as follows on a read request:
 
 - the address is placed in the **rw_address** bus.
 
@@ -127,13 +134,13 @@ The response to the read request from the external device must observe these rul
 The timing diagram below contains examples of valid read operations:
 
 <figure markdown>
-  ![](images/read-timing.svg)
+  ![](images/read_timing.svg)
   <figcaption><strong>Figure 1</strong> - Read operation timing diagram</figcaption>
 </figure>
 
 ### Write operation
 
-The processor core drives the I/O interface signals as follows when making a write request:
+The processor core drives the I/O interface signals as follows on a write request:
 
 - the address is placed in the **rw_address** bus.
 
@@ -156,15 +163,47 @@ The response to the write request from the external device must observe these ru
 The timing diagram below contains examples of valid write operations:
 
 <figure markdown>
-  ![](images/write-timing.svg)
+  ![](images/write_timing.svg)
   <figcaption><strong>Figure 2</strong> - Write operation timing diagram</figcaption>
 </figure>
 
-## Interrupts
+## Exceptions, interrupts and traps
 
-There are three interrupt types in the RISC-V architecture: external, timer, and software. RISC-V Steel Processor Core provides dedicated signals (**irq_external**, **irq_timer** and **irq_software**) to request each of these interrupt types.
+### Overview
 
-A device can request an interrupt by driving the **irq_\*** signal to logic `HIGH` and holding it `HIGH` until the request is accepted. The processor accepts the request by driving the **irq_\*_response** signal to logic `HIGH` for one clock cycle. The requesting device can drive the **irq_\*** signal to logic `LOW` in the clock cycle that follows the response, or keep it `HIGH` to make a new request.
+In the RISC-V architeture, a trap refers to the transfer of control caused by either an exception or interrupt. A trap is said to be _taken_ when an exception or interrupt change the program normal execution order by writing to the program counter the start address of a trap handler software routine, as configured in the **mtvec** CSR.
+
+An exception always causes a trap to be taken. An interrupt causes a trap to be taken only if:
+
+- the global interrupt enable bit is set (field **mie** in the **mstatus** CSR), and
+
+- the corresponding interrupt type is enabled (fields **meie**, **mtie** and **msie** in the **mie** CSR).
+
+The exceptions and interrupts implemented in RISC-V Steel Processor Core are listed in the table below. They are listed in descending priority order, that is, the topmost has the highest priority.
+
+**Table 2**{#table-2} - RISC-V Steel Processor Core implemented exceptions and interrupts
+
+| Priority       | Type      | Value `mstatus[31]` | Value of `mstatus[30:0]` | Description |
+| -------------- | --------- | ------------------- | ---------------------| ----------- |
+| highest        | Exception | 0 | 2 | Illegal instruction |
+|                | Exception | 0 | 0 | Misaligned instruction address |
+|                | Exception | 0 | 11 | Environment call from M-mode |
+|                | Exception | 0 | 3 | Breakpoint call from M-mode |
+|                | Exception | 0 | 6 | Misaligned store address |
+|                | Exception | 0 | 4 | Misaligned load address |
+|                | Interrupt | 1 | 16 | Fast interrupt #0 |
+|                | Interrupt | 1 | 17 | Fast interrupt #1 |
+|                | Interrupt | ... | ... | ... |
+|                | Interrupt | 1 | 32 | Fast interrupt #15 |
+|                | Interrupt | 1 | 11 | External interrupt |
+|                | Interrupt | 1 | 3 | Software interrupt |
+| lowest         | Interrupt | 1 | 7 | Timer interrupt |
+
+### Interrupt request handshake
+
+A device can request an interrupt by driving the corresponding **irq_\*** signal to logic `HIGH` and holding it `HIGH` until the request is accepted. The processor accepts the request by driving the **irq_\*_response** signal to logic `HIGH` for one clock cycle. The requesting device can drive the **irq_\*** signal to logic `LOW` in the clock cycle that follows the response, or keep it `HIGH` to make a new request.
+
+RISC-V Steel Processor Core provides 16 fast interrupt request lines and one additional line for each of the standard RISC-V interrupt types: external, timer, and software.
 
 The timing diagram below is an example of a valid interrupt request:
 
@@ -173,13 +212,9 @@ The timing diagram below is an example of a valid interrupt request:
   <figcaption><strong>Figure 3</strong> - Interrupt request timing diagram</figcaption>
 </figure>
 
-An interrupt request is accepted if:
+### Trap handling
 
-- the global interrupt enable bit is set (field **mie** in the **mstatus** CSR), and
-
-- the corresponding interrupt type is enabled (fields **meie**, **mtie** and **msie** in the **mie** CSR).
-
-The processor proceeds as follows when an interrupt request is accepted:
+The processor proceeds as follows when a trap is taken:
 
 - the execution of the current instruction is aborted.
 
@@ -187,25 +222,25 @@ The processor proceeds as follows when an interrupt request is accepted:
 
 - the program counter is set to the value of the **mtvec** CSR.
 
-- the **mcause** CSR is set to a value encoding the type of the interrupt.
+- the **mcause** CSR is set to a value encoding the type of the interrupt (see [Table 2](#table-2) above).
 
-- the global interrupt enable bit **mstatus.mie** is set to logic `LOW`, disabling new interrupts.
+- the current value of the global interrupt enable bit **mstatus.mie** is saved in **mstatus.mpie** (prior interrupt enable bit).
 
-- the prior interrupt enable bit **mstatus.mpie** is set to logic `HIGH`.
+- **mstatus.mie** is set to logic `LOW`, disabling new interrupts in case they were enabled.
 
-- the corresponding response signal (**irq_\*_response**) is set to logic `HIGH` for one clock cycle.
+- if the trap was caused by an interrupt, the corresponding response signal (**irq_\*_response**) is set to logic `HIGH` for one clock cycle.
 
-The **mtvec** CSR is set by software to the address of an interrupt handler routine, so the core branches from normal execution and starts the execution of the interrupt handler.
+The **mtvec** CSR is set by software to the address of a trap handler routine, so the core branches from normal execution and starts the execution of the trap handler.
 
-The **mret** instruction is used by software to return from the interrupt handler. When this instruction is executed the core proceeds as follows:
+The **mret** instruction is used by software to return from the trap handler. When this instruction is executed the core proceeds as follows:
 
 - the program counter is set to the value of the **mepc** CSR.
 
 - the global interrupt enable bit **mstatus.mie** receives the value saved in the **mstatus.mpie** bit.
 
-- the prior interrupt enable bit **mstatus.mpie** is set to logic `LOW`. 
+- the prior interrupt enable bit **mstatus.mpie** is set to logic `LOW`.
 
-The value in the **mepc** register is the address of the instruction aborted by the interrupt, so normal execution is resumed.
+The value in the **mepc** register holds the address of the instruction aborted when the trap was taken, so normal execution is resumed.
 
 ## Real time clock
 

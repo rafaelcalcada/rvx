@@ -1,0 +1,8 @@
+`verilator_config
+
+public_flat -module "rvsteel_soc.rvsteel_ram" -var "ram"
+public_flat_rd -module "rvsteel_soc" -var "CLOCK_FREQUENCY"
+public_flat_rd -module "rvsteel_soc" -var "MEMORY_SIZE"
+public_flat_rd -module "rvsteel_core" -var "rw_address"
+public_flat_rd -module "rvsteel_core" -var "write_request"
+public_flat_rd -module "rvsteel_core" -var "write_data"

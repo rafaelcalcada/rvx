@@ -1,28 +1,29 @@
-# RISC-V Steel System-on-Chip IP </br><small>Reference Guide</small>
+# RISC-V Steel System-on-Chip { class="main-section-title" }
+<h2 class="main-section-subtitle">Documentation</h2>
 
 ## Introduction
 
-RISC-V Steel SoC IP is a system-on-chip design with RISC-V Steel Processor Core, RAM memory and UART module. It comes with an [API for software development](software-guide.md#soc-ip-api-reference) that makes it easier for hardware engineers to develop and deploy RISC-V embedded applications.
+RISC-V Steel System-on-Chip expands the Processor Core IP by adding memory and UART modules to its design. It comes with a [Software API](api.md) that makes it easy to develop new RISC-V applications.
 
-In this Reference Guide you find information on the SoC IP hardware design. See the [Software Guide](software-guide.md) for instructions on how to write, compile and run software for the SoC IP.
+This page contains information about the SoC IP hardware design. Check out the [Software Guide](softwareguide.md) for instructions on how to write, compile and run software for the SoC IP.
 
 ## Design overview
 
 **Figure 1**{#figure-1} - RISC-V Steel SoC IP design overview
 
-![Image title](images/rvsteel-soc.svg)
+![Image title](images/rvsteel_soc.svg)
 
 ## Source files
 
 **Table 1** - RISC-V Steel SoC IP source files
 
-| Module name      | File                 | Location                |  Description                    |
-| ---------------- | -------------------- | ----------------------- |------------------------------ |
-| **rvsteel_soc**  | `rvsteel-soc.v`      | `riscv-steel/ip/` | Top module of RISC-V Steel SoC IP |
-| **rvsteel_core** | `rvsteel-core.v`     | `riscv-steel/ip/` | RISC-V Steel Processor Core              |
-| **ram_memory**   | `ram-memory.v`       | `riscv-steel/ip/` | RAM memory                     |
-| **uart**         | `uart.v`             | `riscv-steel/ip/` | UART                           |
-| **system_bus**   | `system-bus.v`       | `riscv-steel/ip/` | System Bus                     |
+| Module name      | Source file                    | Description                       |
+| ---------------- | ------------------------------ | --------------------------------- |
+| **rvsteel_soc**  | `hardware//soc/rvsteel_soc.v`  | Top module of RISC-V Steel SoC IP |
+| **rvsteel_core** | `hardware/core/rvsteel_core.v` | RISC-V Steel Processor Core       |
+| **rvsteel_ram**  | `hardware/ram/rvsteel_ram.v`   | RAM memory                        |
+| **rvsteel_uart** | `hardware/uart/rvsteel_uart.v` | UART                              |
+| **rvsteel_bus**  | `hardware/bus/rvsteel_bus.v`   | System Bus                        |
 
 ## I/O signals
 
@@ -32,12 +33,13 @@ In this Reference Guide you find information on the SoC IP hardware design. See 
 | -------------- | --------- | ----- | -------------------- |
 | **clock**      | Input     | 1 bit | Clock input.         |
 | **reset**      | Input     | 1 bit | Reset (active-high). |
+| **halt**       | Input     | 1 bit | Halts the processor core (active-high). |
 | **uart_rx**    | Input     | 1 bit | UART receiver pin. Must be connected to the transmitter (`TX`) pin of another UART device. |
 | **uart_tx**    | Output    | 1 bit | UART transmitter pin. Must be connected to the receiver (`RX`) pin of another UART device. |
 
 ## Memory Map
 
-In RISC-V systems, all devices share the processor address space and are mapped to an exclusive region in it (*Memory Mapped I/O*). 
+In RISC-V systems, all devices share the processor address space and are mapped to an exclusive region in it (*Memory Mapped I/O*).
 
 The memory region assigned to each device of RISC-V Steel SoC IP is listed in the table below.
 
@@ -70,7 +72,7 @@ An instantiation template for RISC-V Steel SoC IP top module is provided below.
 rvsteel_soc #(
 
   // Configuration parameters. For more information read the 'Configuration'
-  // section of RISC-V Steel SoC IP Reference Guide
+  // section of RISC-V Steel System-on-Chip Documentation
 
   .BOOT_ADDRESS             (),  // Default value: 32'h00000000
   .CLOCK_FREQUENCY          (),  // Default value: 50000000
@@ -81,49 +83,75 @@ rvsteel_soc #(
   rvsteel_soc_instance (
 
   // I/O signals. For more information read the 'I/O signals'
-  // section of RISC-V Steel SoC IP Reference Guide
+  // section of RISC-V Steel System-on-Chip Documentation
 
   .clock                    (),  // Connect this pin to a clock source
-  .reset                    (),  // Connect this pin to a reset switch/button. The reset is active-high.
-  .uart_rx                  (),  // Connect this to the TX pin of another UART device
-  .uart_tx                  ()   // Connect this to the RX pin of another UART device
+  .reset                    (),  // Connect this pin to a switch/button or hardwire it to 1'b0.
+  .halt                     (),  // Connect this pin to a switch/button or hardwire it to 1'b0.
+  .uart_rx                  (),  // Connect this pin to the TX pin of another UART device
+  .uart_tx                  ()   // Connect this pin to the RX pin of another UART device
 
 );
 ```
 
-## Adding devices
+## How to add new devices
 
-A new device can be added to the SoC IP by modifying the system bus module (`system-bus.v`) and the top module (`rvsteel-soc.v`). All modifications that need to be made were left as comments in the source code of these files.
-
-The parts that need to be uncommented follow the template:
+You can integrate a new device into the SoC IP design by making simple changes to its top module. The following lines of `rvsteel_soc.v` contain the parameters you need to change:
 
 ``` systemverilog
-  /* Uncomment to add new devices
+  // System bus configuration
 
-  ... code for adding the new device ...
+  localparam NUM_DEVICES    = 2;
+  localparam D0_RAM         = 0;
+  localparam D1_UART        = 1;
 
-  */
+  wire  [NUM_DEVICES*32-1:0] device_start_address;
+  wire  [NUM_DEVICES*32-1:0] device_region_size;
+
+  assign device_start_address [32*D0_RAM  +: 32]  = 32'h0000_0000;
+  assign device_region_size   [32*D0_RAM  +: 32]  = 8192;
+
+  assign device_start_address [32*D1_UART +: 32]  = 32'h8000_0000;
+  assign device_region_size   [32*D1_UART +: 32]  = 8;
 ```
 
-The new device will be assigned the memory region you define in the `DEVICEx_START_ADDRESS` and `DEVICEx_FINAL_ADDRESS` parameters. You can assign the device to any free region in the address space (see [Memory Map](#memory-map)).
+The `NUM_DEVICES` parameter holds the total number of devices in the system. Each device is assigned an index (`D0_RAM` and `D1_UART`). To accomodate your new device you need to increase `NUM_DEVICES` and assign it the next index, `2`, like this:
 
-## Components
+``` systemverilog
+  localparam NUM_DEVICES    = 3;
+  localparam D0_RAM         = 0;
+  localparam D1_UART        = 1;
+  localparam D2_NEW_DEVICE  = 2; // your new device
+```
 
-### RISC-V Steel Processor Core
+Next you have to assign your device a region in the processor's address space. You can assign it to any free region (see [Memory Map](#memory-map)). The region cannot overlap the address space of other devices and its size must be a power of 2. In the example below, the new device `D2_NEW_DEVICE` is assigned a 32KB region starting at `0x00008000`:
 
-RISC-V Steel Processor Core is the processing unit of RISC-V Steel SoC IP. Its design is quite large so it has its own [Reference Guide](core.md). Please check it out for more information.
+``` systemverilog
+  assign device_start_address [32*D2_NEW_DEVICE +: 32]  = 32'h0000_8000;
+  assign device_region_size   [32*D2_NEW_DEVICE +: 32]  = 32768;
+```
 
-### RAM memory
+Finally, you have to instantiate the new device in the `rvsteel_soc` module and connect it to the system bus interface. The Processor Core IP will issue read and write requests to your device as described in the [I/O Operations](core.md#io-operations) section of its [Documentation](core.md). A template for instantiating and connecting the new device to the system bus is provided below:
 
-RISC-V Steel SoC IP has a RAM memory tightly coupled to the processor core, with read/write latency of a single clock cycle. The memory size can be changed by adjusting the `MEMORY_SIZE` parameter (see [Configuration](#configuration)). 
+``` systemverilog
+  // Instantiate the new device in the rvsteel_soc.v module like this:
 
-### UART
+  new_device
+  new_device_instance (
 
-RISC-V Steel SoC IP has an UART module with configurable baud rate. The module works with 8 data bits, 1 stop bit, no parity bits and no flow control signals (most UARTs work the same way).
+    // I/O interface of the new device
 
-### System Bus
+    .new_device_rw_address      (device_rw_address                        ),
+    .new_device_read_data       (device_read_data[32*D2_NEW_DEVICE +: 32] ),
+    .new_device_read_request    (device_read_request[D2_NEW_DEVICE]       ),
+    .new_device_read_response   (device_read_response[D2_NEW_DEVICE]      ),
+    .new_device_write_data      (device_write_data                        ),
+    .new_device_write_strobe    (device_write_strobe                      ),
+    .new_device_write_request   (device_write_request[D2_NEW_DEVICE]      ),
+    .new_device_write_response  (device_write_response[D2_NEW_DEVICE]     )
 
-The system bus module interconnects RISC-V Steel Processor Core (manager device) to the UART and the RAM memory (subordinate devices) as shown in [Figure 1](#figure-1). The module multiplexes the signals from the processor's I/O interface to the appropriate subordinate device according to the address the processor requests.
+  );
+```
 
 </br>
 </br>

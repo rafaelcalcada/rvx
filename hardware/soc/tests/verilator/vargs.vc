@@ -1,0 +1,8 @@
+-I../../../../hardware/bus
+-I../../../../hardware/ram
+-I../../../../hardware/uart
+-I../../../../hardware/mtimer
+-I../../../../hardware/core
+-I../../../../hardware/soc
+-I../../../../hardware/gpio
+-I../../../../hardware/spi

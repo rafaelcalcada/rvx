@@ -1,0 +1,13 @@
+{signal: [
+  {name: 'clock', wave: 'P........'},
+  {},
+  ['Processor',
+  {name: 'rw_address', wave: '22..22x22', data: ['A0', 'A1', 'A2', 'A3', 'A4', 'A5']},
+  {name: 'read_request', wave: '1.....01.'}],
+  {},
+  ['Device',
+  {name: 'read_data', wave: 'x2xx222x2', data: ['mem[A0]', 'mem[A1]', 'mem[A2]', 'mem[A3]', 'mem[A4]']},
+  {name: 'read_response', wave: '010.1..01'}]
+],
+config: { hscale: 2 }
+}

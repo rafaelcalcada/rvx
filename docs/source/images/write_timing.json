@@ -1,0 +1,15 @@
+{signal: [
+  {name: 'clock', wave: 'P........'},
+  {},
+  ['Processor',
+  {name: 'rw_address', wave: '22..2x222', data: ['A0', 'A1', 'A2', 'A3','A4','A5']},
+  {name: 'write_data', wave: '22..2x222', data: ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']},
+  {name: 'write_strobe', wave: '22..2x222', data: ['4b\'0001', '4b\'0011', '4b\'1111', '4b\'0001', '4b\'1111', '4b\'0011']},
+  {name: 'write_request', wave: '1....01..'}],
+  {},
+  ['Device',
+  {name: 'write_response', wave: '010.1.01.'}],
+  {},
+],
+config: { hscale: 2 }
+}
