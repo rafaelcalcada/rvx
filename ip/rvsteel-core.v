@@ -59,6 +59,8 @@ module rvsteel_core #(
 
   // Interrupt signals (hardwire inputs to zero if unused)
 
+  input  wire           irq_device,
+  output wire           irq_device_response,
   input  wire           irq_external,
   output wire           irq_external_response,
   input  wire           irq_timer,
@@ -285,7 +287,8 @@ module rvsteel_core #(
   reg           csr_mie_msie;
   reg           csr_mie_mtie;  
   wire  [31:0]  csr_mip;
-  reg           csr_mip_meip;  
+  reg           csr_mip_meip;
+  reg           csr_mip_mdip;
   reg           csr_mip_mtip;  
   reg           csr_mip_msip;
   reg   [63:0]  csr_minstret;
@@ -1063,6 +1066,7 @@ module rvsteel_core #(
     current_state != STATE_OPERATING;
 
   assign interrupt_pending =
+    (csr_mie_meie & csr_mip_mdip) |
     (csr_mie_meie & csr_mip_meip) |
     (csr_mie_mtie & csr_mip_mtip) |
     (csr_mie_msie & csr_mip_msip);
@@ -1120,6 +1124,10 @@ module rvsteel_core #(
         program_counter_source = PC_NEXT;
     endcase
   end
+
+  assign irq_device_response =
+    (current_state    == STATE_TRAP_TAKEN) &&
+    (csr_mcause_code  == 4'b1111);
 
   assign irq_external_response =
     (current_state    == STATE_TRAP_TAKEN) &&
@@ -1256,7 +1264,9 @@ module rvsteel_core #(
   //---------------------------------------------------------------------------------------------//
 
   assign csr_mip = {
-    20'b0,
+    16'b0,
+    csr_mip_mdip,
+    3'b0,
     csr_mip_meip,
     3'b0,
     csr_mip_mtip,
@@ -1267,11 +1277,13 @@ module rvsteel_core #(
 
   always @(posedge clock) begin : mip_csr_fields_implementation
     if(reset_internal) begin
+      csr_mip_mdip <= 1'b0;
       csr_mip_meip <= 1'b0;
       csr_mip_mtip <= 1'b0;
       csr_mip_msip <= 1'b0;
     end
     else begin
+      csr_mip_mdip <= irq_device;
       csr_mip_meip <= irq_external;
       csr_mip_mtip <= irq_timer;
       csr_mip_msip <= irq_software;
@@ -1403,6 +1415,9 @@ module rvsteel_core #(
         csr_mcause_code           <= 4'b0100;
         csr_mcause_interrupt_flag <= 1'b0;
       end
+      else if(csr_mstatus_mie & csr_mie_meie & csr_mip_mdip) begin
+        csr_mcause_code           <= 4'b1111;
+        csr_mcause_interrupt_flag <= 1'b1;
       else if(csr_mstatus_mie & csr_mie_meie & csr_mip_meip) begin
         csr_mcause_code           <= 4'b1011;
         csr_mcause_interrupt_flag <= 1'b1;

@@ -71,6 +71,8 @@ module rvsteel_soc #(
 
   );
   
+  wire          irq_device;
+  wire          irq_device_response;
   wire          irq_external;
   wire          irq_external_response;
 
@@ -157,6 +159,8 @@ module rvsteel_soc #(
 
     // Interrupt signals (hardwire inputs to zero if unused)
 
+    .irq_device                     (irq_device                         ),
+    .irq_device_response            (irq_device_response                ),
     .irq_external                   (irq_external                       ),
     .irq_external_response          (irq_external_response              ),
     .irq_timer                      (0), // unused
@@ -356,6 +360,58 @@ module rvsteel_soc #(
 
     );
 
+  end else if (DEVICE2 == "FORTIMAC") begin : fortimac_gen
+
+    wire fortimac_irq;
+    reg fortimac_irq_ff, fortimac_irq_pending;
+    always @(posedge clock) begin
+      if (reset) begin
+        fortimac_irq_ff <= 1'b0;
+        fortimac_irq_pending <= 1'b0;
+      end else begin
+        fortimac_irq_ff <= fortimac_irq;
+        if (fortimac_irq & ~fortimac_irq_ff)
+          fortimac_irq_pending <= 1'b1;
+        else if (irq_device_response)
+          fortimac_irq_pending <= 1'b0;
+      end
+    end
+
+    assign irq_device = fortimac_irq_pending;
+
+    wire sha2_top_apb_psel, sha2_top_apb_penable, sha2_top_apb_pwrite, sha2_top_apb_pready;
+
+    assign sha2_top_apb_psel = device2_read_request | device2_write_request;
+    assign sha2_top_apb_penable = device2_read_request | device2_write_request;
+    assign sha2_top_apb_pwrite = device2_write_request;
+    assign device2_write_response = device2_write_request & sha2_top_apb_pready;
+    assign device2_read_response = device2_read_request & sha2_top_apb_pready;
+
+
+    sha2_top_apb #(
+        .FIQSHA_BUS_DATA_WIDTH(32)
+    ) i_sha2_top_apb (
+        .pclk(clock)
+      , .presetn(~reset)
+      , .paddr(device2_rw_address[11:0])
+      , .psel(sha2_top_apb_psel)
+      , .penable(sha2_top_apb_penable)
+      , .pwrite(sha2_top_apb_pwrite)
+      , .pwdata(device2_write_data)
+      , .pready(sha2_top_apb_pready)
+      , .prdata(device2_read_data)
+      , .pslverr()
+      // interrupt request
+      , .irq_o(fortimac_irq)
+      // extensions
+      , .aux_key_i('0)
+      , .random_for_rf_i('0)
+      , .random_for_data_i('0)
+      // DMA support
+      , .dma_wr_req_o()
+      , .dma_rd_req_o()
+    );
+
   end else begin : empty_dev_gen
 
     assign device2_read_data      = 32'b0;
@@ -363,6 +419,8 @@ module rvsteel_soc #(
     assign device2_write_response = 1'b0;
 
   end
+
+
 
   /* Uncomment to add new devices
 
