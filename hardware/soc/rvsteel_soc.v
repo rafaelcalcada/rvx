@@ -425,7 +425,7 @@ module rvsteel_soc #(
         fortimac_irq_pending <= 1'b0;
       end else begin
         fortimac_irq_ff <= fortimac_irq_net;
-        if (fortimac_irq & ~fortimac_irq_ff)
+        if (fortimac_irq_net & ~fortimac_irq_ff)
           fortimac_irq_pending <= 1'b1;
         else if (irq_fortimac_response)
           fortimac_irq_pending <= 1'b0;
