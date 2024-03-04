@@ -72,10 +72,10 @@ module rvsteel_soc #(
   assign device_region_size   [32*D4_SPI      +: 32]  = 32;
 
   assign device_start_address [32*D5_PKA      +: 32]  = 32'h8004_0000;
-  assign device_region_size   [32*D5_PKA      +: 32]  = 32;
+  assign device_region_size   [32*D5_PKA      +: 32]  = 65536;
 
   assign device_start_address [32*D6_FORTIMAC +: 32]  = 32'h8005_0000;
-  assign device_region_size   [32*D6_FORTIMAC +: 32]  = 32;
+  assign device_region_size   [32*D6_FORTIMAC +: 32]  = 65536;
 
   // RISC-V Steel 32-bit Processor (Manager Device) <=> System Bus
 
@@ -407,7 +407,7 @@ module rvsteel_soc #(
     );
   end else begin: pka_dummy_gen
   
-    assign device_read_data[32*D5_SPI +: 32] = 32'b0;
+    assign device_read_data[32*D5_PKA +: 32] = 32'b0;
     assign device_read_response[D5_PKA]  = 1'b0;
     assign device_write_response[D5_PKA] = 1'b0;
     
