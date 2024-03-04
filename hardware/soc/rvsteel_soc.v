@@ -467,9 +467,9 @@ module rvsteel_soc #(
 
   end else begin : fortimac_dummy_gen
 
-    assign device_read_data[32*D5_SPI +: 32] = 32'b0;
-    assign device_read_response[D5_PKA]  = 1'b0;
-    assign device_write_response[D5_PKA] = 1'b0;
+    assign device_read_data[32*D6_FORTIMAC +: 32] = 32'b0;
+    assign device_read_response[D6_FORTIMAC]  = 1'b0;
+    assign device_write_response[D6_FORTIMAC] = 1'b0;
     assign irq_fortimac = 1'b0;
 
   end
