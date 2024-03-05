@@ -458,7 +458,7 @@ module rvsteel_soc #(
       , .irq(fortimac_irq_net)
       // extensions
       , .aux_key_i('0)
-      , .random_for_rf_i('0)
+      , .random_for_rf_i('{default: '0})
       , .random_for_data_i('0)
       // DMA support
       , .dma_wr_req_o()
