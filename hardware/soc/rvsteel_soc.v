@@ -455,7 +455,7 @@ module rvsteel_soc #(
       , .prdata(device_read_data[32*D6_FORTIMAC +: 32])
       , .pslverr()
       // interrupt request
-      , .irq(fortimac_irq_net)
+      , .irq_o(fortimac_irq_net)
       // extensions
       , .aux_key_i('0)
       , .random_for_rf_i('{default: '0})
