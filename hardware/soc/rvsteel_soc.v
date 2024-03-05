@@ -23,7 +23,7 @@ module rvsteel_soc #(
   parameter NUM_CS_LINES = 1,
 
   parameter PKA_EN = 1,
-  parameter FORTIMAC_EN = 0
+  parameter FORTIMAC_EN = 1
 
   ) (
 
@@ -455,7 +455,7 @@ module rvsteel_soc #(
       , .prdata(device_read_data[32*D6_FORTIMAC +: 32])
       , .pslverr()
       // interrupt request
-      , .irq_o(fortimac_irq_net)
+      , .irq(fortimac_irq_net)
       // extensions
       , .aux_key_i('0)
       , .random_for_rf_i('0)
