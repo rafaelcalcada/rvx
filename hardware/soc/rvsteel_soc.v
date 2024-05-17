@@ -433,17 +433,31 @@ module rvsteel_soc #(
     end
 
     wire sha2_top_apb_psel, sha2_top_apb_pwrite, sha2_top_apb_pready;
-    reg sha2_top_apb_penable;
+    wire sha2_top_apb_penable;
+
+    typedef enum {IDLE, SEL, ENABLE} apb_fsm_t;
+    apb_fsm_t apb_fsm;
 
     always @(posedge clock or posedge reset)
       if (reset)
-        sha2_top_apb_penable <= 1'b0;
-      else if (sha2_top_apb_pready & sha2_top_apb_penable & sha2_top_apb_psel)
-        sha2_top_apb_penable <= 1'b0;
-      else if (sha2_top_apb_psel)
-        sha2_top_apb_penable <= 1'b1;
+        apb_fsm <= IDLE;
+      else case (apb_fsm)
+        IDLE:
+          if (device_read_request[D6_FORTIMAC] | device_write_request[D6_FORTIMAC])
+            apb_fsm <= SEL;
+        SEL:
+          apb_fsm <= ENABLE;
+        ENABLE:
+          if (sha2_top_apb_pready)
+            apb_fsm <= IDLE;
+        default:
+          apb_fsm <= IDLE;
+      endcase
 
-    assign sha2_top_apb_psel = device_read_request[D6_FORTIMAC] | device_write_request[D6_FORTIMAC];
+    assign sha2_top_apb_psel = apb_fsm == SEL || apb_fsm == ENABLE;
+    assign sha2_top_apb_penable = apb_fsm == ENABLE;
+
+    // assign sha2_top_apb_psel = device_read_request[D6_FORTIMAC] | device_write_request[D6_FORTIMAC];
     // assign sha2_top_apb_penable = device_read_request[D6_FORTIMAC] | device_write_request[D6_FORTIMAC];
     assign sha2_top_apb_pwrite = device_write_request[D6_FORTIMAC];
     assign device_read_response[D6_FORTIMAC]  = sha2_top_apb_pready;
