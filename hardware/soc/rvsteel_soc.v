@@ -446,8 +446,8 @@ module rvsteel_soc #(
     assign sha2_top_apb_psel = device_read_request[D6_FORTIMAC] | device_write_request[D6_FORTIMAC];
     // assign sha2_top_apb_penable = device_read_request[D6_FORTIMAC] | device_write_request[D6_FORTIMAC];
     assign sha2_top_apb_pwrite = device_write_request[D6_FORTIMAC];
-    assign device_read_response[D6_FORTIMAC]  = device_write_request[D6_FORTIMAC] & sha2_top_apb_pready;
-    assign device_write_response[D6_FORTIMAC] = device_read_request[D6_FORTIMAC] & sha2_top_apb_pready;
+    assign device_read_response[D6_FORTIMAC]  = device_read_request[D6_FORTIMAC] & sha2_top_apb_pready;
+    assign device_write_response[D6_FORTIMAC] = device_write_request[D6_FORTIMAC] & sha2_top_apb_pready;
       
     // assign device2_write_response = device_write_request[D6_FORTIMAC] & sha2_top_apb_pready;
     // assign device2_read_response = device_read_request[D6_FORTIMAC] & sha2_top_apb_pready;
