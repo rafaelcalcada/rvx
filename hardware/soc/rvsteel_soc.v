@@ -432,10 +432,19 @@ module rvsteel_soc #(
       end
     end
 
-    wire sha2_top_apb_psel, sha2_top_apb_penable, sha2_top_apb_pwrite, sha2_top_apb_pready;
+    wire sha2_top_apb_psel, sha2_top_apb_pwrite, sha2_top_apb_pready;
+    reg sha2_top_apb_penable;
+
+    always @(posedge clock or posedge reset)
+      if (reset)
+        sha2_top_apb_penable <= 1'b0;
+      else if (sha2_top_apb_pready & sha2_top_apb_penable & sha2_top_apb_psel)
+        sha2_top_apb_penable <= 1'b0;
+      else if (sha2_top_apb_psel)
+        sha2_top_apb_penable <= 1'b1;
 
     assign sha2_top_apb_psel = device_read_request[D6_FORTIMAC] | device_write_request[D6_FORTIMAC];
-    assign sha2_top_apb_penable = device_read_request[D6_FORTIMAC] | device_write_request[D6_FORTIMAC];
+    // assign sha2_top_apb_penable = device_read_request[D6_FORTIMAC] | device_write_request[D6_FORTIMAC];
     assign sha2_top_apb_pwrite = device_write_request[D6_FORTIMAC];
     assign device_read_response[D6_FORTIMAC]  = device_write_request[D6_FORTIMAC] & sha2_top_apb_pready;
     assign device_write_response[D6_FORTIMAC] = device_read_request[D6_FORTIMAC] & sha2_top_apb_pready;
