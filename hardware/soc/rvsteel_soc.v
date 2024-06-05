@@ -23,7 +23,8 @@ module rvsteel_soc #(
   parameter NUM_CS_LINES = 1,
 
   parameter PKA_EN = 1,
-  parameter FORTIMAC_EN = 1
+  parameter FORTIMAC_EN = 1,
+  parameter FORTICRYPT_EN = 1
 
   ) (
 
@@ -44,7 +45,7 @@ module rvsteel_soc #(
 
   // System bus configuration
 
-  localparam NUM_DEVICES    = 7;
+  localparam NUM_DEVICES    = 8;
   localparam D0_RAM         = 0;
   localparam D1_UART        = 1;
   localparam D2_MTIMER      = 2;
@@ -52,30 +53,34 @@ module rvsteel_soc #(
   localparam D4_SPI         = 4;
   localparam D5_PKA         = 5;
   localparam D6_FORTIMAC    = 6;
+  localparam D7_FORTICRYPT  = 7;
 
   wire  [NUM_DEVICES*32-1:0] device_start_address;
   wire  [NUM_DEVICES*32-1:0] device_region_size;
 
-  assign device_start_address [32*D0_RAM      +: 32]  = 32'h0000_0000;
-  assign device_region_size   [32*D0_RAM      +: 32]  = MEMORY_SIZE;
+  assign device_start_address [32*D0_RAM        +: 32] = 32'h0000_0000;
+  assign device_region_size   [32*D0_RAM        +: 32] = MEMORY_SIZE;
 
-  assign device_start_address [32*D1_UART     +: 32]  = 32'h8000_0000;
-  assign device_region_size   [32*D1_UART     +: 32]  = 8;
+  assign device_start_address [32*D1_UART       +: 32] = 32'h8000_0000;
+  assign device_region_size   [32*D1_UART       +: 32] = 8;
 
-  assign device_start_address [32*D2_MTIMER   +: 32]  = 32'h8001_0000;
-  assign device_region_size   [32*D2_MTIMER   +: 32]  = 32;
+  assign device_start_address [32*D2_MTIMER     +: 32] = 32'h8001_0000;
+  assign device_region_size   [32*D2_MTIMER     +: 32] = 32;
 
-  assign device_start_address [32*D3_GPIO     +: 32]  = 32'h8002_0000;
-  assign device_region_size   [32*D3_GPIO     +: 32]  = 32;
+  assign device_start_address [32*D3_GPIO       +: 32] = 32'h8002_0000;
+  assign device_region_size   [32*D3_GPIO       +: 32] = 32;
 
-  assign device_start_address [32*D4_SPI      +: 32]  = 32'h8003_0000;
-  assign device_region_size   [32*D4_SPI      +: 32]  = 32;
+  assign device_start_address [32*D4_SPI        +: 32] = 32'h8003_0000;
+  assign device_region_size   [32*D4_SPI        +: 32] = 32;
 
-  assign device_start_address [32*D5_PKA      +: 32]  = 32'h8004_0000;
-  assign device_region_size   [32*D5_PKA      +: 32]  = 65536;
+  assign device_start_address [32*D5_PKA        +: 32] = 32'h8004_0000;
+  assign device_region_size   [32*D5_PKA        +: 32] = 65536;
 
-  assign device_start_address [32*D6_FORTIMAC +: 32]  = 32'h8005_0000;
-  assign device_region_size   [32*D6_FORTIMAC +: 32]  = 65536;
+  assign device_start_address [32*D6_FORTIMAC   +: 32] = 32'h8005_0000;
+  assign device_region_size   [32*D6_FORTIMAC   +: 32] = 65536;
+
+  assign device_start_address [32*D7_FORTICRYPT +: 32] = 32'h8006_0000;
+  assign device_region_size   [32*D7_FORTICRYPT +: 32] = 65536;
 
   // RISC-V Steel 32-bit Processor (Manager Device) <=> System Bus
 
@@ -120,13 +125,18 @@ module rvsteel_soc #(
   wire         irq_uart;
   wire         irq_uart_response;
 
+  typedef enum {IDLE, SEL, ENABLE} apb_fsm_t;
+
   wire irq_fortimac;
   wire irq_fortimac_response;
+  wire irq_forticrypt;
+  wire irq_forticrypt_response;
 
   // Interrupt signals map
-  assign irq_fast               = {14'b0, irq_fortimac, irq_uart}; // Give UART interrupts the highest priority
+  assign irq_fast               = {13'b0, irq_forticrypt, irq_fortimac, irq_uart}; // Give UART interrupts the highest priority
   assign irq_uart_response      = irq_fast_response[0];
   assign irq_fortimac_response  = irq_fast_response[1];
+  assign irq_forticrypt_response  = irq_fast_response[2];
 
   assign irq_external           = 1'b0; // unused
   assign irq_software           = 1'b0; // unused
@@ -435,7 +445,6 @@ module rvsteel_soc #(
     wire sha2_top_apb_psel, sha2_top_apb_pwrite, sha2_top_apb_pready;
     wire sha2_top_apb_penable;
 
-    typedef enum {IDLE, SEL, ENABLE} apb_fsm_t;
     apb_fsm_t apb_fsm;
 
     always @(posedge clock or posedge reset)
@@ -499,6 +508,104 @@ module rvsteel_soc #(
 
   end
 
+  if (FORTICRYPT_EN) begin : forticrypt_gen
+
+    `include "defines.v"
+
+    wire forticrypt_irq_net;
+    reg forticrypt_irq_ff, forticrypt_irq_pending;
+    assign irq_forticrypt = forticrypt_irq_pending;
+
+    always @(posedge clock) begin
+      if (reset) begin
+        forticrypt_irq_ff <= 1'b0;
+        forticrypt_irq_pending <= 1'b0;
+      end else begin
+        forticrypt_irq_ff <= forticrypt_irq_net;
+        if (forticrypt_irq_net & ~forticrypt_irq_ff)
+          forticrypt_irq_pending <= 1'b1;
+        else if (irq_forticrypt_response)
+          forticrypt_irq_pending <= 1'b0;
+      end
+    end
+
+    wire forticrypt_top_apb_psel, forticrypt_top_apb_pwrite, forticrypt_top_apb_pready;
+    wire forticrypt_top_apb_penable;
+
+    apb_fsm_t forticrypt_apb_fsm;
+
+    always @(posedge clock or posedge reset)
+      if (reset)
+        forticrypt_apb_fsm <= IDLE;
+      else case (forticrypt_apb_fsm)
+        IDLE:
+          if (device_read_request[D7_FORTICRYPT] | device_write_request[D7_FORTICRYPT])
+            forticrypt_apb_fsm <= SEL;
+        SEL:
+          forticrypt_apb_fsm <= ENABLE;
+        ENABLE:
+          if (forticrypt_top_apb_pready)
+            forticrypt_apb_fsm <= IDLE;
+        default:
+          forticrypt_apb_fsm <= IDLE;
+      endcase
+
+    assign forticrypt_top_apb_psel = forticrypt_apb_fsm == SEL || forticrypt_apb_fsm == ENABLE;
+    assign forticrypt_top_apb_penable = forticrypt_apb_fsm == ENABLE;
+
+    // assign forticrypt_top_apb_psel = device_read_request[D7_FORTICRYPT] | device_write_request[D7_FORTICRYPT];
+    // assign forticrypt_top_apb_penable = device_read_request[D7_FORTICRYPT] | device_write_request[D7_FORTICRYPT];
+    assign forticrypt_top_apb_pwrite = device_write_request[D7_FORTICRYPT];
+    assign device_read_response[D7_FORTICRYPT]  = forticrypt_top_apb_pready;
+    assign device_write_response[D7_FORTICRYPT] = forticrypt_top_apb_pready;
+      
+    // assign device2_write_response = device_write_request[D7_FORTICRYPT] & forticrypt_top_apb_pready;
+    // assign device2_read_response = device_read_request[D7_FORTICRYPT] & forticrypt_top_apb_pready;
+
+    localparam [127:0] aux_key = {8'h2b,8'h7e,8'h15,8'h16,8'h28,8'hae,8'hd2,8'ha6,8'hab,8'hf7,8'h15,8'h88,8'h09,8'hcf,8'h4f,8'h3c};
+    function logic [127:0] swap_bytes_128 (input [127:0] x);
+      for (int i = 0; i < 16; i++)
+        swap_bytes_128[i*8+:8] = x[(15-i)*8+:8];
+    endfunction
+
+    aes_moo_apb #(
+        .D_WIDTH(`FIQAES_BUS_DATA_WIDTH)
+      , .IFIFO_SIZE(`FIQAES_FIFO_SIZE)
+      , .OFIFO_SIZE(`FIQAES_FIFO_SIZE)
+      , .AUX_KEY_INPUT_EN(1)
+    ) u_aes_moo_apb (
+        .pclk(clock)
+      , .presetn(~reset)
+      , .paddr(device_rw_address[11:0])
+      , .psel(forticrypt_top_apb_psel)
+      , .penable(forticrypt_top_apb_penable)
+      , .pwrite(forticrypt_top_apb_pwrite)
+      , .pwdata(device_write_data)
+      , .pstrb('1)
+      , .pready(forticrypt_top_apb_pready)
+      , .prdata(device_read_data[32*D7_FORTICRYPT +: 32])
+      , .pslverr()
+      , .irq_o(forticrypt_irq_net)
+      // extensions
+      , .aux_key(swap_bytes_128(aux_key))
+    `ifdef FIQAES_SHARES_ENABLE
+      , .aux_key_share2('0)
+    `endif
+      , .rand_i('0)
+      // DMA support
+      , .dma_wr_req_o()
+      , .dma_rd_req_o()
+    );
+
+  end else begin : forticrypt_dummy_gen
+
+    assign device_read_data[32*D7_FORTICRYPT +: 32] = 32'b0;
+    assign device_read_response[D7_FORTICRYPT]  = 1'b0;
+    assign device_write_response[D7_FORTICRYPT] = 1'b0;
+    assign irq_forticrypt = 1'b0;
+
+  end
+
 
   // Avoid warnings about intentionally unused pins/wires
   wire unused_ok =
@@ -508,7 +615,7 @@ module rvsteel_soc #(
     irq_external_response,
     irq_software_response,
     irq_timer_response,
-    irq_fast_response[15:(FORTIMAC_EN ? 2 : 1)],
-    FORTIMAC_EN ? 2'b0 : 1'b0};
+    irq_fast_response[15:1 + (FORTIMAC_EN ? 1 : 0) + (FORTICRYPT_EN ? 1 : 0)],
+    {(1 + (FORTIMAC_EN ? 1 : 0) + (FORTICRYPT_EN ? 1 : 0)){1'b0}}};
 
 endmodule
