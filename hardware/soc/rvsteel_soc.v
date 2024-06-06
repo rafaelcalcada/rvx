@@ -585,7 +585,7 @@ module rvsteel_soc #(
       , .pready(forticrypt_top_apb_pready)
       , .prdata(device_read_data[32*D7_FORTICRYPT +: 32])
       , .pslverr()
-      , .irq_o(forticrypt_irq_net)
+      , .irq(forticrypt_irq_net)
       // extensions
       , .aux_key(swap_bytes_128(aux_key))
     `ifdef FIQAES_SHARES_ENABLE
