@@ -510,7 +510,7 @@ module rvsteel_soc #(
 
   if (FORTICRYPT_EN) begin : forticrypt_gen
 
-    `include "defines.v"
+    // `include "defines.v"
 
     wire forticrypt_irq_net;
     reg forticrypt_irq_ff, forticrypt_irq_pending;
@@ -569,9 +569,9 @@ module rvsteel_soc #(
     endfunction
 
     aes_moo_apb #(
-        .D_WIDTH(`FIQAES_BUS_DATA_WIDTH)
-      , .IFIFO_SIZE(`FIQAES_FIFO_SIZE)
-      , .OFIFO_SIZE(`FIQAES_FIFO_SIZE)
+        .D_WIDTH(32)
+      , .IFIFO_SIZE(4)
+      , .OFIFO_SIZE(4)
       , .AUX_KEY_INPUT_EN(1)
     ) u_aes_moo_apb (
         .pclk(clock)
