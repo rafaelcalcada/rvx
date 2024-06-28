@@ -556,8 +556,8 @@ module rvsteel_soc #(
     // assign forticrypt_top_apb_psel = device_read_request[D7_FORTICRYPT] | device_write_request[D7_FORTICRYPT];
     // assign forticrypt_top_apb_penable = device_read_request[D7_FORTICRYPT] | device_write_request[D7_FORTICRYPT];
     assign forticrypt_top_apb_pwrite = device_write_request[D7_FORTICRYPT];
-    assign device_read_response[D7_FORTICRYPT]  = forticrypt_top_apb_pready;
-    assign device_write_response[D7_FORTICRYPT] = forticrypt_top_apb_pready;
+    assign device_read_response[D7_FORTICRYPT]  = forticrypt_top_apb_pready && forticrypt_top_apb_penable;
+    assign device_write_response[D7_FORTICRYPT] = forticrypt_top_apb_pready && forticrypt_top_apb_penable;
       
     // assign device2_write_response = device_write_request[D7_FORTICRYPT] & forticrypt_top_apb_pready;
     // assign device2_read_response = device_read_request[D7_FORTICRYPT] & forticrypt_top_apb_pready;
