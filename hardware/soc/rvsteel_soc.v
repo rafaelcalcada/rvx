@@ -392,7 +392,7 @@ module rvsteel_soc #(
     assign device_read_response[D5_PKA]  = pka_read_responce;
     assign device_write_response[D5_PKA] = pka_write_responce;
 
-    pka_top
+    pka_top_native
     pka_top_inst (
 
       // Global clock and active-low reset
@@ -402,17 +402,18 @@ module rvsteel_soc #(
 
       // Interface to host
 
-      .data_i                         (device_write_data                  ),
-      .address_i                      (device_rw_address                  ),
-      .cs_i                           (pka_cs                             ),
-      .wr_i                           (pka_wr                             ),
-      .data_o                         (device_read_data[32*D5_PKA +: 32]  ),
+      .host_wdata_i                   (device_write_data                  ),
+      .host_addr_i                    (device_rw_address                  ),
+      .host_cs_i                      (pka_cs                             ),
+      .host_wr_i                      (pka_wr                             ),
+      .host_rdata_o                   (device_read_data[32*D5_PKA +: 32]  ),
+      .host_access_err_o              (                                   ),
 
       // Pseudorandom data input
 
-      .prnd_valid_i                   (1'b1                               ),
-      .prnd_ready_o                   (                                   ),
-      .prnd_data_i                    (50'b0                              )
+      .scr_key_valid_i                (1'b1                               ),
+      .scr_key_ready_o                (                                   ),
+      .scr_key_data_i                 (50'b0                              )
 
     );
   end else begin: pka_dummy_gen
