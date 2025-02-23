@@ -97,7 +97,7 @@ project(${APP_NAME} LANGUAGES C CXX ASM)
 include(FetchContent)
 
 FetchContent_Declare(steel
-  GIT_REPOSITORY https://github.com/riscv-steel/libsteel.git
+  GIT_REPOSITORY https://github.com/rafaelcalcada/libsteel.git
   GIT_TAG v2.0
 )
 

@@ -15,7 +15,7 @@ Additionally, you need to have the [RISC-V GNU Toolchain](https://github.com/ris
 Run the commands below to build the FreeRTOS example:
 
 ```bash title="1. Clone RISC-V Steel repository"
-git clone https://github.com/riscv-steel/riscv-steel
+git clone https://github.com/rafaelcalcada/riscv-steel
 ```
 
 ```bash title="2. Build the software for the FreeRTOS example"

@@ -28,5 +28,5 @@ You can contribute to RISC-V Steel in two ways:
 
   Document your new functionality.
 
-[docs]: https://riscv-steel.github.io/riscv-steel/
-[new issue]: https://github.com/riscv-steel/riscv-steel/issues/new
+[docs]: https://rafaelcalcada.github.io/riscv-steel/
+[new issue]: https://github.com/rafaelcalcada/riscv-steel/issues/new

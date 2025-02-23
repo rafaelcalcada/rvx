@@ -31,7 +31,7 @@ A top-level view of RISC-V Steel architecture is presented in the diagram below.
 
 ## Source Files
 
-The source files of RISC-V Steel are saved in the `hardware/` folder of its [GitHub repository](https://github.com/riscv-steel/riscv-steel).
+The source files of RISC-V Steel are saved in the `hardware/` folder of its [GitHub repository](https://github.com/rafaelcalcada/riscv-steel).
 
 ## Configuration
 

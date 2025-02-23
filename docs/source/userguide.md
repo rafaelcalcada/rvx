@@ -76,7 +76,7 @@ Both templates include a `main.c` file where you place the source code for the n
 To start a new application, follow the steps below.
 
 ```title="1. Clone RISC-V Steel repository"
-git clone https://github.com/riscv-steel/riscv-steel
+git clone https://github.com/rafaelcalcada/riscv-steel
 ```
 
 === "Bare-metal"
