@@ -569,12 +569,7 @@ module rvsteel_soc #(
         swap_bytes_128[i*8+:8] = x[(15-i)*8+:8];
     endfunction
 
-    aes_moo_apb #(
-        .D_WIDTH(32)
-      , .IFIFO_SIZE(4)
-      , .OFIFO_SIZE(4)
-      , .AUX_KEY_INPUT_EN(1)
-    ) u_aes_moo_apb (
+    aes_moo_apb u_aes_moo_apb (
         .pclk(clock)
       , .presetn(~reset)
       , .paddr(device_rw_address[11:0])
