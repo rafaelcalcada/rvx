@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="RISC-V Steel is a free and open collection of RISC-V IP that is simple, robust and easy to use.">
+        <meta name="description" content="RVX is a microcontroller IP core developed in Verilog that implements the RV32I instruction set of RISC-V.">
       
       
         <meta name="author" content="Rafael Calcada">
@@ -17,12 +17,12 @@
       
       
       
-      <link rel="icon" href="../../images/rvsteel_logo_circle.svg">
+      <link rel="icon" href="../../images/rvx_logo.svg">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
-        <title>FreeRTOS - RISC-V Steel Documentation</title>
+        <title>FreeRTOS - RVX Documentation</title>
       
     
     
@@ -72,8 +72,6 @@
   
     
     
-      
-    
     
     
     
@@ -100,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="RISC-V Steel Documentation" class="md-header__button md-logo" aria-label="RISC-V Steel Documentation" data-md-component="logo">
+    <a href="../.." title="RVX Documentation" class="md-header__button md-logo" aria-label="RVX Documentation" data-md-component="logo">
       
-  <img src="../../images/rvsteel_logo_circle.svg" alt="logo">
+  <img src="../../images/rvx_logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +111,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            RISC-V Steel Documentation
+            RVX Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -127,33 +125,7 @@
     </div>
     
       
-        <form class="md-header__option" data-md-component="palette">
-  
     
-    
-    
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
-      </label>
-    
-  
-</form>
-      
-    
-    
-      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
@@ -196,7 +168,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/riscv-steel/riscv-steel" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/rafaelcalcada/rvx" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -314,16 +286,16 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="RISC-V Steel Documentation" class="md-nav__button md-logo" aria-label="RISC-V Steel Documentation" data-md-component="logo">
+    <a href="../.." title="RVX Documentation" class="md-nav__button md-logo" aria-label="RVX Documentation" data-md-component="logo">
       
-  <img src="../../images/rvsteel_logo_circle.svg" alt="logo">
+  <img src="../../images/rvx_logo.svg" alt="logo">
 
     </a>
-    RISC-V Steel Documentation
+    RVX Documentation
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/riscv-steel/riscv-steel" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/rafaelcalcada/rvx" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -712,15 +684,15 @@
 
 <h1 id="freertos-example">FreeRTOS Example</h1>
 <h2 id="introduction">Introduction</h2>
-<p>The FreeRTOS example is a more sophisticated application that runs on top of <a href="https://www.freertos.org/">FreeRTOS</a>, an open-source real-time operating system. The application uses the GPIO controller of RISC-V Steel to make 2 LEDs blink in a specific pattern with the help of FreeRTOS task scheduler.</p>
+<p>The FreeRTOS example is a more sophisticated application that runs on top of <a href="https://www.freertos.org/">FreeRTOS</a>, an open-source real-time operating system. The application uses the GPIO controller of RVX to make 2 LEDs blink in a specific pattern with the help of FreeRTOS task scheduler.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <p>To run this example you need an FPGA board with at least 2 LEDs and 32KB of Block RAM.</p>
 <p>Additionally, you need to have the <a href="https://github.com/riscv-collab/riscv-gnu-toolchain">RISC-V GNU Toolchain</a> installed on your machine to build the example. You can find instructions on how to install the RISC-V GNU Toolchain in the <a href="../../userguide/#prerequisites">User Guide</a>.</p>
 <h2 id="building-the-example">Building the example</h2>
 <p>Run the commands below to build the FreeRTOS example:</p>
-<div class="language-bash highlight"><span class="filename">1. Clone RISC-V Steel repository</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/riscv-steel/riscv-steel
+<div class="language-bash highlight"><span class="filename">1. Clone RVX repository</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/rafaelcalcada/rvx
 </span></code></pre></div>
-<div class="language-bash highlight"><span class="filename">2. Build the software for the FreeRTOS example</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>riscv-steel/examples/freertos/software
+<div class="language-bash highlight"><span class="filename">2. Build the software for the FreeRTOS example</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>rvx/examples/freertos/software
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>make<span class="w"> </span><span class="nv">PREFIX</span><span class="o">=</span>/opt/riscv<span class="w"> </span><span class="nv">CLOCK_FREQUENCY</span><span class="o">=</span>&lt;freq_in_hertz&gt;
 </span></code></pre></div>
 <p>The <code>PREFIX</code> variable must specify the folder where the <a href="../../userguide/#prerequisites">RISC-V GNU Toolchain</a> is installed. You also need to set the <code>CLOCK_FREQUENCY</code> variable to match the clock frequency of the FPGA board where the application will run.</p>
@@ -733,7 +705,7 @@
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>      text       data        bss      total filename
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>     14092        304       9196      23592 freertos.elf
 </span></code></pre></div>
-<p>The <code>freertos.hex</code> file generated by the build process will be used in the next step to initialize the memory of RISC-V Steel.</p>
+<p>The <code>freertos.hex</code> file generated by the build process will be used in the next step to initialize the memory of RVX.</p>
 <h2 id="implementing-on-an-fpga">Implementing on an FPGA</h2>
 <h4>Creating the FreeRTOS module</h4>
 
@@ -760,7 +732,7 @@
 </span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">    </span><span class="n">reset_debounced</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">reset</span><span class="p">;</span>
 </span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">  </span><span class="n">rvsteel</span><span class="w"> </span><span class="p">#(</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">  </span><span class="n">rvx</span><span class="w"> </span><span class="p">#(</span>
 </span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>
 </span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">  </span><span class="c1">// Please adjust these parameters accordingly</span>
 </span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">  </span><span class="p">.</span><span class="n">CLOCK_FREQUENCY</span><span class="w">          </span><span class="p">(</span><span class="mh">50000000</span><span class="w">                   </span><span class="p">),</span>
@@ -768,7 +740,7 @@
 </span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">  </span><span class="p">.</span><span class="n">MEMORY_INIT_FILE</span><span class="w">         </span><span class="p">(</span><span class="s">&quot;/path/to/freertos.hex&quot;</span><span class="w">    </span><span class="p">),</span>
 </span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">  </span><span class="p">.</span><span class="n">GPIO_WIDTH</span><span class="w">               </span><span class="p">(</span><span class="n">GPIO_WIDTH</span><span class="w">                 </span><span class="p">)</span>
 </span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>
-</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="n">rvsteel_instance</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="n">rvx_instance</span><span class="w"> </span><span class="p">(</span>
 </span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>
 </span><span id="__span-3-29"><a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="w">  </span><span class="p">.</span><span class="n">clock</span><span class="w">                    </span><span class="p">(</span><span class="n">clock</span><span class="w">                      </span><span class="p">),</span>
 </span><span id="__span-3-30"><a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="w">  </span><span class="p">.</span><span class="n">reset</span><span class="w">                    </span><span class="p">(</span><span class="n">reset_debounced</span><span class="w">            </span><span class="p">),</span>
@@ -798,7 +770,7 @@
 <p>Open the EDA tool provided by your FPGA vendor (e.g., AMD Vivado, Intel Quartus, Lattice iCEcube).</p>
 </li>
 <li>
-<p>Include <code>freertos.v</code> to the project and all files in the <code>hardware/</code> folder of RISC-V Steel repository.</p>
+<p>Include <code>freertos.v</code> to the project and all files in the <code>hardware/</code> folder of RVX repository.</p>
 </li>
 <li>
 <p>Create a design constraints file and map the ports of <code>freertos.v</code> to the corresponding devices on the FPGA board.</p>
@@ -881,7 +853,7 @@
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright (c) RISC-V Steel contributors
+      Copyright (c) RVX contributors
     </div>
   
   

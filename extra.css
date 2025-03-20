@@ -2,7 +2,7 @@
   color: var(--md-default-fg-color);
 }
 
-tr:has(.rvsteel-core-io-table) {
+tr:has(.rvx-core-io-table) {
   background-color: #f5f5f5;
 }
 
@@ -26,6 +26,12 @@ tr:has(.rvsteel-core-io-table) {
   overflow: hidden;
   padding: 0 0.6rem;
   text-overflow: ellipsis;
+}
+
+@media (min-width: 1600px) {
+  .md-header__title {
+      line-height: 2.5rem;
+  }
 }
 
 .md-nav__item--section>.md-nav__link[for] {

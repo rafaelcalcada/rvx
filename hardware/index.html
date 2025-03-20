@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="RISC-V Steel is a free and open collection of RISC-V IP that is simple, robust and easy to use.">
+        <meta name="description" content="RVX is a microcontroller IP core developed in Verilog that implements the RV32I instruction set of RISC-V.">
       
       
         <meta name="author" content="Rafael Calcada">
@@ -19,12 +19,12 @@
         <link rel="next" href="../examples/helloworld/">
       
       
-      <link rel="icon" href="../images/rvsteel_logo_circle.svg">
+      <link rel="icon" href="../images/rvx_logo.svg">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
-        <title>Hardware Docs - RISC-V Steel Documentation</title>
+        <title>Hardware Docs - RVX Documentation</title>
       
     
     
@@ -74,8 +74,6 @@
   
     
     
-      
-    
     
     
     
@@ -88,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#risc-v-steel-hardware-docs" class="md-skip">
+        <a href="#rvx-hardware-docs" class="md-skip">
           Skip to content
         </a>
       
@@ -102,9 +100,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="RISC-V Steel Documentation" class="md-header__button md-logo" aria-label="RISC-V Steel Documentation" data-md-component="logo">
+    <a href=".." title="RVX Documentation" class="md-header__button md-logo" aria-label="RVX Documentation" data-md-component="logo">
       
-  <img src="../images/rvsteel_logo_circle.svg" alt="logo">
+  <img src="../images/rvx_logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,7 +113,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            RISC-V Steel Documentation
+            RVX Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -129,33 +127,7 @@
     </div>
     
       
-        <form class="md-header__option" data-md-component="palette">
-  
     
-    
-    
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
-      </label>
-    
-  
-</form>
-      
-    
-    
-      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
@@ -198,7 +170,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/riscv-steel/riscv-steel" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/rafaelcalcada/rvx" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -318,16 +290,16 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="RISC-V Steel Documentation" class="md-nav__button md-logo" aria-label="RISC-V Steel Documentation" data-md-component="logo">
+    <a href=".." title="RVX Documentation" class="md-nav__button md-logo" aria-label="RVX Documentation" data-md-component="logo">
       
-  <img src="../images/rvsteel_logo_circle.svg" alt="logo">
+  <img src="../images/rvx_logo.svg" alt="logo">
 
     </a>
-    RISC-V Steel Documentation
+    RVX Documentation
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/riscv-steel/riscv-steel" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/rafaelcalcada/rvx" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -683,28 +655,28 @@
   
 
 
-<h1 id="risc-v-steel-hardware-docs">RISC-V Steel Hardware Docs</h1>
+<h1 id="rvx-hardware-docs">RVX Hardware Docs</h1>
 <h2 id="introduction">Introduction</h2>
-<p>RISC-V Steel is a microcontroller design developed in Verilog that implements the RV32I instruction set of RISC-V. It is designed for easy, seamless integration into embedded systems, systems-on-chip (SoC), and FPGA designs, facilitating the rapid development of innovative RISC-V applications.</p>
-<p>RISC-V Steel can run real-time operating systems such as FreeRTOS, as well as bare-metal embedded software. Its design includes components such as memory, timers, and interfaces for UART, GPIO, and SPI communication, enabling RISC-V Steel to integrate with a variety of sensors and actuators commonly used in embedded applications.</p>
-<p>For information on how to develop new applications with RISC-V Steel, see the <a href="../userguide/">User Guide</a>.</p>
-<p>RISC-V Steel implements the following features of the RISC-V specifications:</p>
+<p>RVX is a microcontroller IP core developed in Verilog that implements the RV32I instruction set of RISC-V. It is designed for easy, seamless integration into embedded systems and FPGA designs, facilitating the rapid development of innovative RISC-V applications.</p>
+<p>RVX can run real-time operating systems such as FreeRTOS, as well as bare-metal embedded software. Its design includes components such as memory, timers, and interfaces for UART, GPIO, and SPI communication, enabling RVX to integrate with a variety of sensors and actuators commonly used in embedded applications.</p>
+<p>For information on how to develop a new application with RVX, see the <a href="../userguide/">User Guide</a>.</p>
+<p>RVX implements the following features of the RISC-V specifications:</p>
 <ul>
 <li>the RV32I Base Integer Instruction Set, <code>v2.1</code></li>
 <li>the Zicsr Extension for Control and Status Register (CSR) Instructions, <code>v2.0</code></li>
 <li>the Machine-Level ISA, <code>v1.13</code></li>
 </ul>
 <h2 id="architecture">Architecture</h2>
-<p>A top-level view of RISC-V Steel architecture is presented in the diagram below.</p>
+<p>A top-level view of RVX architecture is presented in the diagram below.</p>
 <p></br></p>
 <figure>
-<img alt="Image title" src="../images/rvsteel_architecture.svg" width="70%" />
-<figcaption><strong>Figure 1.</strong> RISC-V Steel Architecture</figcaption>
+<img alt="Image title" src="../images/rvx_architecture.svg" width="70%" />
+<figcaption><strong>Figure 1.</strong> RVX Architecture</figcaption>
 </figure>
 <h2 id="source-files">Source Files</h2>
-<p>The source files of RISC-V Steel are saved in the <code>hardware/</code> folder of its <a href="https://github.com/riscv-steel/riscv-steel">GitHub repository</a>.</p>
+<p>The source files of RVX are saved in the <code>hardware/</code> folder of its <a href="https://github.com/rafaelcalcada/rvx">repository</a>.</p>
 <h2 id="configuration">Configuration</h2>
-<p>The table below lists the configuration parameters of RISC-V Steel Top Module, <code>rvsteel.v</code>:</p>
+<p>The table below lists the configuration parameters of RVX Top Module, <code>rvx.v</code>:</p>
 <table>
 <thead>
 <tr>
@@ -752,7 +724,7 @@
 </tbody>
 </table>
 <h2 id="io-signals">I/O Signals</h2>
-<p>The input/output signals of RISC-V Steel Top Module, <code>rvsteel.v</code>, are listed in the table below:</p>
+<p>The input/output signals of RVX Top Module, <code>rvx.v</code>, are listed in the table below:</p>
 <table>
 <thead>
 <tr>
@@ -825,7 +797,7 @@
 </tbody>
 </table>
 <h2 id="memory-map">Memory Map</h2>
-<p>The devices in RISC-V Steel are mapped to memory addresses as detailed below:</p>
+<p>The devices in RVX are mapped to memory addresses as detailed below:</p>
 <table>
 <thead>
 <tr>
@@ -906,7 +878,7 @@
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright (c) RISC-V Steel contributors
+      Copyright (c) RVX contributors
     </div>
   
   

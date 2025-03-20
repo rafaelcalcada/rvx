@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="RISC-V Steel is a free and open collection of RISC-V IP that is simple, robust and easy to use.">
+        <meta name="description" content="RVX is a microcontroller IP core developed in Verilog that implements the RV32I instruction set of RISC-V.">
       
       
         <meta name="author" content="Rafael Calcada">
@@ -19,12 +19,12 @@
         <link rel="next" href="../hardware/">
       
       
-      <link rel="icon" href="../images/rvsteel_logo_circle.svg">
+      <link rel="icon" href="../images/rvx_logo.svg">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
     
     
       
-        <title>User Guide - RISC-V Steel Documentation</title>
+        <title>User Guide - RVX Documentation</title>
       
     
     
@@ -74,8 +74,6 @@
   
     
     
-      
-    
     
     
     
@@ -102,9 +100,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="RISC-V Steel Documentation" class="md-header__button md-logo" aria-label="RISC-V Steel Documentation" data-md-component="logo">
+    <a href=".." title="RVX Documentation" class="md-header__button md-logo" aria-label="RVX Documentation" data-md-component="logo">
       
-  <img src="../images/rvsteel_logo_circle.svg" alt="logo">
+  <img src="../images/rvx_logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,7 +113,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            RISC-V Steel Documentation
+            RVX Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -129,33 +127,7 @@
     </div>
     
       
-        <form class="md-header__option" data-md-component="palette">
-  
     
-    
-    
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
-      </label>
-    
-  
-</form>
-      
-    
-    
-      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
@@ -198,7 +170,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/riscv-steel/riscv-steel" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/rafaelcalcada/rvx" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -318,16 +290,16 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="RISC-V Steel Documentation" class="md-nav__button md-logo" aria-label="RISC-V Steel Documentation" data-md-component="logo">
+    <a href=".." title="RVX Documentation" class="md-nav__button md-logo" aria-label="RVX Documentation" data-md-component="logo">
       
-  <img src="../images/rvsteel_logo_circle.svg" alt="logo">
+  <img src="../images/rvx_logo.svg" alt="logo">
 
     </a>
-    RISC-V Steel Documentation
+    RVX Documentation
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/riscv-steel/riscv-steel" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/rafaelcalcada/rvx" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -644,20 +616,20 @@
   <h1>User Guide</h1>
 
 <h2 id="introduction">Introduction</h2>
-<p>The process of developing a new application with RISC-V Steel involves two main steps:</p>
+<p>The process of developing a new application with RVX involves two main steps:</p>
 <ol>
 <li>
 <p>Building the application</p>
-<p>The first step is to write the source code for the new application and build it with the <a href="https://github.com/riscv/riscv-gnu-toolchain">RISC-V GNU Toolchain</a>. The build process generates a <code>.hex</code> file that is later used to initialize the memory of RISC-V Steel.</p>
+<p>The first step is to write the source code for the new application and build it with the <a href="https://github.com/riscv/riscv-gnu-toolchain">RISC-V GNU Toolchain</a>. The build process generates a <code>.hex</code> file that is later used to initialize the memory of RVX.</p>
 </li>
 <li>
 <p>Running on an FPGA</p>
-<p>Once you have built the application, you can run it on RISC-V Steel. To do this, you need to implement an instance of RISC-V Steel on an FPGA and initialize it with the <code>.hex</code> file generated in the first step.</p>
+<p>Once you have built the application, you can run it on RVX. To do this, you need to implement an instance of RVX on an FPGA and initialize it with the <code>.hex</code> file generated in the first step.</p>
 </li>
 </ol>
 <h2 id="prerequisites">Prerequisites</h2>
 <p>To build software for RISC-V you need the <a href="https://github.com/riscv/riscv-gnu-toolchain">RISC-V GNU Toolchain</a>, a suite of compilers and development tools for the RISC-V architecture. </p>
-<p>Run the commands below to install and configure the RISC-V GNU Toolchain for RISC-V Steel:</p>
+<p>Run the commands below to install and configure the RISC-V GNU Toolchain for RVX:</p>
 <div class="language-text highlight"><span class="filename">1. Clone the RISC-V GNU Toolchain repository</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git clone https://github.com/riscv-collab/riscv-gnu-toolchain
 </span></code></pre></div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Ubuntu</label><label for="__tabbed_1_2">Fedora/CentOS/RHEL/Rocky</label><label for="__tabbed_1_3">Arch Linux</label><label for="__tabbed_1_4">OS X</label></div>
@@ -687,7 +659,7 @@
 </div>
 </div>
 </div>
-<div class="language-text highlight"><span class="filename">3. Configure the RISC-V GNU Toolchain for RISC-V Steel</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>cd riscv-gnu-toolchain &amp;&amp; ./configure --with-arch=rv32izicsr --with-abi=ilp32 --prefix=/opt/riscv
+<div class="language-text highlight"><span class="filename">3. Configure the RISC-V GNU Toolchain for RVX</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>cd riscv-gnu-toolchain &amp;&amp; ./configure --with-arch=rv32izicsr --with-abi=ilp32 --prefix=/opt/riscv
 </span></code></pre></div>
 <div class="admonition quote">
 <p><strong>Important:</strong> The <code>--prefix</code> option defines the installation folder. You need to set it to a folder where you have <code>rwx</code> permissions. The command above assumes you have <code>rwx</code> permissions on <code>/opt</code>.</p>
@@ -695,19 +667,19 @@
 <div class="language-text highlight"><span class="filename">4. Compile and install</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>make -j $(nproc)
 </span></code></pre></div>
 <h2 id="building-the-application">Building the application</h2>
-<p>RISC-V Steel offers two template projects to help you start developing new applications: a <strong>bare-metal</strong> template and a more sophisticated <strong>FreeRTOS</strong> template.</p>
-<p>Both templates include a <code>main.c</code> file where you place the source code for the new application. These projects use CMake to configure the RISC-V GNU Toolchain for RISC-V Steel, which simplifies the process of compiling and linking the software.</p>
+<p>RVX offers two template projects to help you start developing new applications: a <strong>bare-metal</strong> template and a more sophisticated <strong>FreeRTOS</strong> template.</p>
+<p>Both templates include a <code>main.c</code> file where you place the source code for the new application. These projects use CMake to configure the RISC-V GNU Toolchain for RVX, which simplifies the process of compiling and linking the software.</p>
 <p>To start a new application, follow the steps below.</p>
-<div class="language-text highlight"><span class="filename">1. Clone RISC-V Steel repository</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>git clone https://github.com/riscv-steel/riscv-steel
+<div class="language-text highlight"><span class="filename">1. Clone RVX repository</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>git clone https://github.com/rafaelcalcada/rvx
 </span></code></pre></div>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Bare-metal</label><label for="__tabbed_2_2">FreeRTOS</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-text highlight"><span class="filename">2. Copy the template project (Bare-metal)</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>cp -r riscv-steel/templates/baremetal my_project/
+<div class="language-text highlight"><span class="filename">2. Copy the template project (Bare-metal)</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>cp -r rvx/templates/baremetal my_project/
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-text highlight"><span class="filename">2. Copy the template project (FreeRTOS)</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>cp -r riscv-steel/templates/freertos my_project/
+<div class="language-text highlight"><span class="filename">2. Copy the template project (FreeRTOS)</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>cp -r rvx/templates/freertos my_project/
 </span></code></pre></div>
 </div>
 </div>
@@ -737,12 +709,12 @@
 </span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>      text       data        bss      total filename
 </span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>     14092        304       9196      23592 freertos.elf
 </span></code></pre></div>
-<p>The <code>.hex</code> file generated by the build process will be used in the next step to initialize the memory of RISC-V Steel.</p>
+<p>The <code>.hex</code> file generated by the build process will be used in the next step to initialize the memory of RVX.</p>
 <h2 id="running-on-an-fpga">Running on an FPGA</h2>
-<p>Once you have generated the <code>.hex</code> file you can implement RISC-V Steel on an FPGA to run the application. This process consists of two steps:</p>
+<p>Once you have generated the <code>.hex</code> file you can implement RVX on an FPGA to run the application. This process consists of two steps:</p>
 <ul>
 <li>
-<p>First, create a wrapper module that includes an instance of RISC-V Steel, configure it for the target FPGA, and initialize it with the application to be run using the <code>.hex</code> file.</p>
+<p>First, create a wrapper module that includes an instance of RVX, configure it for the target FPGA, and initialize it with the application to be run using the <code>.hex</code> file.</p>
 </li>
 <li>
 <p>Next, use the EDA software provided by your FPGA vendor to synthesize the wrapper module and program the FPGA with it.</p>
@@ -750,8 +722,8 @@
 </ul>
 <h4>1. Creating the wrapper module</h4>
 
-<p>Using your preferred text editor, create a Verilog file called <code>rvsteel_wrapper.v</code> and add the code provided below. Make sure to modify the file according to the instructions in the comments.</p>
-<div class="language-verilog highlight"><span class="filename">rvsteel_wrapper.v</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">module</span><span class="w"> </span><span class="n">rvsteel_wrapper</span><span class="w"> </span><span class="p">(</span>
+<p>Using your preferred text editor, create a Verilog file called <code>rvx_wrapper.v</code> and add the code provided below. Make sure to modify the file according to the instructions in the comments.</p>
+<div class="language-verilog highlight"><span class="filename">rvx_wrapper.v</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">module</span><span class="w"> </span><span class="n">rvx_wrapper</span><span class="w"> </span><span class="p">(</span>
 </span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
 </span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span><span class="k">input</span><span class="w">   </span><span class="kt">wire</span><span class="w">          </span><span class="n">clock</span><span class="w">       </span><span class="p">,</span>
 </span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span><span class="k">input</span><span class="w">   </span><span class="kt">wire</span><span class="w">          </span><span class="n">reset</span><span class="w">       </span><span class="p">,</span>
@@ -783,7 +755,7 @@
 </span><span id="__span-13-30"><a id="__codelineno-13-30" name="__codelineno-13-30" href="#__codelineno-13-30"></a><span class="w">  </span><span class="kt">reg</span><span class="w"> </span><span class="n">halt_debounced</span><span class="p">;</span>
 </span><span id="__span-13-31"><a id="__codelineno-13-31" name="__codelineno-13-31" href="#__codelineno-13-31"></a><span class="w">  </span><span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clock</span><span class="p">)</span><span class="w"> </span><span class="n">halt_debounced</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">halt</span><span class="p">;</span>
 </span><span id="__span-13-32"><a id="__codelineno-13-32" name="__codelineno-13-32" href="#__codelineno-13-32"></a>
-</span><span id="__span-13-33"><a id="__codelineno-13-33" name="__codelineno-13-33" href="#__codelineno-13-33"></a><span class="w">  </span><span class="n">rvsteel</span><span class="w"> </span><span class="p">#(</span>
+</span><span id="__span-13-33"><a id="__codelineno-13-33" name="__codelineno-13-33" href="#__codelineno-13-33"></a><span class="w">  </span><span class="n">rvx</span><span class="w"> </span><span class="p">#(</span>
 </span><span id="__span-13-34"><a id="__codelineno-13-34" name="__codelineno-13-34" href="#__codelineno-13-34"></a>
 </span><span id="__span-13-35"><a id="__codelineno-13-35" name="__codelineno-13-35" href="#__codelineno-13-35"></a><span class="w">    </span><span class="c1">// Frequency (in Hertz) of the `clock` pin</span>
 </span><span id="__span-13-36"><a id="__codelineno-13-36" name="__codelineno-13-36" href="#__codelineno-13-36"></a><span class="w">    </span><span class="p">.</span><span class="n">CLOCK_FREQUENCY</span><span class="w">          </span><span class="p">(</span><span class="mh">50000000</span><span class="w">                   </span><span class="p">),</span>
@@ -806,7 +778,7 @@
 </span><span id="__span-13-53"><a id="__codelineno-13-53" name="__codelineno-13-53" href="#__codelineno-13-53"></a><span class="w">    </span><span class="c1">// Width of the cs port</span>
 </span><span id="__span-13-54"><a id="__codelineno-13-54" name="__codelineno-13-54" href="#__codelineno-13-54"></a><span class="w">    </span><span class="p">.</span><span class="n">SPI_NUM_CHIP_SELECT</span><span class="w">      </span><span class="p">(</span><span class="mh">1</span><span class="w">                          </span><span class="p">))</span>
 </span><span id="__span-13-55"><a id="__codelineno-13-55" name="__codelineno-13-55" href="#__codelineno-13-55"></a>
-</span><span id="__span-13-56"><a id="__codelineno-13-56" name="__codelineno-13-56" href="#__codelineno-13-56"></a><span class="w">    </span><span class="n">rvsteel_instance</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-13-56"><a id="__codelineno-13-56" name="__codelineno-13-56" href="#__codelineno-13-56"></a><span class="w">    </span><span class="n">rvx_instance</span><span class="w"> </span><span class="p">(</span>
 </span><span id="__span-13-57"><a id="__codelineno-13-57" name="__codelineno-13-57" href="#__codelineno-13-57"></a>
 </span><span id="__span-13-58"><a id="__codelineno-13-58" name="__codelineno-13-58" href="#__codelineno-13-58"></a><span class="w">    </span><span class="p">.</span><span class="n">clock</span><span class="w">                    </span><span class="p">(</span><span class="n">clock</span><span class="w">                      </span><span class="p">),</span>
 </span><span id="__span-13-59"><a id="__codelineno-13-59" name="__codelineno-13-59" href="#__codelineno-13-59"></a><span class="w">    </span><span class="p">.</span><span class="n">reset</span><span class="w">                    </span><span class="p">(</span><span class="n">reset_debounced</span><span class="w">            </span><span class="p">),</span>
@@ -824,7 +796,7 @@
 </span><span id="__span-13-71"><a id="__codelineno-13-71" name="__codelineno-13-71" href="#__codelineno-13-71"></a><span class="k">endmodule</span>
 </span></code></pre></div>
 <hr />
-<h4>2. Synthesizing rvsteel_wrapper.v</h4>
+<h4>2. Synthesizing rvx_wrapper.v</h4>
 
 <p>The steps to synthesize a Verilog module can differ based on the FPGA model and vendor, but they generally follow this sequence:</p>
 <ol>
@@ -832,10 +804,10 @@
 <p><em>Start a new project</em>: Open the EDA tool provided by your FPGA vendor (e.g., AMD Vivado, Intel Quartus, Lattice iCEcube).</p>
 </li>
 <li>
-<p><em>Add files to the project</em>: Include <code>rvsteel_wrapper.v</code> to the project and all files in the <code>hardware/</code> folder of RISC-V Steel repository.</p>
+<p><em>Add files to the project</em>: Include <code>rvx_wrapper.v</code> to the project and all files in the <code>hardware/</code> folder of RVX repository.</p>
 </li>
 <li>
-<p><em>Create a design constraints file</em>: Map the ports of <code>rvsteel_wrapper.v</code> to the corresponding devices on the FPGA board.</p>
+<p><em>Create a design constraints file</em>: Map the ports of <code>rvx_wrapper.v</code> to the corresponding devices on the FPGA board.</p>
 </li>
 <li>
 <p><em>Run the synthesis process</em>: This includes placing and routing, as well as any other necessary steps to generate a bitstream for the FPGA.</p>
@@ -883,7 +855,7 @@
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright (c) RISC-V Steel contributors
+      Copyright (c) RVX contributors
     </div>
   
   
