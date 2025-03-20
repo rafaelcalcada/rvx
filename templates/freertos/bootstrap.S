@@ -1,21 +1,21 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
 // ----------------------------------------------------------------------------
 
-.global rvsteel_boot
-.section ".init.rvsteel_boot"
+.global rvx_boot
+.section ".init.rvx_boot"
 .option norvc;
 
-rvsteel_boot:
+rvx_boot:
   .option push
   .option norelax
   la gp, __global_pointer$
   .option pop
   la sp, __stack_top
-  la t0, rvsteel_trap_vector
+  la t0, rvx_trap_vector
   csrw mtvec, t0
 
 #ifdef STARTUP_DATA_ROM
@@ -33,9 +33,9 @@ rvsteel_boot:
 #endif
   j .
 
-.section ".init.rvsteel_trap_vector"
-.global rvsteel_trap_vector
-rvsteel_trap_vector:
+.section ".init.rvx_trap_vector"
+.global rvx_trap_vector
+rvx_trap_vector:
   .option push
   .option norvc
   j default_trap_handler    // Trap handler for non-vectored mode (default mode)

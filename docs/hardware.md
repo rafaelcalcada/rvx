@@ -2,17 +2,17 @@
 hide: navigation
 ---
 
-# RISC-V Steel Hardware Docs
+# RVX Hardware Docs
 
 ## Introduction
 
-RISC-V Steel is a microcontroller design developed in Verilog that implements the RV32I instruction set of RISC-V. It is designed for easy, seamless integration into embedded systems, systems-on-chip (SoC), and FPGA designs, facilitating the rapid development of innovative RISC-V applications.
+RVX is a microcontroller IP core developed in Verilog that implements the RV32I instruction set of RISC-V. It is designed for easy, seamless integration into embedded systems and FPGA designs, facilitating the rapid development of innovative RISC-V applications.
 
-RISC-V Steel can run real-time operating systems such as FreeRTOS, as well as bare-metal embedded software. Its design includes components such as memory, timers, and interfaces for UART, GPIO, and SPI communication, enabling RISC-V Steel to integrate with a variety of sensors and actuators commonly used in embedded applications.
+RVX can run real-time operating systems such as FreeRTOS, as well as bare-metal embedded software. Its design includes components such as memory, timers, and interfaces for UART, GPIO, and SPI communication, enabling RVX to integrate with a variety of sensors and actuators commonly used in embedded applications.
 
-For information on how to develop new applications with RISC-V Steel, see the [User Guide](userguide.md).
+For information on how to develop a new application with RVX, see the [User Guide](userguide.md).
 
-RISC-V Steel implements the following features of the RISC-V specifications:
+RVX implements the following features of the RISC-V specifications:
 
 - the RV32I Base Integer Instruction Set, `v2.1`
 - the Zicsr Extension for Control and Status Register (CSR) Instructions, `v2.0`
@@ -20,22 +20,22 @@ RISC-V Steel implements the following features of the RISC-V specifications:
 
 ## Architecture
 
-A top-level view of RISC-V Steel architecture is presented in the diagram below.
+A top-level view of RVX architecture is presented in the diagram below.
 
 </br>
 
 <figure markdown="span">
-![Image title](images/rvsteel_architecture.svg){ width=70% }
-<figcaption><strong>Figure 1.</strong> RISC-V Steel Architecture</figcaption>
+![Image title](images/rvx_architecture.svg){ width=70% }
+<figcaption><strong>Figure 1.</strong> RVX Architecture</figcaption>
 </figure>
 
 ## Source Files
 
-The source files of RISC-V Steel are saved in the `hardware/` folder of its [GitHub repository](https://github.com/rafaelcalcada/riscv-steel).
+The source files of RVX are saved in the `hardware/` folder of its [repository](https://github.com/rafaelcalcada/rvx).
 
 ## Configuration
 
-The table below lists the configuration parameters of RISC-V Steel Top Module, `rvsteel.v`:
+The table below lists the configuration parameters of RVX Top Module, `rvx.v`:
 
 | Parameter name and description                                                            | Value type          | Default value    |
 | ----------------------------------------------------------------------------------------- | ------------------- | ---------------- |
@@ -49,7 +49,7 @@ The table below lists the configuration parameters of RISC-V Steel Top Module, `
 
 ## I/O Signals
 
-The input/output signals of RISC-V Steel Top Module, `rvsteel.v`, are listed in the table below:
+The input/output signals of RVX Top Module, `rvx.v`, are listed in the table below:
 
 | Pin name and description                        | Direction | Size                  |
 | ----------------------------------------------- | --------- | --------------------- |
@@ -68,7 +68,7 @@ The input/output signals of RISC-V Steel Top Module, `rvsteel.v`, are listed in 
 
 ## Memory Map
 
-The devices in RISC-V Steel are mapped to memory addresses as detailed below:
+The devices in RVX are mapped to memory addresses as detailed below:
 
 | Start address | Final address       | Range size (Bytes) | Device                     |
 | ------------- | ------------------- | ------------------ | -------------------------- |

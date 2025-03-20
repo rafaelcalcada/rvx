@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
@@ -19,14 +19,14 @@ module hello_world_cmod_a7 (
     reset_debounced <= reset;
   end
 
-  rvsteel #(
+  rvx #(
 
   // Please adjust these two parameters accordingly
 
   .CLOCK_FREQUENCY          (12000000                   ),
   .MEMORY_INIT_FILE         ("hello_world.hex"          )
 
-  ) rvsteel_instance (
+  ) rvx_instance (
 
   // Note that unused inputs are hardwired to zero,
   // while unused outputs are left open.

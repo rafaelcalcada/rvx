@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
@@ -28,7 +28,7 @@ module mcu_sim #(
     output  wire  [SPI_NUM_CHIP_SELECT-1:0] cs
   );
 
-  rvsteel #(
+  rvx #(
 
     .CLOCK_FREQUENCY          (50000000           ),
     .UART_BAUD_RATE           (9600               ),
@@ -37,7 +37,7 @@ module mcu_sim #(
     .BOOT_ADDRESS             (32'h00000000       ),
     .GPIO_WIDTH               (GPIO_WIDTH         )
 
-  ) rvsteel_instance (
+  ) rvx_instance (
 
     .clock                    (clock              ),
     .reset                    (reset              ),

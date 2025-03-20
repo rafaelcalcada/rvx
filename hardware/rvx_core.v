@@ -1,11 +1,11 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
 // ----------------------------------------------------------------------------
 
-module rvsteel_core #(
+module rvx_core #(
 
   parameter     [31:0]  BOOT_ADDRESS = 32'h00000000
 
@@ -1175,7 +1175,7 @@ module rvsteel_core #(
 
   always @* begin : csr_data_out_mux
     case (instruction_csr_address)
-      MARCHID:       csr_data_out = 32'h00000018; // RISC-V Steel microarchitecture ID
+      MARCHID:       csr_data_out = 32'h00000018; // RVX microarchitecture ID
       MIMPID:        csr_data_out = 32'h00000006; // Version 6
       CYCLE:         csr_data_out = csr_mcycle    [31:0 ];
       CYCLEH:        csr_data_out = csr_mcycle    [63:32];

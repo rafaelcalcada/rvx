@@ -1,8 +1,8 @@
-site_name: RISC-V Steel Documentation
+site_name: RVX Documentation
 site_author: Rafael Calcada
-site_description: RISC-V Steel is a free and open collection of RISC-V IP that is simple, robust and easy to use.
-repo_url: https://github.com/rafaelcalcada/riscv-steel
-edit_uri: edit/main/docs/source/
+site_description: RVX is a microcontroller IP core developed in Verilog that implements the RV32I instruction set of RISC-V.
+repo_url: https://github.com/rafaelcalcada/rvx
+edit_uri: edit/main/docs/
 markdown_extensions:
     - abbr
     - attr_list
@@ -32,23 +32,11 @@ markdown_extensions:
             - overrides/.icons
 theme:
     name: material
-    logo: images/rvsteel_logo_circle.svg
-    favicon: images/rvsteel_logo_circle.svg
+    logo: images/rvx_logo.svg
+    favicon: images/rvx_logo.svg
     highlightjs: true
     palette:
-    # Palette toggle for light mode
-    - media: "(prefers-color-scheme: light)"
       primary: white
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    # Palette toggle for dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: black
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
     features:
         - navigation.tabs
         - navigation.expand
@@ -63,9 +51,9 @@ extra:
 extra_css: [extra.css]
 plugins:
     - search
-docs_dir: source/
+docs_dir: docs/
 remote_branch: docs
-copyright: Copyright (c) RISC-V Steel contributors
+copyright: Copyright (c) RVX contributors
 nav:
     - Homepage: 'index.md'    
     - User Guide: 'userguide.md'

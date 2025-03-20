@@ -1,4 +1,4 @@
-module rvsteel_wrapper (
+module rvx_wrapper (
 
   input   wire          clock       ,
   input   wire          reset       ,
@@ -30,7 +30,7 @@ module rvsteel_wrapper (
   reg halt_debounced;
   always @(posedge clock) halt_debounced <= halt;
 
-  rvsteel #(
+  rvx #(
 
     // Frequency (in Hertz) of the `clock` pin
     .CLOCK_FREQUENCY          (50000000                   ),
@@ -47,7 +47,7 @@ module rvsteel_wrapper (
     // Width of the cs port
     .SPI_NUM_CHIP_SELECT      (1                          ))
 
-    rvsteel_instance      (
+    rvx_instance      (
 
     .clock                    (clock                      ),
     .reset                    (reset_debounced            ),

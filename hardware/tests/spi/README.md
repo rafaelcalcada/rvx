@@ -6,7 +6,7 @@ This directory contains tests to verify the correct functioning of the SPI Contr
 
 ### Software Unit Tests
 
-The software unit tests consist of an instance of RISC-V Steel MCU that runs the test program `software/unit_tests.c`. They verify the correct functioning of the API calls used to control the SPI module. This instance of RISC-V Steel MCU was built in Vivado and is meant to be run on an Arty-A7 development board.
+The software unit tests consist of an instance of RVX MCU that runs the test program `software/unit_tests.c`. They verify the correct functioning of the API calls used to control the SPI module. This instance of RVX MCU was built in Vivado and is meant to be run on an Arty-A7 development board.
 
 * Open **AMD Xilinx Vivado**
 * Click on **Run Tcl script...** in the **Tools** menu

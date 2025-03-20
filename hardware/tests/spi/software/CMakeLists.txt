@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2020-2024 RISC-V Steel contributors
+# Copyright (c) 2020-2025 RVX contributors
 #
 # This work is licensed under the MIT License, see LICENSE file for details.
 # SPDX-License-Identifier: MIT
@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.15)
 # Name of the executable to be generated
 set(APP_NAME "unit_tests")
 
-# Inform the same value provided for the MEMORY_SIZE parameter of rvsteel
+# Inform the same value provided for the MEMORY_SIZE parameter of rvx
 set(MEMORY_SIZE 8K)
 
 # Space reserved for the stack (in bytes)
@@ -20,10 +20,10 @@ set(STACK_SIZE 1K)
 # Space reserved for the heap (in bytes)
 set(HEAP_SIZE 0K)
 
-# Path to RISC-V Steel linker script
+# Path to RVX linker script
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/link.ld)
 
-# RISC-V ISA features present in RISC-V Steel
+# RISC-V ISA features present in RVX
 set(APP_ARCH rv32izicsr)
 
 # Application Binary Interface in use: 32-bit Generic ELF, Soft Floating-Point
@@ -118,13 +118,13 @@ target_compile_options(${APP_NAME}.elf
   # Issue all the warnings demanded by strict ISO C and ISO C++
   -Wpedantic
 
-  # Do not generate unaligned memory accesses (RISC-V Steel does not support unaligned accesses)
+  # Do not generate unaligned memory accesses (RVX does not support unaligned accesses)
   -mstrict-align
 
-  # Specify the supported RISC-V features present in RISC-V Steel
+  # Specify the supported RISC-V features present in RVX
   -march=${APP_ARCH}
 
-  # Specify the Application Binary Interface supported by RISC-V Steel
+  # Specify the Application Binary Interface supported by RVX
   -mabi=${APP_ABI}
 
   # Tells GCC that this project does not run on top of an operating system
@@ -150,13 +150,13 @@ target_link_options(${APP_NAME}.elf
   # Generate a Map file with linking information
   -Wl,-Map=${APP_NAME}.map
 
-  # Do not generate unaligned memory accesses (RISC-V Steel does not support it)
+  # Do not generate unaligned memory accesses (RVX does not support it)
   -mstrict-align
 
-  # Specify the supported RISC-V features present in RISC-V Steel
+  # Specify the supported RISC-V features present in RVX
   -march=${APP_ARCH}
 
-  # Specify the Application Binary Interface supported by RISC-V Steel
+  # Specify the Application Binary Interface supported by RVX
   -mabi=${APP_ABI}
 
   # Print memory usage summary

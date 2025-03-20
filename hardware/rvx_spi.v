@@ -1,11 +1,11 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
 // ----------------------------------------------------------------------------
 
-module rvsteel_spi #(
+module rvx_spi #(
 
   parameter SPI_NUM_CHIP_SELECT = 1
 

@@ -1,4 +1,4 @@
 --Wall
 --default-language 1364-2001
--I../../../../hardware/ram
--I../../../../hardware/core
+-I../../../../hardware/
+-I../../../../hardware/

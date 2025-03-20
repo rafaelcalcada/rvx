@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
@@ -34,11 +34,11 @@ module unit_tests();
   wire                            poci            ;
   wire  [SPI_NUM_CHIP_SELECT-1:0] cs              ;
 
-  rvsteel_spi #(
+  rvx_spi #(
 
     .SPI_NUM_CHIP_SELECT            (SPI_NUM_CHIP_SELECT         )
 
-  ) rvsteel_spi_instance (
+  ) rvx_spi_instance (
 
     // Global signals
 

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
@@ -99,13 +99,13 @@ static void ram_init(const char *path, RamInitVariants variants)
   {
     case RamInitVariants::H32:
         ram_init_h32(args.ram_init_path, ram_size/4, [](uint32_t i, uint32_t v) {
-        dut->rootp->unit_tests__DOT__rvsteel_ram_instance__DOT__ram[i] = v;
+        dut->rootp->unit_tests__DOT__rvx_ram_instance__DOT__ram[i] = v;
       });
       break;
 
     case RamInitVariants::BIN:
         ram_init_bin(args.ram_init_path, ram_size/4, [](uint32_t i, uint32_t v) {
-        dut->rootp->unit_tests__DOT__rvsteel_ram_instance__DOT__ram[i] = v;
+        dut->rootp->unit_tests__DOT__rvx_ram_instance__DOT__ram[i] = v;
       });
       break;
   }
@@ -130,7 +130,7 @@ static void ram_dump_h32(const char *path, uint32_t offset, uint32_t size)
 
   for (int i = 0; i < size; i++)
   {
-    uint32_t data = dut->rootp->unit_tests__DOT__rvsteel_ram_instance__DOT__ram[offset + i];
+    uint32_t data = dut->rootp->unit_tests__DOT__rvx_ram_instance__DOT__ram[offset + i];
     snprintf(buff, sizeof(buff), "%08" PRIx32, (const uint32_t)data);
     file << buff << '\n';
   }
@@ -165,7 +165,7 @@ static bool is_host_out(uint32_t addr)
 
 static uint32_t get_signature(uint32_t addr)
 {
-  return dut->rootp->unit_tests__DOT__rvsteel_ram_instance__DOT__ram[addr];
+  return dut->rootp->unit_tests__DOT__rvx_ram_instance__DOT__ram[addr];
 }
 
 int main(int argc, char *argv[])

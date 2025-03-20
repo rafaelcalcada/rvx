@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2020-2024 RISC-V Steel contributors
+# Copyright (c) 2020-2025 RVX contributors
 #
 # This work is licensed under the MIT License, see LICENSE file for details.
 # SPDX-License-Identifier: MIT
@@ -24,7 +24,7 @@ all:
 	@echo "Available targets:\n"
 	@echo "  debug\t\t\t Debug build"
 	@echo "  release\t\t Release build"
-	@echo "  run_sim\t\t Run the built target on RISC-V Steel MCU simulator"
+	@echo "  run_sim\t\t Run the built target on RVX MCU simulator"
 	@echo "  clean\t\t\t Remove the build/ folder\n"
 
 debug:

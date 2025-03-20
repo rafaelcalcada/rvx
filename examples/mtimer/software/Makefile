@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2020-2024 RISC-V Steel contributors
+# Copyright (c) 2020-2025 RVX contributors
 #
 # This work is licensed under the MIT License, see LICENSE file for details.
 # SPDX-License-Identifier: MIT
@@ -26,7 +26,7 @@ all:
 	@echo "  cmod_debug\t\t Debug build for Digilent Cmod A7 board"
 	@echo "  arty_release\t\t Release build for Digilent Arty A7 board"
 	@echo "  cmod_release\t\t Release build for Digilent Cmod A7 board"
-	@echo "  run_sim\t\t Run the built target on RISC-V Steel MCU simulator"
+	@echo "  run_sim\t\t Run the built target on RVX MCU simulator"
 	@echo "  clean\t\t\t Remove the build/ folder\n"
 
 arty_debug:

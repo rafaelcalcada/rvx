@@ -1,29 +1,29 @@
-# RISC-V Steel Coding Style Guides
+# RVX Coding Style Guides
 
 ## Table of Contents
 
-- [RISC-V Steel Verilog Style Guide](#risc-v-steel-verilog-style-guide)
+- [RVX Verilog Style Guide](#rvx-verilog-style-guide)
   - [Introduction](#introduction)
   - [Basic style elements](#basic-style-elements)
   - [Naming conventions](#naming-conventions)
   - [Suffixes for signals and types](#suffixes-for-signals-and-types)
   - [Language features](#language-features)
-- [RISC-V Steel C Style Guide](#risc-v-steel-c-style-guide)
+- [RVX C Style Guide](#rvx-c-style-guide)
   - [Introduction](#introduction-1)
   - [Basic style elements](#basic-style-elements-1)
   - [Naming conventions](#naming-conventions-1)
 - [License Notice](#license-notice)
 
-## RISC-V Steel Verilog Style Guide
+## RVX Verilog Style Guide
 
 ### Introduction
 
-Verilog-2001 is the main design language for RISC-V Steel IP.
+Verilog-2001 is the main design language for RVX IP.
 
 Verilog can be written in vastly different styles, which can lead to code
 conflicts and code review latency.
 
-This style guide aims to promote Verilog readability for RISC-V Steel IP. The goals are to:
+This style guide aims to promote Verilog readability for RVX IP. The goals are to:
 
 *   promote consistency
 *   promote best practices
@@ -74,16 +74,16 @@ This style guide defines style for Verilog-2001 code, both synthesizable and tes
 * Bit vectors and packed arrays must be little-endian, unpacked arrays must be big-endian
 * FSMs: **no logic** except for reset should be performed in the process for the state register
 
-## RISC-V Steel C Style Guide
+## RVX C Style Guide
 
 ### Introduction
 
-C is the primary language used in software development for RISC-V Steel IP.
+C is the primary language used in software development for RVX IP.
 
 Like Verilog, C code can be written in vastly different styles, which can lead to code
 conflicts and code review latency.
 
-This style guide aims to promote readability for RISC-V Steel software source code. The goals are to:
+This style guide aims to promote readability for RVX software source code. The goals are to:
 
 *   promote consistency
 *   promote best practices
@@ -92,7 +92,7 @@ This style guide aims to promote readability for RISC-V Steel software source co
 ### Basic style elements
 
 * All source code must be clang-formatted
-* The `.clang-format` file with the style definitions can be found in the root folder of RISC-V Steel repository
+* The `.clang-format` file with the style definitions can be found in the root folder of RVX repository
 
 ### Naming conventions
 
@@ -103,6 +103,6 @@ This style guide aims to promote readability for RISC-V Steel software source co
 
 ## License Notice
 
-This work, "RISC-V Steel Coding Style Guides", is adapted from "[lowRISC Verilog Coding Style Guide](https://github.com/lowRISC/style-guides)" by [lowRISC](https://lowrisc.org/), used under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed).
+This work, "RVX Coding Style Guides", is adapted from "[lowRISC Verilog Coding Style Guide](https://github.com/lowRISC/style-guides)" by [lowRISC](https://lowrisc.org/), used under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed).
 
-RISC-V Steel Coding Style Guides is licensed under a different license, the [MIT License](LICENSE).
+RVX Coding Style Guides is licensed under a different license, the [MIT License](LICENSE).

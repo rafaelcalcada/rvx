@@ -8,7 +8,7 @@ The tests can be run with **Verilator** and **AMD Xilinx Vivado**. At the end of
 
 ```
 ------------------------------------------------------------------------------------------
-RISC-V Steel Processor Core IP passed ALL unit tests from RISC-V Architectural Test
+RVX Processor Core IP passed ALL unit tests from RISC-V Architectural Test
 ------------------------------------------------------------------------------------------
 ```
 

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
@@ -36,7 +36,7 @@ module mtimer_cmod_a7 #(
     reset_debounced <= reset;
   end
 
-  rvsteel #(
+  rvx #(
 
     .CLOCK_FREQUENCY          (12000000               ),
     .UART_BAUD_RATE           (9600                   ),
@@ -45,7 +45,7 @@ module mtimer_cmod_a7 #(
     .BOOT_ADDRESS             (32'h00000000           ),
     .GPIO_WIDTH               (2                      )
 
-  ) rvsteel_instance (
+  ) rvx_instance (
 
     .clock                    (clock                  ),
     .reset                    (reset_debounced        ),

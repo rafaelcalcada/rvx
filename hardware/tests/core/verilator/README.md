@@ -1,5 +1,5 @@
 
-## Example of launching RISC-V Steel using Verilator
+## Example of launching RVX using Verilator
 
 In some cases it is convenient to write and run testbench using Verilator tools.
 

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
@@ -80,7 +80,7 @@ static void reset_dut()
 
 static void set_clock_frequency(Dut *dut, uint32_t frequency)
 {
-  uint32_t clock_dut = dut->rootp->mcu_sim__DOT__rvsteel_instance__DOT__CLOCK_FREQUENCY;
+  uint32_t clock_dut = dut->rootp->mcu_sim__DOT__rvx_instance__DOT__CLOCK_FREQUENCY;
 
   Log::warning("Dut clock frequency: %u (Hz)", clock_dut);
   Log::warning("MCU sim clock frequency: %u (ns)", frequency);
@@ -104,7 +104,7 @@ static void ram_init(const char *path, RamInitVariants variants)
     return;
   }
 
-  uint32_t ram_size = dut->rootp->mcu_sim__DOT__rvsteel_instance__DOT__MEMORY_SIZE;
+  uint32_t ram_size = dut->rootp->mcu_sim__DOT__rvx_instance__DOT__MEMORY_SIZE;
 
   switch (args.ram_init_variants)
   {
@@ -112,7 +112,7 @@ static void ram_init(const char *path, RamInitVariants variants)
     ram_init_h32(
         args.ram_init_path, ram_size / 4,
         [](uint32_t i, uint32_t v) {
-          dut->rootp->mcu_sim__DOT__rvsteel_instance__DOT__rvsteel_ram_instance__DOT__ram[i] = v;
+          dut->rootp->mcu_sim__DOT__rvx_instance__DOT__rvx_ram_instance__DOT__ram[i] = v;
         });
     break;
 
@@ -120,7 +120,7 @@ static void ram_init(const char *path, RamInitVariants variants)
     ram_init_bin(
         args.ram_init_path, ram_size / 4,
         [](uint32_t i, uint32_t v) {
-          dut->rootp->mcu_sim__DOT__rvsteel_instance__DOT__rvsteel_ram_instance__DOT__ram[i] = v;
+          dut->rootp->mcu_sim__DOT__rvx_instance__DOT__rvx_ram_instance__DOT__ram[i] = v;
         });
     break;
   }
@@ -134,12 +134,12 @@ static bool is_host_out(uint32_t addr)
       (addr != 0x0) &&
       (not is_pos_edg and
        dut->rootp
-           ->mcu_sim__DOT__rvsteel_instance__DOT__rvsteel_core_instance__DOT__write_request) &&
-      (dut->rootp->mcu_sim__DOT__rvsteel_instance__DOT__rvsteel_core_instance__DOT__rw_address ==
+           ->mcu_sim__DOT__rvx_instance__DOT__rvx_core_instance__DOT__write_request) &&
+      (dut->rootp->mcu_sim__DOT__rvx_instance__DOT__rvx_core_instance__DOT__rw_address ==
        addr);
 
   is_pos_edg =
-      dut->rootp->mcu_sim__DOT__rvsteel_instance__DOT__rvsteel_core_instance__DOT__write_request;
+      dut->rootp->mcu_sim__DOT__rvx_instance__DOT__rvx_core_instance__DOT__write_request;
 
   return is_write;
 }
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
     {
       Log::host_out(
           (char)dut->rootp
-              ->mcu_sim__DOT__rvsteel_instance__DOT__rvsteel_core_instance__DOT__write_data);
+              ->mcu_sim__DOT__rvx_instance__DOT__rvx_core_instance__DOT__write_data);
     }
   }
 }

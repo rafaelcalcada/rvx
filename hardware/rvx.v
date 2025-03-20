@@ -1,11 +1,11 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
 // ----------------------------------------------------------------------------
 
-module rvsteel #(
+module rvx #(
 
   // Frequency of 'clock' signal
   parameter CLOCK_FREQUENCY = 50000000  ,
@@ -66,7 +66,7 @@ module rvsteel #(
   assign device_start_address [32*D4_SPI      +: 32]  = 32'h8003_0000;
   assign device_region_size   [32*D4_SPI      +: 32]  = 32;
 
-  // RISC-V Steel 32-bit Processor (Manager Device) <=> System Bus
+  // RVX 32-bit Processor (Manager Device) <=> System Bus
 
   wire  [31:0]                manager_rw_address      ;
   wire  [31:0]                manager_read_data       ;
@@ -118,11 +118,11 @@ module rvsteel #(
   assign irq_software           = 1'b0; // unused
 
 
-  rvsteel_core #(
+  rvx_core #(
 
     .BOOT_ADDRESS                   (BOOT_ADDRESS                       )
 
-  ) rvsteel_core_instance (
+  ) rvx_core_instance (
 
     // Global signals
 
@@ -161,11 +161,11 @@ module rvsteel #(
 
   );
 
-  rvsteel_bus #(
+  rvx_bus #(
 
     .NUM_DEVICES(NUM_DEVICES)
 
-  ) rvsteel_bus_instance (
+  ) rvx_bus_instance (
 
     // Global signals
 
@@ -201,12 +201,12 @@ module rvsteel #(
 
   );
 
-  rvsteel_ram #(
+  rvx_ram #(
 
     .MEMORY_SIZE                    (MEMORY_SIZE                        ),
     .MEMORY_INIT_FILE               (MEMORY_INIT_FILE                   )
 
-  ) rvsteel_ram_instance (
+  ) rvx_ram_instance (
 
     // Global signals
 
@@ -226,12 +226,12 @@ module rvsteel #(
 
   );
 
-  rvsteel_uart #(
+  rvx_uart #(
 
     .CLOCK_FREQUENCY                (CLOCK_FREQUENCY                    ),
     .UART_BAUD_RATE                 (UART_BAUD_RATE                     )
 
-  ) rvsteel_uart_instance (
+  ) rvx_uart_instance (
 
     // Global signals
 
@@ -260,8 +260,8 @@ module rvsteel #(
 
   );
 
-  rvsteel_mtimer
-  rvsteel_mtimer_instance (
+  rvx_mtimer
+  rvx_mtimer_instance (
 
     // Global signals
 
@@ -285,11 +285,11 @@ module rvsteel #(
 
   );
 
-  rvsteel_gpio #(
+  rvx_gpio #(
 
     .GPIO_WIDTH                     (GPIO_WIDTH                             )
 
-  ) rvsteel_gpio_instance (
+  ) rvx_gpio_instance (
 
     // Global signals
 
@@ -315,11 +315,11 @@ module rvsteel #(
 
   );
 
-  rvsteel_spi #(
+  rvx_spi #(
 
     .SPI_NUM_CHIP_SELECT            (SPI_NUM_CHIP_SELECT                    )
 
-  ) rvsteel_spi_instance (
+  ) rvx_spi_instance (
 
     // Global signals
 

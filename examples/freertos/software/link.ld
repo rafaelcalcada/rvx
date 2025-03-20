@@ -1,12 +1,12 @@
 /*-----------------------------------------------------------------------------
-# Copyright (c) 2020-2024 RISC-V Steel contributors
+# Copyright (c) 2020-2025 RVX contributors
 #
 # This work is licensed under the MIT License, see LICENSE file for details.
 # SPDX-License-Identifier: MIT
 # ---------------------------------------------------------------------------*/
 
 OUTPUT_ARCH("riscv")
-ENTRY(rvsteel_boot)
+ENTRY(rvx_boot)
 
 MEMORY
 {
@@ -27,9 +27,9 @@ SECTIONS
 
   .text :
   {
-    *(.init.rvsteel_boot)
-    *(.init.rvsteel_trap_vector)
-    *(.text.rvsteel_return_from_trap)
+    *(.init.rvx_boot)
+    *(.init.rvx_trap_vector)
+    *(.text.rvx_return_from_trap)
     *(.text.default_trap_handler)
     *(.text.*_irq_handler)
     *(SORT_NONE(.init))

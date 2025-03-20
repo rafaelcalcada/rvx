@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2024 RVXtors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
@@ -25,7 +25,7 @@ module unit_tests();
   wire           write_request;
   wire           write_response;
   
-  rvsteel_core
+  rvx_core
   dut0 (
 
     // Global signals
@@ -203,8 +203,7 @@ module unit_tests();
   };
   
   // The tests below are expected to fail because 
-  // RISC-V Steel Processor IP does not support
-  // misaligned branch/jump instructions 
+  // RVX does not support misaligned branch/jump instructions 
   reg [167:0] expected_to_fail [0:7] = {
     "misalign-beq-01.hex",
     "misalign-bge-01.hex",
@@ -342,7 +341,7 @@ module unit_tests();
     
     if (failing_tests_counter == 0) begin
       $display("------------------------------------------------------------------------------------------");
-      $display("RISC-V Steel Processor Core IP passed ALL unit tests from RISC-V Architectural Test Suite");
+      $display("RVX Core IP passed ALL unit tests from RISC-V Architectural Test Suite");
       $display("------------------------------------------------------------------------------------------");
     end    
     else begin      

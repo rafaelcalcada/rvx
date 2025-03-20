@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
@@ -48,9 +48,9 @@ module unit_tests #(
   wire          irq_timer_response;
   wire          irq_software_response;
 
-  rvsteel_core #(
+  rvx_core #(
     .BOOT_ADDRESS(BOOT_ADDRESS)
-  ) rvsteel_core_instance (
+  ) rvx_core_instance (
 
     // Global signals
 
@@ -87,9 +87,9 @@ module unit_tests #(
     .real_time_clock        (real_time_clock      )
   );
 
-  rvsteel_ram #(
+  rvx_ram #(
     .MEMORY_SIZE(MEMORY_SIZE)
-  ) rvsteel_ram_instance (
+  ) rvx_ram_instance (
 
     // Global signals
 

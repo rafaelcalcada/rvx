@@ -1,6 +1,6 @@
 `verilator_config
 
-public_flat -module "rvsteel_ram" -var "ram"
+public_flat -module "rvx_ram" -var "ram"
 public_flat_rd -module "unit_tests" -var "MEMORY_SIZE"
 public_flat_rd -module "unit_tests" -var "rw_address"
 public_flat_rd -module "unit_tests" -var "write_request"

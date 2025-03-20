@@ -1,6 +1,6 @@
 # How can I contribute?
 
-You can contribute to RISC-V Steel in two ways:
+You can contribute to RVX in two ways:
 
 - **Creating a new issue**
 
@@ -8,7 +8,7 @@ You can contribute to RISC-V Steel in two ways:
 
 - **Making a pull request**
 
-  Help improve RISC-V Steel by opening a pull request. All contributions are welcome!
+  Help improve RVX by opening a pull request. All contributions are welcome!
 
 ## How to make a good pull request?
 
@@ -28,5 +28,5 @@ You can contribute to RISC-V Steel in two ways:
 
   Document your new functionality.
 
-[docs]: https://rafaelcalcada.github.io/riscv-steel/
-[new issue]: https://github.com/rafaelcalcada/riscv-steel/issues/new
+[docs]: https://rafaelcalcada.github.io/rvx/
+[new issue]: https://github.com/rafaelcalcada/rvx/issues/new

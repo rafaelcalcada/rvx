@@ -9,10 +9,10 @@ TOPLEVEL_LANG ?= verilog
 # Or --trace-fst
 EXTRA_ARGS ?= --trace
 
-VERILOG_SOURCES += $(PWD)/../rvsteel_mtimer.v
+VERILOG_SOURCES += $(PWD)/../rvx_mtimer.v
 
 # TOPLEVEL is the name of the toplevel module in your Verilog or VHDL file
-TOPLEVEL = rvsteel_mtimer
+TOPLEVEL = rvx_mtimer
 
 # MODULE is the basename of the Python test file
 MODULE = test_mtimer

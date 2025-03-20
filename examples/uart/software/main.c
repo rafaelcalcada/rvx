@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Copyright (c) 2020-2024 RISC-V Steel contributors
+// Copyright (c) 2020-2025 RVX contributors
 //
 // This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
@@ -22,7 +22,7 @@ __NAKED void fast0_irq_handler(void)
 
 void main(void)
 {
-  uart_write_string(DEFAULT_UART, "RISC-V Steel - UART demo");
+  uart_write_string(DEFAULT_UART, "RVX - UART demo");
   uart_write_string(DEFAULT_UART, "\n\nType something and press Enter:\n");
   csr_enable_vectored_mode_irq();
   CSR_SET(CSR_MIE, MIP_MIE_MASK_F0I);

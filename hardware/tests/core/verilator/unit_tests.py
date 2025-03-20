@@ -217,7 +217,7 @@ def main(argv=None):
 
     if passed == len(unit_test):
       print("------------------------------------------------------------------------------------------")
-      print("RISC-V Steel Processor Core IP passed ALL unit tests from RISC-V Architectural Test")
+      print("RVX Core IP passed ALL unit tests from RISC-V Architectural Test")
       print("------------------------------------------------------------------------------------------")
 
 
