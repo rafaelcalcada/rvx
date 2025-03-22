@@ -2,26 +2,25 @@
 
 ## Table of Contents
 
-- [RVX Verilog Style Guide](#rvx-verilog-style-guide)
+- [Verilog Style Guide](#rvx-verilog-style-guide)
   - [Introduction](#introduction)
   - [Basic style elements](#basic-style-elements)
   - [Naming conventions](#naming-conventions)
   - [Suffixes for signals and types](#suffixes-for-signals-and-types)
   - [Language features](#language-features)
-- [RVX C Style Guide](#rvx-c-style-guide)
+- [C Style Guide](#c-style-guide)
   - [Introduction](#introduction-1)
   - [Basic style elements](#basic-style-elements-1)
   - [Naming conventions](#naming-conventions-1)
 - [License Notice](#license-notice)
 
-## RVX Verilog Style Guide
+## Verilog Style Guide
 
 ### Introduction
 
 Verilog-2001 is the main design language for RVX IP.
 
-Verilog can be written in vastly different styles, which can lead to code
-conflicts and code review latency.
+Verilog can be written in vastly different styles, which can lead to code conflicts and code review latency.
 
 This style guide aims to promote Verilog readability for RVX IP. The goals are to:
 
@@ -49,7 +48,8 @@ This style guide defines style for Verilog-2001 code, both synthesizable and tes
 * Use **ALL\_CAPS** for parameters, enumerated values, constants and define macros
 * Main clock signal is named `clock`. All clock signals must start with `clock_`
 * Reset signals are **active-low** and **synchronous**, default name is `reset_n`
-* Signal names should be descriptive and be consistent throughout the hierarchy. Avoid abbreviations
+* Signal names should be descriptive and be consistent throughout the hierarchy
+* Avoid abbreviations
 
 ### Suffixes for signals and types
 
@@ -60,7 +60,6 @@ This style guide defines style for Verilog-2001 code, both synthesizable and tes
 
 * Use **full port declaration style** for modules, any clock and reset declared first
 * Use **named parameters** for instantiation, all declared ports must be present, do **not** use `.*`
-* Top-level parameters is preferred over `` `define`` globals
 * Use **symbolically named constants** instead of raw numbers
 * Local constants should be declared `localparam`
 * Sequential logic must use **non-blocking** assignments
@@ -74,14 +73,13 @@ This style guide defines style for Verilog-2001 code, both synthesizable and tes
 * Bit vectors and packed arrays must be little-endian, unpacked arrays must be big-endian
 * FSMs: **no logic** except for reset should be performed in the process for the state register
 
-## RVX C Style Guide
+## C Style Guide
 
 ### Introduction
 
 C is the primary language used in software development for RVX IP.
 
-Like Verilog, C code can be written in vastly different styles, which can lead to code
-conflicts and code review latency.
+Like Verilog, C code can be written in vastly different styles, which can lead to code conflicts and code review latency.
 
 This style guide aims to promote readability for RVX software source code. The goals are to:
 
@@ -92,17 +90,18 @@ This style guide aims to promote readability for RVX software source code. The g
 ### Basic style elements
 
 * All source code must be clang-formatted
-* The `.clang-format` file with the style definitions can be found in the root folder of RVX repository
+* A `.clang-format` file with the style definitions can be found in the root folder of RVX repository
 
 ### Naming conventions
 
 * Use **lower\_snake\_case** for variables, functions and arguments
 * Use **UpperCamelCase** for structs
 * Use **ALL\_CAPS** for enums, constants, register addresses and compiler macros
-* Names should be descriptive and be consistent. Avoid abbreviations
+* Names should be descriptive and be consistent
+* Avoid abbreviations
 
 ## License Notice
 
-This work, "RVX Coding Style Guides", is adapted from "[lowRISC Verilog Coding Style Guide](https://github.com/lowRISC/style-guides)" by [lowRISC](https://lowrisc.org/), used under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed).
+RVX Coding Style Guides is licensed under the [MIT License](LICENSE).
 
-RVX Coding Style Guides is licensed under a different license, the [MIT License](LICENSE).
+This work is adapted from "[lowRISC Verilog Coding Style Guide](https://github.com/lowRISC/style-guides)" by [lowRISC](https://lowrisc.org/), originally licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed).
