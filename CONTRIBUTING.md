@@ -18,7 +18,7 @@ You can contribute to RVX in two ways:
  
 - Follow existing coding style and conventions.
 
-  Make sure that your code conforms to the style and formatting of the code base.
+  Make sure that your code conforms to the [CODING_STYLE.md](CODING_STYLE.md) of the code base.
  
 - Include test coverage.
 
