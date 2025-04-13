@@ -32,8 +32,8 @@ markdown_extensions:
             - overrides/.icons
 theme:
     name: material
-    logo: images/rvx_logo.svg
-    favicon: images/rvx_logo.svg
+    logo: images/rvx_logo.png
+    favicon: images/rvx_favicon.png
     highlightjs: true
     palette:
       primary: white
