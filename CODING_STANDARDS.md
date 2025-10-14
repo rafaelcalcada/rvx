@@ -1,6 +1,6 @@
 # RVX Coding Stardands
 
-Welcome to the RVX Coding Standards. This document defines the coding standards and style guidelines for all contributors to the RVX project. By following these standards, we ensure that our codebase remains **consistent**, **readable**, and **maintainable** as it grows.
+This document defines the coding standards and style guidelines for all contributors to the RVX project. By following these standards, we ensure that our codebase remains **consistent**, **readable**, and **maintainable** as it grows.
 
 The primary objectives of these standards are to:
 
