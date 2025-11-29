@@ -1,0 +1,28 @@
+# Indentation
+--indentation_spaces=2
+
+# Align everything
+--assignment_statement_alignment=align
+--case_items_alignment=align
+--class_member_variable_alignment=align
+--compact_indexing_and_selections=true
+--distribution_items_alignment=align
+--enum_assignment_statement_alignment=align
+--expand_coverpoints=false
+--formal_parameters_alignment=align
+--formal_parameters_indentation=wrap
+--module_net_variable_alignment=align
+--named_parameter_alignment=align
+--named_parameter_indentation=wrap
+--named_port_alignment=align
+--named_port_indentation=wrap
+--port_declarations_alignment=align
+--port_declarations_indentation=wrap
+--port_declarations_right_align_packed_dimensions=true
+--port_declarations_right_align_unpacked_dimensions=true
+--struct_union_members_alignment=align
+--try_wrap_long_lines=true
+--wrap_end_else_clauses=true
+
+# Aggressive wrapping (default is ok; Verible auto-wraps based on indentation)
+--column_limit=120

@@ -24,6 +24,7 @@
         "editor.tabSize": 2,
         "editor.detectIndentation": false,
         "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
+        "verilog.formatting.veribleVerilogFormatter.arguments": "--flagfile=.verible-format",
         "editor.formatOnSave": true,
         "cmake.ignoreCMakeListsMissing": true,
         "python.defaultInterpreterPath": "/opt/venv/bin/python"
