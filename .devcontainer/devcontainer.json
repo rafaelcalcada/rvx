@@ -24,10 +24,11 @@
         "editor.tabSize": 2,
         "editor.detectIndentation": false,
         "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
-        "verilog.formatting.veribleVerilogFormatter.arguments": "--flagfile=.verible-format",
+        "verilog.formatting.veribleVerilogFormatter.arguments": "--flagfile=etc/.verible-format",
         "editor.formatOnSave": true,
         "cmake.ignoreCMakeListsMissing": true,
-        "python.defaultInterpreterPath": "/opt/venv/bin/python"
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "C_Cpp.clang_format_style": "file:${workspaceFolder}/etc/.clang-format"
       },
       "extensions": [
         "ms-vscode.cpptools-extension-pack",
