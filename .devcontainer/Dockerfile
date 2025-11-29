@@ -50,12 +50,21 @@ RUN git clone https://github.com/riscv/riscv-gnu-toolchain /tmp/riscv-gnu-toolch
   make -j$(nproc) && make install && \
   rm -rf /tmp/riscv-gnu-toolchain
 
-# Install Universal Ctags
+# 7. Install Universal Ctags
 RUN git clone https://github.com/universal-ctags/ctags.git /tmp/ctags && \
   cd /tmp/ctags && ./autogen.sh && ./configure && make -j$(nproc) && make install && \
   rm -rf /tmp/ctags
 
+# 8. Customize bash prompt
 RUN echo "PS1='\[\033[01;32m\]\u@\h \[\033[01;34m\]\w\[\033[01;33m\]\$(__git_ps1 \" (%s)\")\[\033[00m\] \$ '" >> /home/rvx/.bashrc
+
+# 9. Create a system-wide Python environment and install Cocotb
+RUN python3 -m venv /opt/venv && \
+  /opt/venv/bin/pip install --upgrade pip setuptools wheel \
+  && /opt/venv/bin/pip install cocotb>=2.0
+
+# 10. Use the venv binaries
+ENV PATH="/opt/venv/bin:$PATH"
 
 USER rvx
 WORKDIR /home/rvx
