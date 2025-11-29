@@ -71,7 +71,7 @@ WORKDIR /home/rvx
 
 # 7. Add bash aliases
 RUN echo "alias ll='ls -la'" >> /home/rvx/.bash_aliases && \
-  echo "alias ..='cd ..'" >> /home/rvx/.bash_aliases \
+  echo "alias ..='cd ..'" >> /home/rvx/.bash_aliases && \
   echo "alias e='exit 0'" >> /home/rvx/.bash_aliases
 
 CMD ["bash"]
