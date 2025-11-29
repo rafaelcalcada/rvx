@@ -1,9 +1,5 @@
-# -----------------------------------------------------------------------------
-# Copyright (c) 2020-2025 RVX contributors
-#
-# This work is licensed under the MIT License, see LICENSE file for details.
 # SPDX-License-Identifier: MIT
-# -----------------------------------------------------------------------------
+# Copyright (c) 2020-2025 RVX Project Contributors
 
 cmake_minimum_required(VERSION 3.12)
 

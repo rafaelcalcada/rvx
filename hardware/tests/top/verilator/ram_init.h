@@ -1,9 +1,5 @@
-// ----------------------------------------------------------------------------
-// Copyright (c) 2020-2025 RVX contributors
-//
-// This work is licensed under the MIT License, see LICENSE file for details.
 // SPDX-License-Identifier: MIT
-// ----------------------------------------------------------------------------
+// Copyright (c) 2020-2025 RVX Project Contributors
 
 #ifndef RAM_INIT_H
 #define RAM_INIT_H
