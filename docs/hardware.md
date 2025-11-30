@@ -31,7 +31,7 @@ A top-level view of RVX architecture is presented in the diagram below.
 
 ## Source Files
 
-The source files of RVX are saved in the `hardware/` folder of its [repository](https://github.com/rafaelcalcada/rvx).
+The source files of RVX are saved in the `rtl/` folder of its [repository](https://github.com/rafaelcalcada/rvx).
 
 ## Configuration
 

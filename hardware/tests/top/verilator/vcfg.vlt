@@ -1,8 +1,0 @@
-`verilator_config
-
-public_flat -module "rvx.rvx_ram" -var "ram"
-public_flat_rd -module "rvx" -var "CLOCK_FREQUENCY"
-public_flat_rd -module "rvx" -var "MEMORY_SIZE"
-public_flat_rd -module "rvx_core" -var "rw_address"
-public_flat_rd -module "rvx_core" -var "write_request"
-public_flat_rd -module "rvx_core" -var "write_data"

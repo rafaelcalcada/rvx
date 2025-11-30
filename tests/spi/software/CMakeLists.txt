@@ -90,11 +90,19 @@ project(${APP_NAME} LANGUAGES C CXX ASM)
 # Set compiler definitions
 add_compile_definitions(NO_STARTUP_FILES=1)
 
-# Include libsteel
-include(libsteel.cmake)
+# Obtain LibSteel
+include(FetchContent)
+
+FetchContent_Declare(steel
+  GIT_REPOSITORY https://github.com/rafaelcalcada/libsteel.git
+  GIT_TAG v2.0
+)
+
+FetchContent_MakeAvailable(steel)
 
 # Source files
 set(SOURCES
+  ${CMAKE_SOURCE_DIR}/bootstrap.S
   ${CMAKE_SOURCE_DIR}/unit_tests.c
 )
 

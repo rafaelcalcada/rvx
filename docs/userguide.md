@@ -219,7 +219,7 @@ The steps to synthesize a Verilog module can differ based on the FPGA model and 
 
 1. *Start a new project*: Open the EDA tool provided by your FPGA vendor (e.g., AMD Vivado, Intel Quartus, Lattice iCEcube).
 
-2. *Add files to the project*: Include `rvx_wrapper.v` to the project and all files in the `hardware/` folder of RVX repository.
+2. *Add files to the project*: Include `rvx_wrapper.v` to the project and all files in the `rtl/` folder of RVX repository.
 
 3. *Create a design constraints file*: Map the ports of `rvx_wrapper.v` to the corresponding devices on the FPGA board.
 

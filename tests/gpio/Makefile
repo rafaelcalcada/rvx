@@ -9,7 +9,7 @@ TOPLEVEL_LANG ?= verilog
 # Or --trace-fst
 EXTRA_ARGS ?= --trace -GGPIO_WIDTH=8
 
-VERILOG_SOURCES += $(PWD)/../rvx_gpio.v
+VERILOG_SOURCES += $(PWD)/../../rtl/rvx_gpio.v
 
 # TOPLEVEL is the name of the toplevel module in your Verilog or VHDL file
 TOPLEVEL = rvx_gpio

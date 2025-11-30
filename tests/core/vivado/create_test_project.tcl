@@ -3,6 +3,6 @@ set memory_init_files {../unit_tests/programs/add-01.hex ../unit_tests/programs/
 create_project test_project ./test_project -part xc7a35ticsg324-1L -force
 set_property simulator_language Verilog [current_project]
 add_files -norecurse $memory_init_files
-add_files -norecurse {../../../rvx_core.v ./unit_tests.v}
+add_files -norecurse {../../../rtl/rvx_core.v ./unit_tests.v}
 move_files -fileset sim_1 [get_files ./unit_tests.v]
 set_property file_type {Memory Initialization Files} [get_files $memory_init_files]

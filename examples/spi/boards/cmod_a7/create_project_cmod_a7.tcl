@@ -10,13 +10,13 @@ set_msg_config -suppress -id {Device 21-2174}
 set_property simulator_language Verilog [current_project]
 add_files -fileset constrs_1 -norecurse { ./spi_cmod_a7_constraints.xdc }
 add_files -norecurse .
-add_files -norecurse { ../../../../hardware/rvx.v }
-add_files -norecurse { ../../../../hardware/rvx_core.v }
-add_files -norecurse { ../../../../hardware/rvx_bus.v }
-add_files -norecurse { ../../../../hardware/rvx_uart.v }
-add_files -norecurse { ../../../../hardware/rvx_mtimer.v }
-add_files -norecurse { ../../../../hardware/rvx_gpio.v }
-add_files -norecurse { ../../../../hardware/rvx_spi.v }
-add_files -norecurse { ../../../../hardware/rvx_ram.v }
+add_files -norecurse { ../../../../rtl/rvx.v }
+add_files -norecurse { ../../../../rtl/rvx_core.v }
+add_files -norecurse { ../../../../rtl/rvx_bus.v }
+add_files -norecurse { ../../../../rtl/rvx_uart.v }
+add_files -norecurse { ../../../../rtl/rvx_mtimer.v }
+add_files -norecurse { ../../../../rtl/rvx_gpio.v }
+add_files -norecurse { ../../../../rtl/rvx_spi.v }
+add_files -norecurse { ../../../../rtl/rvx_ram.v }
 add_files -norecurse { ../../software/build/spi_demo.hex }
 set_property file_type {Memory Initialization Files} [get_files ../../software/build/spi_demo.hex]

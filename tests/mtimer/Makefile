@@ -9,7 +9,7 @@ TOPLEVEL_LANG ?= verilog
 # Or --trace-fst
 EXTRA_ARGS ?= --trace
 
-VERILOG_SOURCES += $(PWD)/../rvx_mtimer.v
+VERILOG_SOURCES += $(PWD)/../../rtl/rvx_mtimer.v
 
 # TOPLEVEL is the name of the toplevel module in your Verilog or VHDL file
 TOPLEVEL = rvx_mtimer

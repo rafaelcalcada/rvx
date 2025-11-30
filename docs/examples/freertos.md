@@ -105,7 +105,7 @@ To implement the `freertos.v` module on your FPGA, follow the steps below:
 
 1. Open the EDA tool provided by your FPGA vendor (e.g., AMD Vivado, Intel Quartus, Lattice iCEcube).
 
-2. Include `freertos.v` to the project and all files in the `hardware/` folder of RVX repository.
+2. Include `freertos.v` to the project and all files in the `rtl/` folder of RVX repository.
 
 3. Create a design constraints file and map the ports of `freertos.v` to the corresponding devices on the FPGA board.
 
