@@ -18,9 +18,9 @@
         "verilog.ctags.path": "/usr/local/bin/ctags",
         "verilog.linting.linter": "verilator",
         "verilog.linting.verilator.includePath": [
-          "${workspaceFolder}/rtl/"
+          "/workspaces/rvx/rtl/"
         ],
-        "verilog.linting.verilator.arguments": "-Wall --timing",
+        "verilog.linting.verilator.arguments": "-Wall --timing \"/workspaces/rvx/etc/verilator-waivers.vlt\"",
         "editor.tabSize": 2,
         "editor.detectIndentation": false,
         "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
@@ -28,7 +28,7 @@
         "editor.formatOnSave": true,
         "cmake.ignoreCMakeListsMissing": true,
         "python.defaultInterpreterPath": "/opt/venv/bin/python",
-        "C_Cpp.clang_format_style": "file:${workspaceFolder}/etc/.clang-format"
+        "C_Cpp.clang_format_style": "file:/workspaces/rvx/etc/.clang-format"
       },
       "extensions": [
         "ms-vscode.cpptools-extension-pack",
