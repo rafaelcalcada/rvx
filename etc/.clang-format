@@ -5,7 +5,7 @@ BreakBeforeBraces: Allman
 AllowShortIfStatementsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None
 IndentCaseLabels: false
-ColumnLimit: 100
+ColumnLimit: 120
 AccessModifierOffset: -4
 NamespaceIndentation: All
 FixNamespaceComments: false
