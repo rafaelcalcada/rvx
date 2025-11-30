@@ -44,17 +44,17 @@ module uart_cmod_a7 #(
   ) rvx_instance (
 
       .clock      (clock),
-      .reset      (reset_debounced),
+      .reset_n    (!reset_debounced),
       .halt       (1'b0),
       .uart_rx    (uart_rx),
       .uart_tx    (uart_tx),
       .gpio_input (gpio_input),
       .gpio_oe    (gpio_oe),
       .gpio_output(gpio_output),
-      .sclk       (),                 // unused
-      .pico       (),                 // unused
+      .sclk       (),                  // unused
+      .pico       (),                  // unused
       .poci       (1'b0),
-      .cs         ()                  // unused
+      .cs         ()                   // unused
 
   );
 

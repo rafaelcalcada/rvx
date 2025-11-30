@@ -10,7 +10,7 @@ module rvx_gpio #(
     // Global signals
 
     input wire clock,
-    input wire reset,
+    input wire reset_n,
 
     // IO interface
 
@@ -72,7 +72,7 @@ module rvx_gpio #(
 
 
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       oe  <= {GPIO_WIDTH{1'b0}};
       out <= {GPIO_WIDTH{1'b0}};
     end
@@ -98,7 +98,7 @@ module rvx_gpio #(
 
   // Bus: Response to request
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       read_response  <= 1'b0;
       write_response <= 1'b0;
     end
@@ -111,7 +111,7 @@ module rvx_gpio #(
 
   // Bus: Read registers
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       read_data <= 32'd0;
     end
     else begin

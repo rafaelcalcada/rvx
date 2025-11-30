@@ -21,7 +21,7 @@ module rvx #(
 ) (
 
     input  wire                           clock,
-    input  wire                           reset,
+    input  wire                           reset_n,
     input  wire                           halt,
     input  wire                           uart_rx,
     output wire                           uart_tx,
@@ -122,9 +122,9 @@ module rvx #(
 
       // Global signals
 
-      .clock(clock),
-      .reset(reset),
-      .halt (halt),
+      .clock  (clock),
+      .reset_n(reset_n),
+      .halt   (halt),
 
       // IO interface
 
@@ -165,8 +165,8 @@ module rvx #(
 
       // Global signals
 
-      .clock(clock),
-      .reset(reset),
+      .clock  (clock),
+      .reset_n(reset_n),
 
       // Interface with the manager device (Processor Core IP)
 
@@ -206,8 +206,8 @@ module rvx #(
 
       // Global signals
 
-      .clock(clock),
-      .reset(reset),
+      .clock  (clock),
+      .reset_n(reset_n),
 
       // IO interface
 
@@ -231,8 +231,8 @@ module rvx #(
 
       // Global signals
 
-      .clock(clock),
-      .reset(reset),
+      .clock  (clock),
+      .reset_n(reset_n),
 
       // IO interface
 
@@ -260,8 +260,8 @@ module rvx #(
 
       // Global signals
 
-      .clock(clock),
-      .reset(reset),
+      .clock  (clock),
+      .reset_n(reset_n),
 
       // IO interface
 
@@ -288,8 +288,8 @@ module rvx #(
 
       // Global signals
 
-      .clock(clock),
-      .reset(reset),
+      .clock  (clock),
+      .reset_n(reset_n),
 
       // IO interface
 
@@ -318,8 +318,8 @@ module rvx #(
 
       // Global signals
 
-      .clock(clock),
-      .reset(reset),
+      .clock  (clock),
+      .reset_n(reset_n),
 
       // IO interface
 

@@ -43,7 +43,7 @@ module spi_arty_a7 #(
   ) rvx_instance (
 
       .clock      (clock_50mhz),
-      .reset      (reset_debounced),
+      .reset_n    (!reset_debounced),
       .halt       (1'b0),
       .uart_rx    (uart_rx),
       .uart_tx    (uart_tx),

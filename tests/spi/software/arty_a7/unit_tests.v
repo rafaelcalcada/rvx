@@ -43,7 +43,7 @@ module unit_tests (
   ) rvx_instance (
 
       .clock      (clock_50mhz),
-      .reset      (reset_debounced),
+      .reset_n    (!reset_debounced),
       .halt       (halt_debounced),
       .uart_rx    (uart_rx),
       .uart_tx    (uart_tx),

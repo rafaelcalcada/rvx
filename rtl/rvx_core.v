@@ -12,7 +12,7 @@ module rvx_core #(
     // Global signals
 
     input wire clock,
-    input wire reset,
+    input wire reset_n,
     input wire halt,
 
     // IO interface
@@ -227,9 +227,9 @@ module rvx_core #(
   // Global signals                                                                                //
   //-----------------------------------------------------------------------------------------------//
 
-  always @(posedge clock) reset_reg <= reset;
+  always @(posedge clock) reset_reg <= !reset_n;
 
-  assign reset_internal = reset | reset_reg;
+  assign reset_internal = !reset_n | reset_reg;
 
   assign clock_enable   = !(halt | (prev_read_request & !read_response) | (prev_write_request & !write_response));
 
@@ -258,7 +258,8 @@ module rvx_core #(
   // Instruction fetch and instruction address logic                                               //
   //-----------------------------------------------------------------------------------------------//
 
-  assign instruction_address = reset ? BOOT_ADDRESS : (clock_enable ? next_program_counter : prev_instruction_address);
+  assign
+      instruction_address = !reset_n ? BOOT_ADDRESS : (clock_enable ? next_program_counter : prev_instruction_address);
 
   always @(posedge clock)
     if (reset_internal) prev_instruction <= `RISCV_NOP_INSTRUCTION;

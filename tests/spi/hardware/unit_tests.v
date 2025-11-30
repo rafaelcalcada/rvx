@@ -38,8 +38,8 @@ module unit_tests ();
 
       // Global signals
 
-      .clock(clock),
-      .reset(reset),
+      .clock  (clock),
+      .reset_n(!reset),
 
       // IO interface
 

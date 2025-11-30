@@ -10,7 +10,7 @@ module rvx_spi #(
     // Global signals
 
     input wire clock,
-    input wire reset,
+    input wire reset_n,
 
     // IO interface
 
@@ -69,7 +69,7 @@ module rvx_spi #(
   integer i;
 
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       read_response  <= 1'b0;
       write_response <= 1'b0;
     end
@@ -80,7 +80,7 @@ module rvx_spi #(
   end
 
   always @(posedge clock) begin
-    if (reset) read_data <= 32'hdeadbeef;
+    if (!reset_n) read_data <= 32'hdeadbeef;
     else if (read_request == 1'b1) begin
       case (rw_address)
         REG_CPOL:        read_data <= {31'b0, cpol};
@@ -96,31 +96,31 @@ module rvx_spi #(
   end
 
   always @(posedge clock) begin
-    if (reset) cpol <= 1'b0;
+    if (!reset_n) cpol <= 1'b0;
     else if (rw_address == REG_CPOL && valid_write_request == 1'b1) cpol <= write_data[0];
     else cpol <= cpol;
   end
 
   always @(posedge clock) begin
-    if (reset) cpha <= 1'b0;
+    if (!reset_n) cpha <= 1'b0;
     else if (rw_address == REG_CPHA && valid_write_request == 1'b1) cpha <= write_data[0];
     else cpha <= cpha;
   end
 
   always @(posedge clock) begin
-    if (reset) chip_select <= 8'hff;
+    if (!reset_n) chip_select <= 8'hff;
     else if (rw_address == REG_CHIP_SELECT && valid_write_request == 1'b1) chip_select <= write_data[7:0];
     else chip_select <= chip_select;
   end
 
   always @(posedge clock) begin
-    if (reset) clock_div <= 8'h00;
+    if (!reset_n) clock_div <= 8'h00;
     else if (rw_address == REG_CLOCK_CONF && valid_write_request == 1'b1) clock_div <= write_data[7:0];
     else clock_div <= clock_div;
   end
 
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       tx_reg   <= 8'h00;
       tx_start <= 1'b0;
     end
@@ -135,19 +135,19 @@ module rvx_spi #(
   end
 
   always @(posedge clock) begin
-    if (reset | chip_select == 8'hff) curr_state <= SPI_READY;
+    if (!reset_n | chip_select == 8'hff) curr_state <= SPI_READY;
     else curr_state <= next_state;
   end
 
   always @(posedge clock) begin
-    if (reset || curr_state == SPI_READY || curr_state == SPI_IDLE) cycle_counter <= 0;
+    if (!reset_n || curr_state == SPI_READY || curr_state == SPI_IDLE) cycle_counter <= 0;
     else if (curr_state == SPI_CPOL && next_state == SPI_CPOL_N) cycle_counter <= 0;
     else if (curr_state == SPI_CPOL_N && next_state == SPI_CPOL) cycle_counter <= 0;
     else cycle_counter <= cycle_counter + 1;
   end
 
   always @(posedge clock) begin
-    if (reset || curr_state == SPI_READY || curr_state == SPI_IDLE) bit_count <= 7;
+    if (!reset_n || curr_state == SPI_READY || curr_state == SPI_IDLE) bit_count <= 7;
     else if (cpha == 1'b0 && curr_state == SPI_CPOL_N && next_state == SPI_CPOL) bit_count <= bit_count - 1;
     else if (cpha == 1'b1 && curr_state == SPI_CPOL && next_state == SPI_CPOL_N) bit_count <= bit_count - 1;
     else bit_count <= bit_count;
@@ -188,7 +188,7 @@ module rvx_spi #(
   end
 
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       sclk <= 1'b0;
       pico <= 1'b0;
       cs   <= {SPI_NUM_CHIP_SELECT{1'b1}};

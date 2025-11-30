@@ -10,7 +10,7 @@ module rvx_bus #(
     // Global signals
 
     input wire clock,
-    input wire reset,
+    input wire reset_n,
 
     // Interface with the manager device (Processor Core IP)
 
@@ -66,7 +66,7 @@ module rvx_bus #(
   end
 
   always @(posedge clock) begin
-    if (reset) device_sel_save <= {NUM_DEVICES{1'b0}};
+    if (!reset_n) device_sel_save <= {NUM_DEVICES{1'b0}};
     else if ((manager_read_request || manager_write_request) && (|device_sel)) device_sel_save <= device_sel;
     else device_sel_save <= {NUM_DEVICES{1'b0}};
   end

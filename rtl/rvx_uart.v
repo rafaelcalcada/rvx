@@ -11,7 +11,7 @@ module rvx_uart #(
     // Global signals
 
     input wire clock,
-    input wire reset,
+    input wire reset_n,
 
     // IO interface
 
@@ -55,9 +55,9 @@ module rvx_uart #(
 
   wire        reset_internal;
 
-  always @(posedge clock) reset_reg <= reset;
+  always @(posedge clock) reset_reg <= !reset_n;
 
-  assign reset_internal = reset | reset_reg;
+  assign reset_internal = !reset_n | reset_reg;
 
   assign uart_tx        = tx_register[0];
 

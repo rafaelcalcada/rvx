@@ -6,7 +6,7 @@ module rvx_mtimer (
     // Global signals
 
     input wire clock,
-    input wire reset,
+    input wire reset_n,
 
     // IO interface
 
@@ -71,7 +71,7 @@ module rvx_mtimer (
 
   // Control register
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       cr_en <= 1'b0;
     end
     else begin
@@ -85,7 +85,7 @@ module rvx_mtimer (
   // mtime
   wire [63:0] mtime_plus_1 = mtime + 1'd1;
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       mtime <= {64{1'b0}};
     end
     else begin
@@ -106,7 +106,7 @@ module rvx_mtimer (
 
   // mtimecmp
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       mtimecmp <= 64'hffff_ffff_ffff_ffff
           ;  // Initially, mtimecmp holds the biggest value so mtime is sure to be smaller than mtimecmp
     end
@@ -124,7 +124,7 @@ module rvx_mtimer (
 
   // IRQ
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       irq <= 1'b0;
     end
     else begin
@@ -140,7 +140,7 @@ module rvx_mtimer (
 
   // Bus: Response to request
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       read_response  <= 1'b0;
       write_response <= 1'b0;
       // access_fault <= 1'b0;
@@ -157,7 +157,7 @@ module rvx_mtimer (
 
   // Bus: Read registers
   always @(posedge clock) begin
-    if (reset) begin
+    if (!reset_n) begin
       read_data <= 32'd0;
     end
     else begin

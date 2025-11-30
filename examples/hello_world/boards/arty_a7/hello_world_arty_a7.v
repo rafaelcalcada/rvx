@@ -33,7 +33,7 @@ module hello_world_arty_a7 (
       // while unused outputs are left open.
 
       .clock      (clock_50mhz),
-      .reset      (reset_debounced),
+      .reset_n    (!reset_debounced),
       .halt       (1'b0),
       .uart_rx    (  /* unused, leave open */),
       .uart_tx    (uart_tx),

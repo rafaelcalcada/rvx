@@ -28,7 +28,7 @@ module hello_world_cmod_a7 (
       // while unused outputs are left open.
 
       .clock      (clock),
-      .reset      (reset_debounced),
+      .reset_n    (!reset_debounced),
       .halt       (1'b0),
       .uart_rx    (  /* unused, leave open */),
       .uart_tx    (uart_tx),

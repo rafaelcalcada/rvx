@@ -29,9 +29,9 @@ module unit_tests ();
 
       // Global signals
 
-      .clock(clock),
-      .reset(reset),
-      .halt (halt),
+      .clock  (clock),
+      .reset_n(!reset),
+      .halt   (halt),
 
       // IO interface
 
@@ -67,8 +67,8 @@ module unit_tests ();
 
       // Global signals
 
-      .clock(clock),
-      .reset(reset),
+      .clock  (clock),
+      .reset_n(!reset),
 
       // IO interface
 
@@ -357,7 +357,7 @@ module ram_memory #(
     // Global signals
 
     input wire clock,
-    input wire reset,
+    input wire reset_n,
 
     // IO interface
 
@@ -379,9 +379,9 @@ module ram_memory #(
   reg         reset_reg;
   reg  [31:0] ram               [0:(MEMORY_SIZE/4)-1];
 
-  always @(posedge clock) reset_reg <= reset;
+  always @(posedge clock) reset_reg <= !reset_n;
 
-  assign reset_internal  = reset | reset_reg;
+  assign reset_internal  = !reset_n | reset_reg;
   assign invalid_address = $unsigned(rw_address) >= $unsigned(MEMORY_SIZE);
 
   integer i;
