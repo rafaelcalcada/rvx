@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
+`include "rvx_constants.vh"
+
 module rvx_core #(
 
     parameter [31:0] BOOT_ADDRESS = 32'h00000000
@@ -40,175 +42,6 @@ module rvx_core #(
     input wire [63:0] real_time_clock
 
 );
-
-  //-----------------------------------------------------------------------------------------------//
-  // Constants                                                                                     //
-  //-----------------------------------------------------------------------------------------------//
-
-  // Address of Machine Information CSRs
-
-  localparam MARCHID = 12'hF12;
-  localparam MIMPID = 12'hF13;
-
-  // Address of Performance Counters CSRs
-
-  localparam CYCLE = 12'hC00;
-  localparam TIME = 12'hC01;
-  localparam INSTRET = 12'hC02;
-  localparam CYCLEH = 12'hC80;
-  localparam TIMEH = 12'hC81;
-  localparam INSTRETH = 12'hC82;
-
-  // Address of Machine Trap Setup CSRs
-
-  localparam MSTATUS = 12'h300;
-  localparam MSTATUSH = 12'h310;
-  localparam MISA = 12'h301;
-  localparam MIE = 12'h304;
-  localparam MTVEC = 12'h305;
-
-  // Address of Machine Trap Handling CSRs
-
-  localparam MSCRATCH = 12'h340;
-  localparam MEPC = 12'h341;
-  localparam MCAUSE = 12'h342;
-  localparam MTVAL = 12'h343;
-  localparam MIP = 12'h344;
-
-  // Address of Machine Performance Counters CSRs
-
-  localparam MCYCLE = 12'hB00;
-  localparam MINSTRET = 12'hB02;
-  localparam MCYCLEH = 12'hB80;
-  localparam MINSTRETH = 12'hB82;
-
-  // Writeback Mux selection
-
-  localparam WB_ALU = 3'b000;
-  localparam WB_LOAD_UNIT = 3'b001;
-  localparam WB_UPPER_IMM = 3'b010;
-  localparam WB_TARGET_ADDER = 3'b011;
-  localparam WB_CSR = 3'b100;
-  localparam WB_PC_PLUS_4 = 3'b101;
-
-  // Immediate format selection
-
-  localparam I_TYPE_IMMEDIATE = 3'b001;
-  localparam S_TYPE_IMMEDIATE = 3'b010;
-  localparam B_TYPE_IMMEDIATE = 3'b011;
-  localparam U_TYPE_IMMEDIATE = 3'b100;
-  localparam J_TYPE_IMMEDIATE = 3'b101;
-  localparam CSR_TYPE_IMMEDIATE = 3'b110;
-
-  // Program Counter source selection
-
-  localparam PC_BOOT = 2'b00;
-  localparam PC_EPC = 2'b01;
-  localparam PC_TRAP = 2'b10;
-  localparam PC_NEXT = 2'b11;
-
-  // Load size encoding
-
-  localparam LOAD_SIZE_BYTE = 2'b00;
-  localparam LOAD_SIZE_HALF = 2'b01;
-  localparam LOAD_SIZE_WORD = 2'b10;
-
-  // CSR File operation encoding
-
-  localparam CSR_RWX = 2'b01;
-  localparam CSR_RSX = 2'b10;
-  localparam CSR_RCX = 2'b11;
-
-  // States in M-mode
-
-  localparam STATE_RESET = 4'b0001;
-  localparam STATE_OPERATING = 4'b0010;
-  localparam STATE_TRAP_TAKEN = 4'b0100;
-  localparam STATE_TRAP_RETURN = 4'b1000;
-
-  // No operation
-
-  localparam NOP_INSTRUCTION = 32'h00000013;
-
-  // Opcodes
-
-  localparam OPCODE_OP = 7'b0110011;
-  localparam OPCODE_OP_IMM = 7'b0010011;
-  localparam OPCODE_LOAD = 7'b0000011;
-  localparam OPCODE_STORE = 7'b0100011;
-  localparam OPCODE_BRANCH = 7'b1100011;
-  localparam OPCODE_JAL = 7'b1101111;
-  localparam OPCODE_JALR = 7'b1100111;
-  localparam OPCODE_LUI = 7'b0110111;
-  localparam OPCODE_AUIPC = 7'b0010111;
-  localparam OPCODE_MISC_MEM = 7'b0001111;
-  localparam OPCODE_SYSTEM = 7'b1110011;
-
-  // Funct3
-
-  localparam FUNCT3_ADD           = 3'b000;
-  localparam FUNCT3_SUB           = 3'b000;
-  localparam FUNCT3_SLT           = 3'b010;
-  localparam FUNCT3_SLTU          = 3'b011;
-  localparam FUNCT3_AND           = 3'b111;
-  localparam FUNCT3_OR            = 3'b110;
-  localparam FUNCT3_XOR           = 3'b100;
-  localparam FUNCT3_SLL           = 3'b001;
-  localparam FUNCT3_SRL           = 3'b101;
-  localparam FUNCT3_SRA           = 3'b101;
-  localparam FUNCT3_ADDI          = 3'b000;
-  localparam FUNCT3_SLTI          = 3'b010;
-  localparam FUNCT3_SLTIU         = 3'b011;
-  localparam FUNCT3_ANDI          = 3'b111;
-  localparam FUNCT3_ORI           = 3'b110;
-  localparam FUNCT3_XORI          = 3'b100;
-  localparam FUNCT3_SLLI          = 3'b001;
-  localparam FUNCT3_SRLI          = 3'b101;
-  localparam FUNCT3_SRAI          = 3'b101;
-  localparam FUNCT3_BEQ           = 3'b000;
-  localparam FUNCT3_BNE           = 3'b001;
-  localparam FUNCT3_BLT           = 3'b100;
-  localparam FUNCT3_BGE           = 3'b101;
-  localparam FUNCT3_BLTU          = 3'b110;
-  localparam FUNCT3_BGEU          = 3'b111;
-  localparam FUNCT3_SB            = 3'b000;
-  localparam FUNCT3_SH            = 3'b001;
-  localparam FUNCT3_SW            = 3'b010;
-  localparam FUNCT3_ECALL         = 3'b000;
-  localparam FUNCT3_EBREAK        = 3'b000;
-  localparam FUNCT3_MRET          = 3'b000;
-  localparam FUNCT3_FENCE         = 3'b000;
-
-  // Funct7
-
-  localparam FUNCT7_SUB = 7'b0100000;
-  localparam FUNCT7_SRA = 7'b0100000;
-  localparam FUNCT7_ADD = 7'b0000000;
-  localparam FUNCT7_SLT = 7'b0000000;
-  localparam FUNCT7_SLTU = 7'b0000000;
-  localparam FUNCT7_AND = 7'b0000000;
-  localparam FUNCT7_OR = 7'b0000000;
-  localparam FUNCT7_XOR = 7'b0000000;
-  localparam FUNCT7_SLL = 7'b0000000;
-  localparam FUNCT7_SRL = 7'b0000000;
-  localparam FUNCT7_SRAI = 7'b0100000;
-  localparam FUNCT7_SLLI = 7'b0000000;
-  localparam FUNCT7_SRLI = 7'b0000000;
-  localparam FUNCT7_ECALL = 7'b0000000;
-  localparam FUNCT7_EBREAK = 7'b0000000;
-  localparam FUNCT7_MRET = 7'b0011000;
-
-  // RS1, RS2 and RD encodings for SYSTEM instructions
-
-  localparam RS1_ECALL = 5'b00000;
-  localparam RS1_EBREAK = 5'b00000;
-  localparam RS1_MRET = 5'b00000;
-  localparam RS2_ECALL = 5'b00000;
-  localparam RS2_EBREAK = 5'b00001;
-  localparam RS2_MRET = 5'b00010;
-  localparam RD_ECALL = 5'b00000;
-  localparam RD_EBREAK = 5'b00000;
-  localparam RD_MRET = 5'b00000;
 
   //-----------------------------------------------------------------------------------------------//
   // Wires and regs                                                                                //
@@ -428,15 +261,15 @@ module rvx_core #(
   assign instruction_address = reset ? BOOT_ADDRESS : (clock_enable ? next_program_counter : prev_instruction_address);
 
   always @(posedge clock)
-    if (reset_internal) prev_instruction <= NOP_INSTRUCTION;
+    if (reset_internal) prev_instruction <= `RISCV_NOP_INSTRUCTION;
     else prev_instruction <= instruction;
 
   always @* begin : next_program_counter_mux
     case (program_counter_source)
-      PC_BOOT: next_program_counter = BOOT_ADDRESS;
-      PC_EPC:  next_program_counter = csr_mepc;
-      PC_TRAP: next_program_counter = trap_address;
-      PC_NEXT: next_program_counter = next_address;
+      `RVX_PC_BOOT: next_program_counter = BOOT_ADDRESS;
+      `RVX_PC_EPC:  next_program_counter = csr_mepc;
+      `RVX_PC_TRAP: next_program_counter = trap_address;
+      `RVX_PC_NEXT: next_program_counter = next_address;
     endcase
   end
 
@@ -454,7 +287,7 @@ module rvx_core #(
   end
 
   assign instruction = flush ?
-      NOP_INSTRUCTION : (!clock_enable | load_commit_cycle | store_commit_cycle) ? prev_instruction : read_data;
+      `RISCV_NOP_INSTRUCTION : (!clock_enable | load_commit_cycle | store_commit_cycle) ? prev_instruction : read_data;
 
   assign instruction_opcode = instruction[6:0];
 
@@ -500,15 +333,15 @@ module rvx_core #(
 
   always @* begin
     case (instruction_funct3)
-      FUNCT3_SB: begin
+      `RISCV_FUNCT3_SB: begin
         write_strobe_internal = write_strobe_for_byte;
         write_data_internal   = store_byte_data;
       end
-      FUNCT3_SH: begin
+      `RISCV_FUNCT3_SH: begin
         write_strobe_internal = write_strobe_for_half;
         write_data_internal   = store_half_data;
       end
-      FUNCT3_SW: begin
+      `RISCV_FUNCT3_SW: begin
         write_strobe_internal = {4{write_request}};
         write_data_internal   = rs2_data;
       end
@@ -559,67 +392,67 @@ module rvx_core #(
 
   // Instruction type detection
 
-  assign branch_type = instruction_opcode == OPCODE_BRANCH;
+  assign branch_type = instruction_opcode == `RISCV_OPCODE_BRANCH;
 
-  assign jal_type = instruction_opcode == OPCODE_JAL;
+  assign jal_type = instruction_opcode == `RISCV_OPCODE_JAL;
 
-  assign jalr_type = instruction_opcode == OPCODE_JALR;
+  assign jalr_type = instruction_opcode == `RISCV_OPCODE_JALR;
 
-  assign auipc_type = instruction_opcode == OPCODE_AUIPC;
+  assign auipc_type = instruction_opcode == `RISCV_OPCODE_AUIPC;
 
-  assign lui_type = instruction_opcode == OPCODE_LUI;
+  assign lui_type = instruction_opcode == `RISCV_OPCODE_LUI;
 
-  assign load_type = instruction_opcode == OPCODE_LOAD;
+  assign load_type = instruction_opcode == `RISCV_OPCODE_LOAD;
 
-  assign store_type = instruction_opcode == OPCODE_STORE;
+  assign store_type = instruction_opcode == `RISCV_OPCODE_STORE;
 
-  assign system_type = instruction_opcode == OPCODE_SYSTEM;
+  assign system_type = instruction_opcode == `RISCV_OPCODE_SYSTEM;
 
-  assign op_type = instruction_opcode == OPCODE_OP;
+  assign op_type = instruction_opcode == `RISCV_OPCODE_OP;
 
-  assign op_imm_type = instruction_opcode == OPCODE_OP_IMM;
+  assign op_imm_type = instruction_opcode == `RISCV_OPCODE_OP_IMM;
 
-  assign misc_mem_type = instruction_opcode == OPCODE_MISC_MEM;
+  assign misc_mem_type = instruction_opcode == `RISCV_OPCODE_MISC_MEM;
 
   // Instruction detection
 
-  assign addi = op_imm_type & instruction_funct3 == FUNCT3_ADDI;
+  assign addi = op_imm_type & instruction_funct3 == `RISCV_FUNCT3_ADDI;
 
-  assign slti = op_imm_type & instruction_funct3 == FUNCT3_SLTI;
+  assign slti = op_imm_type & instruction_funct3 == `RISCV_FUNCT3_SLTI;
 
-  assign sltiu = op_imm_type & instruction_funct3 == FUNCT3_SLTIU;
+  assign sltiu = op_imm_type & instruction_funct3 == `RISCV_FUNCT3_SLTIU;
 
-  assign andi = op_imm_type & instruction_funct3 == FUNCT3_ANDI;
+  assign andi = op_imm_type & instruction_funct3 == `RISCV_FUNCT3_ANDI;
 
-  assign ori = op_imm_type & instruction_funct3 == FUNCT3_ORI;
+  assign ori = op_imm_type & instruction_funct3 == `RISCV_FUNCT3_ORI;
 
-  assign xori = op_imm_type & instruction_funct3 == FUNCT3_XORI;
+  assign xori = op_imm_type & instruction_funct3 == `RISCV_FUNCT3_XORI;
 
-  assign slli = op_imm_type & instruction_funct3 == FUNCT3_SLLI & instruction_funct7 == FUNCT7_SLLI;
+  assign slli = op_imm_type & instruction_funct3 == `RISCV_FUNCT3_SLLI & instruction_funct7 == `RISCV_FUNCT7_SLLI;
 
-  assign srli = op_imm_type & instruction_funct3 == FUNCT3_SRLI & instruction_funct7 == FUNCT7_SRLI;
+  assign srli = op_imm_type & instruction_funct3 == `RISCV_FUNCT3_SRLI & instruction_funct7 == `RISCV_FUNCT7_SRLI;
 
-  assign srai = op_imm_type & instruction_funct3 == FUNCT3_SRAI & instruction_funct7 == FUNCT7_SRAI;
+  assign srai = op_imm_type & instruction_funct3 == `RISCV_FUNCT3_SRAI & instruction_funct7 == `RISCV_FUNCT7_SRAI;
 
-  assign add = op_type & instruction_funct3 == FUNCT3_ADD & instruction_funct7 == FUNCT7_ADD;
+  assign add = op_type & instruction_funct3 == `RISCV_FUNCT3_ADD & instruction_funct7 == `RISCV_FUNCT7_ADD;
 
-  assign sub = op_type & instruction_funct3 == FUNCT3_SUB & instruction_funct7 == FUNCT7_SUB;
+  assign sub = op_type & instruction_funct3 == `RISCV_FUNCT3_SUB & instruction_funct7 == `RISCV_FUNCT7_SUB;
 
-  assign slt = op_type & instruction_funct3 == FUNCT3_SLT & instruction_funct7 == FUNCT7_SLT;
+  assign slt = op_type & instruction_funct3 == `RISCV_FUNCT3_SLT & instruction_funct7 == `RISCV_FUNCT7_SLT;
 
-  assign sltu = op_type & instruction_funct3 == FUNCT3_SLTU & instruction_funct7 == FUNCT7_SLTU;
+  assign sltu = op_type & instruction_funct3 == `RISCV_FUNCT3_SLTU & instruction_funct7 == `RISCV_FUNCT7_SLTU;
 
-  assign is_and = op_type & instruction_funct3 == FUNCT3_AND & instruction_funct7 == FUNCT7_AND;
+  assign is_and = op_type & instruction_funct3 == `RISCV_FUNCT3_AND & instruction_funct7 == `RISCV_FUNCT7_AND;
 
-  assign is_or = op_type & instruction_funct3 == FUNCT3_OR & instruction_funct7 == FUNCT7_OR;
+  assign is_or = op_type & instruction_funct3 == `RISCV_FUNCT3_OR & instruction_funct7 == `RISCV_FUNCT7_OR;
 
-  assign is_xor = op_type & instruction_funct3 == FUNCT3_XOR & instruction_funct7 == FUNCT7_XOR;
+  assign is_xor = op_type & instruction_funct3 == `RISCV_FUNCT3_XOR & instruction_funct7 == `RISCV_FUNCT7_XOR;
 
-  assign sll = op_type & instruction_funct3 == FUNCT3_SLL & instruction_funct7 == FUNCT7_SLL;
+  assign sll = op_type & instruction_funct3 == `RISCV_FUNCT3_SLL & instruction_funct7 == `RISCV_FUNCT7_SLL;
 
-  assign srl = op_type & instruction_funct3 == FUNCT3_SRL & instruction_funct7 == FUNCT7_SRL;
+  assign srl = op_type & instruction_funct3 == `RISCV_FUNCT3_SRL & instruction_funct7 == `RISCV_FUNCT7_SRL;
 
-  assign sra = op_type & instruction_funct3 == FUNCT3_SRA & instruction_funct7 == FUNCT7_SRA;
+  assign sra = op_type & instruction_funct3 == `RISCV_FUNCT3_SRA & instruction_funct7 == `RISCV_FUNCT7_SRA;
 
   assign csrxxx = system_type & instruction_funct3 != 3'b000 & instruction_funct3 != 3'b100;
 
@@ -630,12 +463,13 @@ module rvx_core #(
   assign ecall = system_type & instruction_funct3 == FUNCT3_ECALL & instruction_funct7 == FUNCT7_ECALL &
       instruction_rs1_address == RS1_ECALL & instruction_rs2_address == RS2_ECALL & instruction_rd_address == RD_ECALL;
 
-  assign ebreak = system_type & instruction_funct3 == FUNCT3_EBREAK & instruction_funct7 == FUNCT7_EBREAK &
-      instruction_rs1_address == RS1_EBREAK & instruction_rs2_address == RS2_EBREAK &
-      instruction_rd_address == RD_EBREAK;
+  assign ebreak = system_type & instruction_funct3 == `RISCV_FUNCT3_EBREAK &
+      instruction_funct7 == `RISCV_FUNCT7_EBREAK & instruction_rs1_address == `RISCV_RS1_EBREAK &
+      instruction_rs2_address == `RISCV_RS2_EBREAK & instruction_rd_address == `RISCV_RD_EBREAK;
 
-  assign mret = system_type & instruction_funct3 == FUNCT3_MRET & instruction_funct7 == FUNCT7_MRET &
-      instruction_rs1_address == RS1_MRET & instruction_rs2_address == RS2_MRET & instruction_rd_address == RD_MRET;
+  assign mret = system_type & instruction_funct3 == `RISCV_FUNCT3_MRET & instruction_funct7 == `RISCV_FUNCT7_MRET &
+      instruction_rs1_address == `RISCV_RS1_MRET & instruction_rs2_address == `RISCV_RS2_MRET &
+      instruction_rd_address == `RISCV_RD_MRET;
 
   // Illegal instruction detection
 
@@ -702,23 +536,23 @@ module rvx_core #(
   assign csr_operation = instruction_funct3;
 
   always @* begin : writeback_selector_decoding
-    if (op_type == 1'b1 || op_imm_type == 1'b1) writeback_mux_selector = WB_ALU;
-    else if (load_type == 1'b1) writeback_mux_selector = WB_LOAD_UNIT;
-    else if (jal_type == 1'b1 || jalr_type == 1'b1) writeback_mux_selector = WB_PC_PLUS_4;
-    else if (lui_type == 1'b1) writeback_mux_selector = WB_UPPER_IMM;
-    else if (auipc_type == 1'b1) writeback_mux_selector = WB_TARGET_ADDER;
-    else if (csrxxx == 1'b1) writeback_mux_selector = WB_CSR;
-    else writeback_mux_selector = WB_ALU;
+    if (op_type == 1'b1 || op_imm_type == 1'b1) writeback_mux_selector = `RVX_WB_ALU;
+    else if (load_type == 1'b1) writeback_mux_selector = `RVX_WB_LOAD_UNIT;
+    else if (jal_type == 1'b1 || jalr_type == 1'b1) writeback_mux_selector = `RVX_WB_PC_PLUS_4;
+    else if (lui_type == 1'b1) writeback_mux_selector = `RVX_WB_UPPER_IMM;
+    else if (auipc_type == 1'b1) writeback_mux_selector = `RVX_WB_TARGET_ADDER;
+    else if (csrxxx == 1'b1) writeback_mux_selector = `RVX_WB_CSR;
+    else writeback_mux_selector = `RVX_WB_ALU;
   end
 
   always @* begin : immediate_type_decoding
-    if (op_imm_type == 1'b1 || load_type == 1'b1 || jalr_type == 1'b1) immediate_type = I_TYPE_IMMEDIATE;
-    else if (store_type == 1'b1) immediate_type = S_TYPE_IMMEDIATE;
-    else if (branch_type == 1'b1) immediate_type = B_TYPE_IMMEDIATE;
-    else if (jal_type == 1'b1) immediate_type = J_TYPE_IMMEDIATE;
-    else if (lui_type == 1'b1 || auipc_type == 1'b1) immediate_type = U_TYPE_IMMEDIATE;
-    else if (csrxxx == 1'b1) immediate_type = CSR_TYPE_IMMEDIATE;
-    else immediate_type = I_TYPE_IMMEDIATE;
+    if (op_imm_type == 1'b1 || load_type == 1'b1 || jalr_type == 1'b1) immediate_type = `RISCV_I_TYPE_IMMEDIATE;
+    else if (store_type == 1'b1) immediate_type = `RISCV_S_TYPE_IMMEDIATE;
+    else if (branch_type == 1'b1) immediate_type = `RISCV_B_TYPE_IMMEDIATE;
+    else if (jal_type == 1'b1) immediate_type = `RISCV_J_TYPE_IMMEDIATE;
+    else if (lui_type == 1'b1 || auipc_type == 1'b1) immediate_type = `RISCV_U_TYPE_IMMEDIATE;
+    else if (csrxxx == 1'b1) immediate_type = `RISCV_CSR_TYPE_IMMEDIATE;
+    else immediate_type = `RISCV_I_TYPE_IMMEDIATE;
   end
 
   //-----------------------------------------------------------------------------------------------//
@@ -743,13 +577,13 @@ module rvx_core #(
 
   always @(*) begin : immediate_mux
     case (immediate_type)
-      I_TYPE_IMMEDIATE:   immediate = immediate_i_type;
-      S_TYPE_IMMEDIATE:   immediate = immediate_s_type;
-      B_TYPE_IMMEDIATE:   immediate = immediate_b_type;
-      U_TYPE_IMMEDIATE:   immediate = immediate_u_type;
-      J_TYPE_IMMEDIATE:   immediate = immediate_j_type;
-      CSR_TYPE_IMMEDIATE: immediate = immediate_csr_type;
-      default:            immediate = immediate_i_type;
+      `RISCV_I_TYPE_IMMEDIATE:   immediate = immediate_i_type;
+      `RISCV_S_TYPE_IMMEDIATE:   immediate = immediate_s_type;
+      `RISCV_B_TYPE_IMMEDIATE:   immediate = immediate_b_type;
+      `RISCV_U_TYPE_IMMEDIATE:   immediate = immediate_u_type;
+      `RISCV_J_TYPE_IMMEDIATE:   immediate = immediate_j_type;
+      `RISCV_CSR_TYPE_IMMEDIATE: immediate = immediate_csr_type;
+      default:                   immediate = immediate_i_type;
     endcase
   end
 
@@ -775,13 +609,13 @@ module rvx_core #(
 
   always @* begin : branch_condition_satisfied_mux
     case (instruction_funct3)
-      FUNCT3_BEQ:  branch_condition_satisfied = is_equal;
-      FUNCT3_BNE:  branch_condition_satisfied = is_not_equal;
-      FUNCT3_BLT:  branch_condition_satisfied = is_less_than;
-      FUNCT3_BGE:  branch_condition_satisfied = is_greater_or_equal_than;
-      FUNCT3_BLTU: branch_condition_satisfied = is_less_than_unsigned;
-      FUNCT3_BGEU: branch_condition_satisfied = is_greater_or_equal_than_unsigned;
-      default:     branch_condition_satisfied = 1'b0;
+      `RISCV_FUNCT3_BEQ:  branch_condition_satisfied = is_equal;
+      `RISCV_FUNCT3_BNE:  branch_condition_satisfied = is_not_equal;
+      `RISCV_FUNCT3_BLT:  branch_condition_satisfied = is_less_than;
+      `RISCV_FUNCT3_BGE:  branch_condition_satisfied = is_greater_or_equal_than;
+      `RISCV_FUNCT3_BLTU: branch_condition_satisfied = is_less_than_unsigned;
+      `RISCV_FUNCT3_BGEU: branch_condition_satisfied = is_greater_or_equal_than_unsigned;
+      default:            branch_condition_satisfied = 1'b0;
     endcase
   end
 
@@ -808,7 +642,7 @@ module rvx_core #(
   // M-mode logic and hart control                                                               //
   //---------------------------------------------------------------------------------------------//
 
-  assign flush = current_state != STATE_OPERATING;
+  assign flush = current_state != `RVX_STATE_OPERATING;
 
   assign interrupt_pending = (csr_mie_meie & csr_mip_meip) | (csr_mie_mtie & csr_mip_mtip) |
       (csr_mie_msie & csr_mip_msip) | (|(csr_mie_mfie & csr_mip_mfip));
@@ -819,42 +653,42 @@ module rvx_core #(
 
   always @* begin : m_mode_fsm_next_state_logic
     case (current_state)
-      STATE_RESET: next_state = STATE_OPERATING;
-      STATE_OPERATING:
-      if (take_trap) next_state = STATE_TRAP_TAKEN;
-      else if (mret) next_state = STATE_TRAP_RETURN;
-      else next_state = STATE_OPERATING;
-      STATE_TRAP_TAKEN: next_state = STATE_OPERATING;
-      STATE_TRAP_RETURN: next_state = STATE_OPERATING;
-      default: next_state = STATE_OPERATING;
+      `RVX_STATE_RESET: next_state = `RVX_STATE_OPERATING;
+      `RVX_STATE_OPERATING:
+      if (take_trap) next_state = `RVX_STATE_TRAP_TAKEN;
+      else if (mret) next_state = `RVX_STATE_TRAP_RETURN;
+      else next_state = `RVX_STATE_OPERATING;
+      `RVX_STATE_TRAP_TAKEN: next_state = `RVX_STATE_OPERATING;
+      `RVX_STATE_TRAP_RETURN: next_state = `RVX_STATE_OPERATING;
+      default: next_state = `RVX_STATE_OPERATING;
     endcase
   end
 
   always @(posedge clock) begin : m_mode_fsm_current_state_register
-    if (reset_internal) current_state <= STATE_RESET;
+    if (reset_internal) current_state <= `RVX_STATE_RESET;
     else if (clock_enable | interrupt_pending) current_state <= next_state;
   end
 
   always @* begin : program_counter_source_mux
     case (current_state)
-      STATE_RESET:       program_counter_source = PC_BOOT;
-      STATE_OPERATING:   program_counter_source = PC_NEXT;
-      STATE_TRAP_TAKEN:  program_counter_source = PC_TRAP;
-      STATE_TRAP_RETURN: program_counter_source = PC_EPC;
-      default:           program_counter_source = PC_NEXT;
+      `RVX_STATE_RESET:       program_counter_source = `RVX_PC_BOOT;
+      `RVX_STATE_OPERATING:   program_counter_source = `RVX_PC_NEXT;
+      `RVX_STATE_TRAP_TAKEN:  program_counter_source = `RVX_PC_TRAP;
+      `RVX_STATE_TRAP_RETURN: program_counter_source = `RVX_PC_EPC;
+      default:                program_counter_source = `RVX_PC_NEXT;
     endcase
   end
 
-  assign irq_external_response = (current_state == STATE_TRAP_TAKEN) && (csr_mcause_code == 5'b1011);
+  assign irq_external_response = (current_state == `RVX_STATE_TRAP_TAKEN) && (csr_mcause_code == 5'b1011);
 
-  assign irq_timer_response    = (current_state == STATE_TRAP_TAKEN) && (csr_mcause_code == 5'b0111);
+  assign irq_timer_response    = (current_state == `RVX_STATE_TRAP_TAKEN) && (csr_mcause_code == 5'b0111);
 
-  assign irq_software_response = (current_state == STATE_TRAP_TAKEN) && (csr_mcause_code == 5'b0011);
+  assign irq_software_response = (current_state == `RVX_STATE_TRAP_TAKEN) && (csr_mcause_code == 5'b0011);
 
   generate
     genvar ifast;
     for (ifast = 0; ifast < 16; ifast = ifast + 1) begin
-      assign irq_fast_response[ifast] = (current_state == STATE_TRAP_TAKEN) && (csr_mcause_code == ifast + 16);
+      assign irq_fast_response[ifast] = (current_state == `RVX_STATE_TRAP_TAKEN) && (csr_mcause_code == ifast + 16);
     end
   endgenerate
 
@@ -866,38 +700,38 @@ module rvx_core #(
 
   always @* begin : csr_write_data_mux
     case (csr_operation[1:0])
-      CSR_RWX: csr_write_data = csr_data_mask;
-      CSR_RSX: csr_write_data = csr_data_out | csr_data_mask;
-      CSR_RCX: csr_write_data = csr_data_out & ~csr_data_mask;
-      default: csr_write_data = csr_data_out;
+      `RVX_CSR_OPERATION_RW: csr_write_data = csr_data_mask;
+      `RVX_CSR_OPERATION_RS: csr_write_data = csr_data_out | csr_data_mask;
+      `RVX_CSR_OPERATION_RC: csr_write_data = csr_data_out & ~csr_data_mask;
+      default:               csr_write_data = csr_data_out;
     endcase
   end
 
   always @* begin : csr_data_out_mux
     case (instruction_csr_address)
-      MARCHID:   csr_data_out = 32'h00000018;  // RVX microarchitecture ID
-      MIMPID:    csr_data_out = 32'h00000006;  // Version 6
-      CYCLE:     csr_data_out = csr_mcycle[31:0];
-      CYCLEH:    csr_data_out = csr_mcycle[63:32];
-      TIME:      csr_data_out = csr_utime[31:0];
-      TIMEH:     csr_data_out = csr_utime[63:32];
-      INSTRET:   csr_data_out = csr_minstret[31:0];
-      INSTRETH:  csr_data_out = csr_minstret[63:32];
-      MSTATUS:   csr_data_out = csr_mstatus;
-      MSTATUSH:  csr_data_out = 32'h00000000;
-      MISA:      csr_data_out = 32'h40000100;  // RV32I base ISA only
-      MIE:       csr_data_out = csr_mie;
-      MTVEC:     csr_data_out = csr_mtvec;
-      MSCRATCH:  csr_data_out = csr_mscratch;
-      MEPC:      csr_data_out = csr_mepc;
-      MCAUSE:    csr_data_out = csr_mcause;
-      MTVAL:     csr_data_out = csr_mtval;
-      MIP:       csr_data_out = csr_mip;
-      MCYCLE:    csr_data_out = csr_mcycle[31:0];
-      MCYCLEH:   csr_data_out = csr_mcycle[63:32];
-      MINSTRET:  csr_data_out = csr_minstret[31:0];
-      MINSTRETH: csr_data_out = csr_minstret[63:32];
-      default:   csr_data_out = 32'h00000000;
+      `RISCV_CSR_MARCHID_ADDR:   csr_data_out = 32'h00000018;  // RVX microarchitecture ID
+      `RISCV_CSR_MIMPID_ADDR:    csr_data_out = 32'h00000006;  // Version 6
+      `RISCV_CSR_UCYCLE_ADDR:    csr_data_out = csr_mcycle[31:0];
+      `RISCV_CSR_UCYCLEH_ADDR:   csr_data_out = csr_mcycle[63:32];
+      `RISCV_CSR_UTIME_ADDR:     csr_data_out = csr_utime[31:0];
+      `RISCV_CSR_UTIMEH_ADDR:    csr_data_out = csr_utime[63:32];
+      `RISCV_CSR_UINSTRET_ADDR:  csr_data_out = csr_minstret[31:0];
+      `RISCV_CSR_UINSTRETH_ADDR: csr_data_out = csr_minstret[63:32];
+      `RISCV_CSR_MSTATUS_ADDR:   csr_data_out = csr_mstatus;
+      `RISCV_CSR_MSTATUSH_ADDR:  csr_data_out = 32'h00000000;
+      `RISCV_CSR_MISA_ADDR:      csr_data_out = 32'h40000100;  // RV32I base ISA only
+      `RISCV_CSR_MIE_ADDR:       csr_data_out = csr_mie;
+      `RISCV_CSR_MTVEC_ADDR:     csr_data_out = csr_mtvec;
+      `RISCV_CSR_MSCRATCH_ADDR:  csr_data_out = csr_mscratch;
+      `RISCV_CSR_MEPC_ADDR:      csr_data_out = csr_mepc;
+      `RISCV_CSR_MCAUSE_ADDR:    csr_data_out = csr_mcause;
+      `RISCV_CSR_MTVAL_ADDR:     csr_data_out = csr_mtval;
+      `RISCV_CSR_MIP_ADDR:       csr_data_out = csr_mip;
+      `RISCV_CSR_MCYCLE_ADDR:    csr_data_out = csr_mcycle[31:0];
+      `RISCV_CSR_MCYCLEH_ADDR:   csr_data_out = csr_mcycle[63:32];
+      `RISCV_CSR_MINSTRET_ADDR:  csr_data_out = csr_minstret[31:0];
+      `RISCV_CSR_MINSTRETH_ADDR: csr_data_out = csr_minstret[63:32];
+      default:                   csr_data_out = 32'h00000000;
     endcase
   end
 
@@ -925,15 +759,16 @@ module rvx_core #(
       csr_mstatus_mpie <= 1'b1;
     end
     else if (clock_enable) begin
-      if (current_state == STATE_TRAP_RETURN) begin
+      if (current_state == `RVX_STATE_TRAP_RETURN) begin
         csr_mstatus_mie  <= csr_mstatus_mpie;
         csr_mstatus_mpie <= 1'b1;
       end
-      else if (current_state == STATE_TRAP_TAKEN) begin
+      else if (current_state == `RVX_STATE_TRAP_TAKEN) begin
         csr_mstatus_mpie <= csr_mstatus_mie;
         csr_mstatus_mie  <= 1'b0;
       end
-      else if (current_state == STATE_OPERATING && instruction_csr_address == MSTATUS && csr_file_write_enable) begin
+      else if (current_state == `RVX_STATE_OPERATING && instruction_csr_address == `RISCV_CSR_MSTATUS_ADDR &&
+               csr_file_write_enable) begin
         csr_mstatus_mie  <= csr_write_data[3];
         csr_mstatus_mpie <= csr_write_data[7];
       end
@@ -962,7 +797,7 @@ module rvx_core #(
       csr_mie_mtie <= 1'b0;
       csr_mie_msie <= 1'b0;
     end
-    else if (clock_enable & instruction_csr_address == MIE && csr_file_write_enable) begin
+    else if (clock_enable & instruction_csr_address == `RISCV_CSR_MIE_ADDR && csr_file_write_enable) begin
       csr_mie_mfie <= csr_write_data[31:16];
       csr_mie_meie <= csr_write_data[11];
       csr_mie_mtie <= csr_write_data[7];
@@ -999,7 +834,8 @@ module rvx_core #(
     if (reset_internal) csr_mepc <= 32'h00000000;
     else if (clock_enable) begin
       if (take_trap) csr_mepc <= program_counter;
-      else if (current_state == STATE_OPERATING && instruction_csr_address == MEPC && csr_file_write_enable)
+      else if (current_state == `RVX_STATE_OPERATING && instruction_csr_address == `RISCV_CSR_MEPC_ADDR &&
+               csr_file_write_enable)
         csr_mepc <= {csr_write_data[31:2], 2'b00};
     end
   end
@@ -1010,7 +846,7 @@ module rvx_core #(
 
   always @(posedge clock) begin
     if (reset_internal) csr_mscratch <= 32'h00000000;
-    else if (clock_enable & instruction_csr_address == MSCRATCH && csr_file_write_enable)
+    else if (clock_enable & instruction_csr_address == `RISCV_CSR_MSCRATCH_ADDR && csr_file_write_enable)
       csr_mscratch <= csr_write_data;
   end
 
@@ -1044,7 +880,7 @@ module rvx_core #(
         csr_minstret <= {csr_write_data, csr_minstret[31:0]};
       end
       else begin
-        if (current_state == STATE_OPERATING) csr_minstret <= csr_minstret + 1;
+        if (current_state == `RVX_STATE_OPERATING) csr_minstret <= csr_minstret + 1;
         else csr_minstret <= csr_minstret;
       end
     end
@@ -1065,8 +901,9 @@ module rvx_core #(
   always @(posedge clock) begin : mcause_implementation
     if (reset_internal) csr_mcause <= 32'h00000000;
     else if (clock_enable) begin
-      if (current_state == STATE_TRAP_TAKEN) csr_mcause <= {csr_mcause_interrupt_flag, 26'b0, csr_mcause_code};
-      else if (current_state == STATE_OPERATING && instruction_csr_address == MCAUSE && csr_file_write_enable)
+      if (current_state == `RVX_STATE_TRAP_TAKEN) csr_mcause <= {csr_mcause_interrupt_flag, 26'b0, csr_mcause_code};
+      else if (current_state == `RVX_STATE_OPERATING && instruction_csr_address == `RISCV_CSR_MCAUSE_ADDR &&
+               csr_file_write_enable)
         csr_mcause <= csr_write_data;
     end
   end
@@ -1076,7 +913,7 @@ module rvx_core #(
       csr_mcause_code           <= 5'b0;
       csr_mcause_interrupt_flag <= 1'b0;
     end
-    if (clock_enable & current_state == STATE_OPERATING) begin
+    if (clock_enable & current_state == `RVX_STATE_OPERATING) begin
       if (illegal_instruction) begin
         csr_mcause_code           <= 5'b0010;
         csr_mcause_interrupt_flag <= 1'b0;
@@ -1199,7 +1036,8 @@ module rvx_core #(
         else
           csr_mtval <= 32'h00000000;
       end
-      else if (current_state == STATE_OPERATING && instruction_csr_address == MTVAL && csr_file_write_enable)
+      else if (current_state == `RVX_STATE_OPERATING && instruction_csr_address == `RISCV_CSR_MTVAL_ADDR &&
+               csr_file_write_enable)
         csr_mtval <= csr_write_data;
     end
   end
@@ -1215,7 +1053,7 @@ module rvx_core #(
 
   always @(posedge clock) begin : mtvec_implementation
     if (reset_internal) csr_mtvec <= 32'h00000000;
-    else if (clock_enable & instruction_csr_address == MTVEC && csr_file_write_enable)
+    else if (clock_enable & instruction_csr_address == `RISCV_CSR_MTVEC_ADDR && csr_file_write_enable)
       csr_mtvec <= {csr_write_data[31:2], 1'b0, csr_write_data[0]};
   end
 
@@ -1225,13 +1063,13 @@ module rvx_core #(
 
   always @* begin
     case (writeback_mux_selector)
-      WB_ALU:          writeback_multiplexer_output = alu_output;
-      WB_LOAD_UNIT:    writeback_multiplexer_output = load_data;
-      WB_UPPER_IMM:    writeback_multiplexer_output = immediate;
-      WB_TARGET_ADDER: writeback_multiplexer_output = target_address_adder;
-      WB_CSR:          writeback_multiplexer_output = csr_data_out;
-      WB_PC_PLUS_4:    writeback_multiplexer_output = program_counter_plus_4;
-      default:         writeback_multiplexer_output = alu_output;
+      `RVX_WB_ALU:          writeback_multiplexer_output = alu_output;
+      `RVX_WB_LOAD_UNIT:    writeback_multiplexer_output = load_data;
+      `RVX_WB_UPPER_IMM:    writeback_multiplexer_output = immediate;
+      `RVX_WB_TARGET_ADDER: writeback_multiplexer_output = target_address_adder;
+      `RVX_WB_CSR:          writeback_multiplexer_output = csr_data_out;
+      `RVX_WB_PC_PLUS_4:    writeback_multiplexer_output = program_counter_plus_4;
+      default:              writeback_multiplexer_output = alu_output;
     endcase
   end
 
@@ -1241,10 +1079,10 @@ module rvx_core #(
 
   always @* begin : load_size_mux
     case (load_size)
-      LOAD_SIZE_BYTE: load_data = {load_byte_upper_bits, load_byte_data};
-      LOAD_SIZE_HALF: load_data = {load_half_upper_bits, load_half_data};
-      LOAD_SIZE_WORD: load_data = read_data;
-      default:        load_data = read_data;
+      `RVX_LOAD_SIZE_BYTE: load_data = {load_byte_upper_bits, load_byte_data};
+      `RVX_LOAD_SIZE_HALF: load_data = {load_half_upper_bits, load_half_data};
+      `RVX_LOAD_SIZE_WORD: load_data = read_data;
+      default:             load_data = read_data;
     endcase
   end
 
@@ -1290,14 +1128,14 @@ module rvx_core #(
 
   always @* begin : operation_result_mux
     case (alu_operation_code[2:0])
-      FUNCT3_ADD:  alu_output = rs1_data + alu_adder_2nd_operand_mux;
-      FUNCT3_SRL:  alu_output = alu_shift_right_mux;
-      FUNCT3_OR:   alu_output = rs1_data | alu_2nd_operand;
-      FUNCT3_AND:  alu_output = rs1_data & alu_2nd_operand;
-      FUNCT3_XOR:  alu_output = rs1_data ^ alu_2nd_operand;
-      FUNCT3_SLT:  alu_output = {31'b0, alu_slt_result};
-      FUNCT3_SLTU: alu_output = {31'b0, alu_sltu_result};
-      FUNCT3_SLL:  alu_output = rs1_data << alu_2nd_operand[4:0];
+      `RISCV_FUNCT3_ADD:  alu_output = rs1_data + alu_adder_2nd_operand_mux;
+      `RISCV_FUNCT3_SRL:  alu_output = alu_shift_right_mux;
+      `RISCV_FUNCT3_OR:   alu_output = rs1_data | alu_2nd_operand;
+      `RISCV_FUNCT3_AND:  alu_output = rs1_data & alu_2nd_operand;
+      `RISCV_FUNCT3_XOR:  alu_output = rs1_data ^ alu_2nd_operand;
+      `RISCV_FUNCT3_SLT:  alu_output = {31'b0, alu_slt_result};
+      `RISCV_FUNCT3_SLTU: alu_output = {31'b0, alu_sltu_result};
+      `RISCV_FUNCT3_SLL:  alu_output = rs1_data << alu_2nd_operand[4:0];
     endcase
   end
 
