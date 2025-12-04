@@ -51,6 +51,7 @@ Following these guidelines helps everyone work more efficiently and supports the
 * Avoid abbreviations.
 * Do **not** add suffixes like `_i`, `_o` or `_io` to indicate the direction of module ports.
 * Active low signal names should end with `_n`.
+* Signals spanning multiple pipeline stages should use suffixes such as `_s1`, `_s2`, etc.
 
 ### Coding Practices
 
