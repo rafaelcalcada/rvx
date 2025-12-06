@@ -5,10 +5,10 @@
 
 module rvx_core_store_unit (
 
+    input wire        dbus_wrequest,
+    input wire [ 2:0] funct3_s1,
     input wire [31:0] rs2_data_s1,
     input wire [ 1:0] target_address_adder_1_0_s1,
-    input wire [ 2:0] funct3_s1,
-    input wire        dbus_wrequest,
 
     output reg [31:0] store_aligned_data_s1,
     output reg [ 3:0] store_strobe_s1

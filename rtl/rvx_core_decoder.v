@@ -5,30 +5,26 @@
 
 module rvx_core_decoder (
 
-    // Inputs
     input wire [31:0] instruction_s1,
 
-    // Control signals
-    output wire       branch_s1,
-    output wire       jump_s1,
-    output wire       load_s1,
-    output wire       store_s1,
-    output wire       ecall_s1,
-    output wire       ebreak_s1,
-    output wire       mret_s1,
-    output wire       alu_2nd_operand_source_s1,
     output wire [3:0] alu_operation_code_s1,
-    output wire [1:0] load_size_s1,
-    output wire       load_unsigned_s1,
-    output wire       target_address_source_s1,
-    output wire       integer_file_write_request_s1,
-    output wire       csr_write_request_s1,
+    output wire       alu_2nd_operand_sel_s1,
+    output wire       branch_s1,
     output wire [2:0] csr_operation_s1,
-    output reg  [2:0] writeback_mux_sel_s1,
+    output wire       csr_write_request_s1,
+    output wire       ebreak_s1,
+    output wire       ecall_s1,
     output reg  [2:0] immediate_type_s1,
-
-    // Exception signals
-    output wire illegal_instruction_s1
+    output wire       illegal_instruction_s1,
+    output wire       integer_file_write_request_s1,
+    output wire       jump_s1,
+    output wire [1:0] load_size_s1,
+    output wire       load_s1,
+    output wire       load_unsigned_s1,
+    output wire       mret_s1,
+    output wire       store_s1,
+    output wire       target_address_sel_s1,
+    output reg  [2:0] writeback_mux_sel_s1
 
 );
 
@@ -132,8 +128,8 @@ module rvx_core_decoder (
   assign alu_operation_code_s1[3] = funct7[5] & ~(addi | slti | sltiu | andi | ori | xori);
   assign load_size_s1 = funct3[1:0];
   assign load_unsigned_s1 = funct3[2];
-  assign alu_2nd_operand_source_s1 = opcode[5];
-  assign target_address_source_s1 = load_type | store_type | jalr_type;
+  assign alu_2nd_operand_sel_s1 = opcode[5];
+  assign target_address_sel_s1 = load_type | store_type | jalr_type;
   assign integer_file_write_request_s1 = lui_type | auipc_type | jalr_type | jal_type | op_type | op_imm_type |
       load_type | csr_type;
   assign csr_write_request_s1 = csr_type;

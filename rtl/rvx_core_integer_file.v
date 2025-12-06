@@ -5,6 +5,7 @@
 
 module rvx_core_integer_file (
 
+    // Global signals
     input wire clock,
     input wire clock_enable,
     input wire reset_n,
@@ -18,9 +19,9 @@ module rvx_core_integer_file (
     output wire [31:0] rs2_data_s1,
 
     // Write port
-    input wire        write_request_s2,
     input wire [ 4:0] rd_address_s2,
-    input wire [31:0] rd_data_s2
+    input wire [31:0] rd_data_s2,
+    input wire        write_request_s2
 
 );
 

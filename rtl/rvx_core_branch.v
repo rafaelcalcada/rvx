@@ -5,11 +5,11 @@
 
 module rvx_core_branch (
 
+    input wire        branch_s1,
+    input wire [ 2:0] funct3_s1,
+    input wire        jump_s1,
     input wire [31:0] rs1_data_s1,
     input wire [31:0] rs2_data_s1,
-    input wire [ 2:0] funct3_s1,
-    input wire        branch_s1,
-    input wire        jump_s1,
 
     output wire take_branch_s1
 );

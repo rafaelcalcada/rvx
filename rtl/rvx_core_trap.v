@@ -16,11 +16,11 @@ module rvx_core_trap (
     input wire       misaligned_store_s1,
     input wire [4:0] trap_cause_s1,
 
-    output wire        take_trap_s1,
+    output wire [15:0] irq_fast_response_s1,
     output wire        irq_external_response_s1,
-    output wire        irq_timer_response_s1,
     output wire        irq_software_response_s1,
-    output wire [15:0] irq_fast_response_s1
+    output wire        irq_timer_response_s1,
+    output wire        take_trap_s1
 
 );
 

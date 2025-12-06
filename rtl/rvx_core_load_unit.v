@@ -5,10 +5,10 @@
 
 module rvx_core_load_unit (
 
-    input wire [31:0] read_data_s2,
     input wire [ 1:0] load_size_s2,
     input wire        load_unsigned_s2,
-    input wire [ 1:0] target_address_adder_1_0_s2,
+    input wire [31:0] read_data_s2,
+    input wire [ 1:0] target_address_1_0_s2,
 
     output reg [31:0] load_aligned_data_s2
 
@@ -30,7 +30,7 @@ module rvx_core_load_unit (
   end
 
   always @* begin : load_byte_data_s2_mux
-    case (target_address_adder_1_0_s2[1:0])
+    case (target_address_1_0_s2[1:0])
       2'b00: load_data_byte_s2 = read_data_s2[7:0];
       2'b01: load_data_byte_s2 = read_data_s2[15:8];
       2'b10: load_data_byte_s2 = read_data_s2[23:16];
@@ -39,7 +39,7 @@ module rvx_core_load_unit (
   end
 
   always @* begin : load_half_data_s2_mux
-    case (target_address_adder_1_0_s2[1])
+    case (target_address_1_0_s2[1])
       1'b0: load_data_half_s2 = read_data_s2[15:0];
       1'b1: load_data_half_s2 = read_data_s2[31:16];
     endcase

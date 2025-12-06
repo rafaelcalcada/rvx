@@ -5,7 +5,7 @@
 
 module rvx_core_alu (
 
-    input wire        alu_2nd_operand_source_s2,
+    input wire        alu_2nd_operand_sel_s2,
     input wire [ 3:0] alu_operation_code_s2,
     input wire [31:0] rs1_data_s2,
     input wire [31:0] rs2_data_s2,
@@ -24,7 +24,7 @@ module rvx_core_alu (
   wire [31:0] alu_sra_result_s2;
   wire [31:0] alu_srl_result_s2;
 
-  assign alu_2nd_operand_s2 = alu_2nd_operand_source_s2 ? rs2_data_s2 : immediate_s2;
+  assign alu_2nd_operand_s2 = alu_2nd_operand_sel_s2 ? rs2_data_s2 : immediate_s2;
 
   assign alu_minus_2nd_operand_s2 = -alu_2nd_operand_s2;
 

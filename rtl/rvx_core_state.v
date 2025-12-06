@@ -9,8 +9,8 @@ module rvx_core_state (
     input wire clock_enable,
     input wire reset_n,
 
-    input wire mret_s1,
     input wire interrupt_pending_s1,
+    input wire mret_s1,
     input wire take_trap_s1,
 
     output reg  [3:0] current_state_s1,

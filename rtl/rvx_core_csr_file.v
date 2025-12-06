@@ -5,19 +5,20 @@
 
 module rvx_core_csr_file (
 
+    // Global signals
     input wire clock,
     input wire clock_enable,
     input wire reset_n,
 
     // From pipeline stage 1
     input wire [ 3:0] current_state_s1,
-    input wire        ecall_s1,
     input wire        ebreak_s1,
+    input wire        ecall_s1,
     input wire        illegal_instruction_s1,
     input wire        irq_external_s1,
-    input wire        irq_timer_s1,
-    input wire        irq_software_s1,
     input wire [15:0] irq_fast_s1,
+    input wire        irq_software_s1,
+    input wire        irq_timer_s1,
     input wire [63:0] memory_mapped_timer_s1,
     input wire        misaligned_instruction_address_s1,
     input wire        misaligned_load_s1,
@@ -37,11 +38,11 @@ module rvx_core_csr_file (
     output reg [31:0] csr_data_out_s2,
 
     // Trap, exception and interrupt handling signals
-    output wire [31:0] trap_handler_address_s1,
-    output wire [ 4:0] trap_cause_s1,
-    output wire        interrupt_pending_s1,
+    output wire [31:0] exception_address_s1,
     output wire        global_interrupt_enable_s1,
-    output wire [31:0] exception_address_s1
+    output wire        interrupt_pending_s1,
+    output wire [ 4:0] trap_cause_s1,
+    output wire [31:0] trap_handler_address_s1
 
 );
 
