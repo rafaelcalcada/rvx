@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-module rvx #(
+module rvx_ocelot #(
 
     // Frequency of 'clock' signal
     parameter CLOCK_FREQUENCY     = 50000000,
