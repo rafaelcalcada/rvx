@@ -18,7 +18,11 @@
         "verilog.ctags.path": "/usr/local/bin/ctags",
         "verilog.linting.linter": "verilator",
         "verilog.linting.verilator.includePath": [
-          "/workspaces/rvx/rtl/"
+          "/workspaces/rvx/rtl/",
+          "/workspaces/rvx/rtl/core/",
+          "/workspaces/rvx/rtl/peripherals/",
+          "/workspaces/rvx/rtl/memory/",
+          "/workspaces/rvx/rtl/interconnect/"
         ],
         "verilog.linting.verilator.arguments": "-Wall --timing \"/workspaces/rvx/etc/verilator-waivers.vlt\"",
         "editor.tabSize": 2,
