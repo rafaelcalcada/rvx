@@ -20,6 +20,7 @@ module rvx_core_bus_controller #(
     output wire        ibus_rrequest,
 
     // Data bus interface
+    input  wire [31:0] dbus_rdata,
     input  wire        dbus_rresponse,
     input  wire        dbus_wresponse,
     output wire [31:0] dbus_address,
@@ -35,14 +36,15 @@ module rvx_core_bus_controller #(
     input wire        misaligned_store_s1,
     input wire [31:0] program_counter_s0,
     input wire        store_s1,
-    input wire [31:0] store_aligned_data_s1,
+    input wire [31:0] store_data_s1,
     input wire [ 3:0] store_strobe_s1,
     input wire        take_trap_s1,
     input wire [31:2] target_address_31_2_s1,
 
     // Outputs
     output wire        clock_enable,
-    output wire [31:0] instruction_s1
+    output wire [31:0] instruction_s1,
+    output wire [31:0] memory_data_s2
 
 
 );
@@ -112,9 +114,11 @@ module rvx_core_bus_controller #(
 
   assign dbus_wrequest = !reset_n ? 1'b0 : (clock_enable ? store_request : prev_dbus_wrequest);
 
-  assign dbus_wdata = !reset_n ? 32'h00000000 : (clock_enable ? store_aligned_data_s1 : prev_dbus_wdata);
+  assign dbus_wdata = !reset_n ? 32'h00000000 : (clock_enable ? store_data_s1 : prev_dbus_wdata);
 
   assign dbus_wstrobe = !reset_n ? 4'b0 : (clock_enable ? store_strobe_s1 : prev_dbus_wstrobe);
+
+  assign memory_data_s2 = dbus_rdata;
 
   always @(posedge clock) begin
     if (!reset_n) begin

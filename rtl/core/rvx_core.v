@@ -85,7 +85,7 @@ module rvx_core #(
   wire [ 4:0] rs2_address_s1;
   wire [31:0] rs2_data_s1;
   wire        store_s1;
-  wire [31:0] store_aligned_data_s1;
+  wire [31:0] store_data_s1;
   wire [ 3:0] store_strobe_s1;
   wire        take_branch_s1;
   wire        take_trap_s1;
@@ -107,9 +107,10 @@ module rvx_core #(
   reg         csr_write_request_s2;
   reg  [31:0] immediate_s2;
   reg         integer_file_write_request_s2;
-  wire [31:0] load_aligned_data_s2;
+  wire [31:0] load_data_s2;
   reg  [ 1:0] load_size_s2;
   reg         load_unsigned_s2;
+  wire [31:0] memory_data_s2;
   reg  [31:0] program_counter_plus_4_s2;
   reg  [ 4:0] rd_address_s2;
   reg  [31:0] rs1_data_s2;
@@ -138,6 +139,7 @@ module rvx_core #(
       .ibus_rrequest (ibus_rrequest),
 
       // Data bus interface
+      .dbus_rdata    (dbus_rdata),
       .dbus_rresponse(dbus_rresponse),
       .dbus_wresponse(dbus_wresponse),
       .dbus_address  (dbus_address),
@@ -153,14 +155,15 @@ module rvx_core #(
       .misaligned_store_s1   (misaligned_store_s1),
       .program_counter_s0    (program_counter_s0),
       .store_s1              (store_s1),
-      .store_aligned_data_s1 (store_aligned_data_s1),
+      .store_data_s1         (store_data_s1),
       .store_strobe_s1       (store_strobe_s1),
       .take_trap_s1          (take_trap_s1),
       .target_address_31_2_s1(target_address_s1[31:2]),
 
       // Outputs
       .clock_enable  (clock_enable),
-      .instruction_s1(instruction_s1)
+      .instruction_s1(instruction_s1),
+      .memory_data_s2(memory_data_s2)
 
   );
 
@@ -319,14 +322,14 @@ module rvx_core #(
   rvx_core_store_unit rvx_core_store_unit_instance (
 
       // Inputs
-      .dbus_wrequest              (dbus_wrequest),
+      .store_s1                   (store_s1),
       .funct3_s1                  (funct3_s1),
       .rs2_data_s1                (rs2_data_s1),
       .target_address_adder_1_0_s1(target_address_s1[1:0]),
 
       // Outputs
-      .store_aligned_data_s1(store_aligned_data_s1),
-      .store_strobe_s1      (store_strobe_s1)
+      .store_data_s1  (store_data_s1),
+      .store_strobe_s1(store_strobe_s1)
 
   );
 
@@ -373,7 +376,7 @@ module rvx_core #(
   always @* begin : writeback_output_s2_mux
     case (writeback_mux_sel_s2)
       `RVX_WB_ALU:          writeback_output_s2 = alu_output_s2;
-      `RVX_WB_LOAD_UNIT:    writeback_output_s2 = load_aligned_data_s2;
+      `RVX_WB_LOAD_UNIT:    writeback_output_s2 = load_data_s2;
       `RVX_WB_UPPER_IMM:    writeback_output_s2 = immediate_s2;
       `RVX_WB_TARGET_ADDER: writeback_output_s2 = target_address_s2;
       `RVX_WB_CSR:          writeback_output_s2 = csr_data_out_s2;
@@ -387,11 +390,11 @@ module rvx_core #(
       // Inputs
       .load_size_s2         (load_size_s2),
       .load_unsigned_s2     (load_unsigned_s2),
-      .read_data_s2         (dbus_rdata),
+      .memory_data_s2       (memory_data_s2),
       .target_address_1_0_s2(target_address_s2[1:0]),
 
       // Outputs
-      .load_aligned_data_s2(load_aligned_data_s2)
+      .load_data_s2(load_data_s2)
 
   );
 
