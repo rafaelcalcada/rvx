@@ -9,23 +9,28 @@ module unit_tests #(
 
 ) (
     input clock,
-    input reset,
-    input halt
+    input reset
 );
 
-  wire [31:0] rw_address;
-  wire [31:0] read_data;
-  wire        read_request;
-  wire        read_response;
-  wire [31:0] write_data;
-  wire [ 3:0] write_strobe;
-  wire        write_request;
-  wire        write_response;
+  // Instruction bus
+  wire [31:0] ibus_address;
+  wire [31:0] ibus_rdata;
+  wire        ibus_rrequest;
+  wire        ibus_rresponse;
 
-  // Real-time clock (unused)
+  // Data bus
+  wire [31:0] dbus_address;
+  wire [31:0] dbus_rdata;
+  wire        dbus_rrequest;
+  wire        dbus_rresponse;
+  wire [31:0] dbus_wdata;
+  wire [ 3:0] dbus_wstrobe;
+  wire        dbus_wrequest;
+  wire        dbus_wresponse;
 
-  wire [63:0] real_time_clock;
-  assign real_time_clock = 64'b0;
+  // Memory-mapped timer (unused)
+  wire [63:0] memory_mapped_timer;
+  assign memory_mapped_timer = 64'b0;
 
   // Interrupt signals
 
@@ -49,38 +54,37 @@ module unit_tests #(
   ) rvx_core_instance (
 
       // Global signals
-
       .clock  (clock),
       .reset_n(!reset),
-      .halt   (halt),
 
-      // IO interface
+      // Instruction bus
+      .ibus_rdata    (ibus_rdata),
+      .ibus_rresponse(ibus_rresponse),
+      .ibus_address  (ibus_address),
+      .ibus_rrequest (ibus_rrequest),
 
-      .rw_address    (rw_address),
-      .read_data     (read_data),
-      .read_request  (read_request),
-      .read_response (read_response),
-      .write_data    (write_data),
-      .write_strobe  (write_strobe),
-      .write_request (write_request),
-      .write_response(write_response),
+      // Data bus
+      .dbus_rdata    (dbus_rdata),
+      .dbus_rresponse(dbus_rresponse),
+      .dbus_wresponse(dbus_wresponse),
+      .dbus_address  (dbus_address),
+      .dbus_rrequest (dbus_rrequest),
+      .dbus_wdata    (dbus_wdata),
+      .dbus_wstrobe  (dbus_wstrobe),
+      .dbus_wrequest (dbus_wrequest),
 
-      // Interrupt request signals
-
-      .irq_fast    (irq_fast),
-      .irq_external(irq_external),
-      .irq_timer   (irq_timer),
-      .irq_software(irq_software),
-
-      // Interrupt response signals
+      // Interrupt signals
+      .irq_fast             (irq_fast),
+      .irq_external         (irq_external),
+      .irq_software         (irq_software),
+      .irq_timer            (irq_timer),
       .irq_fast_response    (irq_fast_response),
       .irq_external_response(irq_external_response),
-      .irq_timer_response   (irq_timer_response),
       .irq_software_response(irq_software_response),
+      .irq_timer_response   (irq_timer_response),
 
-      // Real Time Clock (hardwire to zero if unused)
-
-      .real_time_clock(real_time_clock)
+      // Memory-mapped timer
+      .memory_mapped_timer(memory_mapped_timer)
   );
 
   rvx_ram #(
@@ -88,20 +92,24 @@ module unit_tests #(
   ) rvx_ram_instance (
 
       // Global signals
-
       .clock  (clock),
       .reset_n(!reset),
 
-      // IO interface
+      // Port 0 (read/write) - Data bus
+      .port0_address  (dbus_address),
+      .port0_rdata    (dbus_rdata),
+      .port0_rrequest (dbus_rrequest),
+      .port0_rresponse(dbus_rresponse),
+      .port0_wdata    (dbus_wdata),
+      .port0_wstrobe  (dbus_wstrobe),
+      .port0_wrequest (dbus_wrequest),
+      .port0_wresponse(dbus_wresponse),
 
-      .rw_address    (rw_address),
-      .read_data     (read_data),
-      .read_request  (read_request),
-      .read_response (read_response),
-      .write_data    (write_data),
-      .write_strobe  (write_strobe),
-      .write_request (write_request),
-      .write_response(write_response)
+      // Port 1 (read-only) - Instruction bus
+      .port1_address  (ibus_address),
+      .port1_rdata    (ibus_rdata),
+      .port1_rrequest (ibus_rrequest),
+      .port1_rresponse(ibus_rresponse)
   );
 
   // Avoid warnings about intentionally unused pins/wires

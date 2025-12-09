@@ -1,4 +1,4 @@
 --Wall
 --default-language 1364-2001
--I../../../rtl/
--I../../../rtl/
+-I../../../rtl/core/
+-I../../../rtl/memory/
