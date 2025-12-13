@@ -44,11 +44,6 @@ module unit_tests #(
   assign irq_timer    = 1'd0;
   assign irq_software = 1'd0;
 
-  wire [15:0] irq_fast_response;
-  wire        irq_external_response;
-  wire        irq_timer_response;
-  wire        irq_software_response;
-
   rvx_core #(
       .BOOT_ADDRESS(BOOT_ADDRESS)
   ) rvx_core_instance (
@@ -74,14 +69,10 @@ module unit_tests #(
       .dbus_wrequest (dbus_wrequest),
 
       // Interrupt signals
-      .irq_fast             (irq_fast),
-      .irq_external         (irq_external),
-      .irq_software         (irq_software),
-      .irq_timer            (irq_timer),
-      .irq_fast_response    (irq_fast_response),
-      .irq_external_response(irq_external_response),
-      .irq_software_response(irq_software_response),
-      .irq_timer_response   (irq_timer_response),
+      .irq_fast    (irq_fast),
+      .irq_external(irq_external),
+      .irq_software(irq_software),
+      .irq_timer   (irq_timer),
 
       // Memory-mapped timer
       .memory_mapped_timer(memory_mapped_timer)
@@ -111,8 +102,5 @@ module unit_tests #(
       .port1_rrequest (ibus_rrequest),
       .port1_rresponse(ibus_rresponse)
   );
-
-  // Avoid warnings about intentionally unused pins/wires
-  wire unused_ok = &{1'b0, irq_fast_response, irq_external_response, irq_timer_response, irq_software_response, 1'b0};
 
 endmodule
