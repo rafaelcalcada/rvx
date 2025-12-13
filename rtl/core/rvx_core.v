@@ -272,9 +272,8 @@ module rvx_core #(
       .reset_n     (reset_n),
 
       // Inputs
-      .interrupt_pending_s1(interrupt_pending_s1),
-      .mret_s1             (mret_s1),
-      .take_trap_s1        (take_trap_s1),
+      .mret_s1     (mret_s1),
+      .take_trap_s1(take_trap_s1),
 
       // Outputs
       .current_state_s1 (current_state_s1),

@@ -9,7 +9,6 @@ module rvx_core_state (
     input wire clock_enable,
     input wire reset_n,
 
-    input wire interrupt_pending_s1,
     input wire mret_s1,
     input wire take_trap_s1,
 
@@ -38,7 +37,7 @@ module rvx_core_state (
 
   always @(posedge clock) begin : current_state_register
     if (!reset_n) current_state_s1 <= `RVX_STATE_RESET;
-    else if (clock_enable | interrupt_pending_s1) current_state_s1 <= next_state;
+    else if (clock_enable) current_state_s1 <= next_state;
   end
 
 endmodule
