@@ -49,10 +49,10 @@ module rvx_core #(
   wire        alu_2nd_operand_sel_s1;
   wire [ 3:0] alu_operation_code_s1;
   wire        branch_s1;
+  wire [ 3:0] core_state_s1;
   wire [11:0] csr_address_s1;
   wire [ 2:0] csr_operation_s1;
   wire        csr_write_request_s1;
-  wire [ 3:0] current_state_s1;
   wire        ebreak_s1;
   wire        ecall_s1;
   wire [31:0] exception_address_s1;
@@ -172,7 +172,7 @@ module rvx_core #(
   ) rvx_core_pc_gen_instance (
 
       // Inputs
-      .current_state_s1       (current_state_s1),
+      .core_state_s1          (core_state_s1),
       .exception_address_s1   (exception_address_s1),
       .next_program_counter_s1(next_program_counter_s1),
       .trap_handler_address_s1(trap_handler_address_s1),
@@ -271,7 +271,7 @@ module rvx_core #(
       .take_trap_s1(take_trap_s1),
 
       // Outputs
-      .current_state_s1 (current_state_s1),
+      .core_state_s1    (core_state_s1),
       .flush_pipeline_s1(flush_pipeline_s1)
 
   );
@@ -433,7 +433,7 @@ module rvx_core #(
       .reset_n     (reset_n),
 
       // Inputs from pipeline stage 1
-      .current_state_s1                 (current_state_s1),
+      .core_state_s1                    (core_state_s1),
       .ebreak_s1                        (ebreak_s1),
       .ecall_s1                         (ecall_s1),
       .illegal_instruction_s1           (illegal_instruction_s1),

@@ -11,7 +11,7 @@ module rvx_core_csr_file (
     input wire reset_n,
 
     // From pipeline stage 1
-    input wire [ 3:0] current_state_s1,
+    input wire [ 3:0] core_state_s1,
     input wire        ebreak_s1,
     input wire        ecall_s1,
     input wire        illegal_instruction_s1,
@@ -165,15 +165,15 @@ module rvx_core_csr_file (
       csr_mstatus_mpie <= 1'b1;
     end
     else if (clock_enable) begin
-      if (current_state_s1 == `RVX_STATE_TRAP_RETURN) begin
+      if (core_state_s1 == `RVX_STATE_TRAP_RETURN) begin
         csr_mstatus_mie  <= csr_mstatus_mpie;
         csr_mstatus_mpie <= 1'b1;
       end
-      else if (current_state_s1 == `RVX_STATE_TRAP_TAKEN) begin
+      else if (core_state_s1 == `RVX_STATE_TRAP_TAKEN) begin
         csr_mstatus_mpie <= csr_mstatus_mie;
         csr_mstatus_mie  <= 1'b0;
       end
-      else if (current_state_s1 == `RVX_STATE_OPERATING && csr_address_s2 == `RISCV_CSR_MSTATUS_ADDR &&
+      else if (core_state_s1 == `RVX_STATE_OPERATING && csr_address_s2 == `RISCV_CSR_MSTATUS_ADDR &&
                csr_write_request_s2) begin
         csr_mstatus_mie  <= csr_write_data[3];
         csr_mstatus_mpie <= csr_write_data[7];
@@ -215,8 +215,7 @@ module rvx_core_csr_file (
     if (!reset_n) csr_mepc <= 32'h00000000;
     else if (clock_enable) begin
       if (take_trap_s1) csr_mepc <= program_counter_s1;
-      else if (current_state_s1 == `RVX_STATE_OPERATING && csr_address_s2 == `RISCV_CSR_MEPC_ADDR &&
-               csr_write_request_s2)
+      else if (core_state_s1 == `RVX_STATE_OPERATING && csr_address_s2 == `RISCV_CSR_MEPC_ADDR && csr_write_request_s2)
         csr_mepc <= {csr_write_data[31:2], 2'b00};
     end
   end
@@ -242,15 +241,15 @@ module rvx_core_csr_file (
     if (!reset_n) csr_minstret <= 64'b0;
     else if (clock_enable) begin
       if (csr_address_s2 == `RISCV_CSR_MINSTRET_ADDR && csr_write_request_s2) begin
-        if (current_state_s1 == `RVX_STATE_OPERATING) csr_minstret <= {csr_minstret[63:32], csr_write_data} + 1;
+        if (core_state_s1 == `RVX_STATE_OPERATING) csr_minstret <= {csr_minstret[63:32], csr_write_data} + 1;
         else csr_minstret <= {csr_minstret[63:32], csr_write_data};
       end
       else if (csr_address_s2 == `RISCV_CSR_MINSTRETH_ADDR && csr_write_request_s2) begin
-        if (current_state_s1 == `RVX_STATE_OPERATING) csr_minstret <= {csr_write_data, csr_minstret[31:0]} + 1;
+        if (core_state_s1 == `RVX_STATE_OPERATING) csr_minstret <= {csr_write_data, csr_minstret[31:0]} + 1;
         else csr_minstret <= {csr_write_data, csr_minstret[31:0]};
       end
       else begin
-        if (current_state_s1 == `RVX_STATE_OPERATING) csr_minstret <= csr_minstret + 1;
+        if (core_state_s1 == `RVX_STATE_OPERATING) csr_minstret <= csr_minstret + 1;
         else csr_minstret <= csr_minstret;
       end
     end
@@ -263,9 +262,9 @@ module rvx_core_csr_file (
   always @(posedge clock) begin : csr_mcause_update
     if (!reset_n) csr_mcause <= 32'h00000000;
     else if (clock_enable) begin
-      if (current_state_s1 == `RVX_STATE_TRAP_TAKEN) csr_mcause <= {csr_mcause_interrupt_flag, 26'b0, csr_mcause_code};
-      else if (current_state_s1 == `RVX_STATE_OPERATING && csr_address_s2 == `RISCV_CSR_MCAUSE_ADDR &&
-               csr_write_request_s2)
+      if (core_state_s1 == `RVX_STATE_TRAP_TAKEN) csr_mcause <= {csr_mcause_interrupt_flag, 26'b0, csr_mcause_code};
+      else
+          if (core_state_s1 == `RVX_STATE_OPERATING && csr_address_s2 == `RISCV_CSR_MCAUSE_ADDR && csr_write_request_s2)
         csr_mcause <= csr_write_data;
     end
   end
@@ -275,7 +274,7 @@ module rvx_core_csr_file (
       csr_mcause_code           <= 5'd0;
       csr_mcause_interrupt_flag <= 1'b0;
     end
-    if (clock_enable & current_state_s1 == `RVX_STATE_OPERATING) begin
+    if (clock_enable & core_state_s1 == `RVX_STATE_OPERATING) begin
       if (misaligned_instruction_address_s1) begin
         csr_mcause_code           <= 5'd0;
         csr_mcause_interrupt_flag <= 1'b0;
@@ -387,8 +386,7 @@ module rvx_core_csr_file (
         else if (ebreak_s1) csr_mtval <= program_counter_s1;
         else csr_mtval <= 32'h00000000;
       end
-      else if (current_state_s1 == `RVX_STATE_OPERATING && csr_address_s2 == `RISCV_CSR_MTVAL_ADDR &&
-               csr_write_request_s2)
+      else if (core_state_s1 == `RVX_STATE_OPERATING && csr_address_s2 == `RISCV_CSR_MTVAL_ADDR && csr_write_request_s2)
         csr_mtval <= csr_write_data;
     end
   end
