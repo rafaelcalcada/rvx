@@ -88,21 +88,22 @@ module unit_tests #(
       .clock  (clock),
       .reset_n(!reset),
 
-      // Port 0 (read/write) - Data bus
-      .port0_address  (dbus_address),
-      .port0_rdata    (dbus_rdata),
-      .port0_rrequest (dbus_rrequest),
-      .port0_rresponse(dbus_rresponse),
-      .port0_wdata    (dbus_wdata),
-      .port0_wstrobe  (dbus_wstrobe),
-      .port0_wrequest (dbus_wrequest),
-      .port0_wresponse(dbus_wresponse),
+      // Port 0 (read-only) - Instruction bus
+      .port0_address  (ibus_address),
+      .port0_rdata    (ibus_rdata),
+      .port0_rrequest (ibus_rrequest),
+      .port0_rresponse(ibus_rresponse),
 
-      // Port 1 (read-only) - Instruction bus
-      .port1_address  (ibus_address),
-      .port1_rdata    (ibus_rdata),
-      .port1_rrequest (ibus_rrequest),
-      .port1_rresponse(ibus_rresponse)
+      // Port 1 (read/write) - Data bus
+      .port1_address  (dbus_address),
+      .port1_rdata    (dbus_rdata),
+      .port1_rrequest (dbus_rrequest),
+      .port1_rresponse(dbus_rresponse),
+      .port1_wdata    (dbus_wdata),
+      .port1_wstrobe  (dbus_wstrobe),
+      .port1_wrequest (dbus_wrequest),
+      .port1_wresponse(dbus_wresponse)
+
   );
 
 endmodule
