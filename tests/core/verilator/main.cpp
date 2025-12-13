@@ -88,18 +88,18 @@ static void ram_init(const char *path, RamInitVariants variants)
     return;
   }
 
-  uint32_t ram_size = dut->rootp->unit_tests__DOT__MEMORY_SIZE;
+  uint32_t ram_size = dut->rootp->unit_tests__DOT__MEMORY_SIZE_IN_BYTES;
 
   switch (variants)
   {
   case RamInitVariants::H32:
-    ram_init_h32(args.ram_init_path, ram_size / 4,
-                 [](uint32_t i, uint32_t v) { dut->rootp->unit_tests__DOT__rvx_ram_instance__DOT__ram[i] = v; });
+    ram_init_h32(args.ram_init_path, ram_size / 4, [](uint32_t i, uint32_t v)
+                 { dut->rootp->unit_tests__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
     break;
 
   case RamInitVariants::BIN:
-    ram_init_bin(args.ram_init_path, ram_size / 4,
-                 [](uint32_t i, uint32_t v) { dut->rootp->unit_tests__DOT__rvx_ram_instance__DOT__ram[i] = v; });
+    ram_init_bin(args.ram_init_path, ram_size / 4, [](uint32_t i, uint32_t v)
+                 { dut->rootp->unit_tests__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
     break;
   }
 }
@@ -123,7 +123,7 @@ static void ram_dump_h32(const char *path, uint32_t offset, uint32_t size)
 
   for (int i = 0; i < size; i++)
   {
-    uint32_t data = dut->rootp->unit_tests__DOT__rvx_ram_instance__DOT__ram[offset + i];
+    uint32_t data = dut->rootp->unit_tests__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[offset + i];
     snprintf(buff, sizeof(buff), "%08" PRIx32, (const uint32_t)data);
     file << buff << '\n';
   }
@@ -155,7 +155,7 @@ static bool is_host_out(uint32_t addr)
 
 static uint32_t get_signature(uint32_t addr)
 {
-  return dut->rootp->unit_tests__DOT__rvx_ram_instance__DOT__ram[addr];
+  return dut->rootp->unit_tests__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[addr];
 }
 
 int main(int argc, char *argv[])

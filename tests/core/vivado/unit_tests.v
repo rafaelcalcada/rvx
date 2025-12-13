@@ -63,9 +63,9 @@ module unit_tests ();
 
   );
 
-  rvx_ram #(
+  rvx_tightly_coupled_memory #(
 
-      .MEMORY_SIZE(2097152)
+      .MEMORY_SIZE_IN_BYTES(2097152)
 
   ) dut1 (
 
@@ -259,13 +259,13 @@ module unit_tests ();
 
       // Reset     
       reset = 1'b1;
-      for (i = 0; i < 524287; i = i + 1) dut1.ram[i] = 32'hdeadbeef;
+      for (i = 0; i < 524287; i = i + 1) dut1.tcm[i] = 32'hdeadbeef;
       for (i = 0; i < 2048; i = i + 1) current_golden_reference[i] = 32'hdeadbeef;
       #40;
       reset = 1'b0;
 
       // Initialization
-      $readmemh(unit_test_programs_array[k], dut1.ram);
+      $readmemh(unit_test_programs_array[k], dut1.tcm);
       $readmemh(golden_reference_array[k], current_golden_reference);
 
       $display("Running test: %s", unit_test_programs_array[k]);
@@ -279,15 +279,15 @@ module unit_tests ();
         if (dbus_address == 32'h00001000 && dbus_wrequest == 1'b1 && dbus_wdata == 32'h00000001) begin
 
           // The beginning and end of signature are stored at
-          // 0x00001ffc (ram[2046]) and 0x00001ff8 (ram[2047]).
-          m                        = dut1.ram[2047][24:2];  // m holds the address of the beginning of the signature
-          n                        = dut1.ram[2046][24:2];  // n holds the address of the end of the signature
+          // 0x00001ffc (tcm[2046]) and 0x00001ff8 (tcm[2047]).
+          m                        = dut1.tcm[2047][24:2];  // m holds the address of the beginning of the signature
+          n                        = dut1.tcm[2046][24:2];  // n holds the address of the end of the signature
 
           // Compare signature with golden reference
           z                        = 0;
           current_test_failed_flag = 0;
-          for (m = dut1.ram[2047][24:2]; m < n; m = m + 1) begin
-            if (dut1.ram[m] !== current_golden_reference[z]) begin
+          for (m = dut1.tcm[2047][24:2]; m < n; m = m + 1) begin
+            if (dut1.tcm[m] !== current_golden_reference[z]) begin
               // Is this test expected to fail?
               expected_to_fail_flag = 0;
               for (t = 0; t < 9; t = t + 1) begin
@@ -300,7 +300,7 @@ module unit_tests ();
               if (expected_to_fail_flag == 0) begin
                 $display("TEST FAILED: %s", unit_test_programs_array[k]);
                 $display("Signature at line %d differs from golden reference.", z + 1);
-                $display("Signature: %h. Golden reference: %h", dut1.ram[m], current_golden_reference[z]);
+                $display("Signature: %h. Golden reference: %h", dut1.tcm[m], current_golden_reference[z]);
                 failing_tests_counter    = failing_tests_counter + 1;
                 current_test_failed_flag = 1;
                 $stop();

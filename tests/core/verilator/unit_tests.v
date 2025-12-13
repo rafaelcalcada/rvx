@@ -4,8 +4,8 @@
 module unit_tests #(
 
     // Memory size in bytes
-    parameter MEMORY_SIZE  = 2097152,
-    parameter BOOT_ADDRESS = 32'h00000000
+    parameter MEMORY_SIZE_IN_BYTES = 2097152,
+    parameter BOOT_ADDRESS         = 32'h00000000
 
 ) (
     input clock,
@@ -78,9 +78,11 @@ module unit_tests #(
       .memory_mapped_timer(memory_mapped_timer)
   );
 
-  rvx_ram #(
-      .MEMORY_SIZE(MEMORY_SIZE)
-  ) rvx_ram_instance (
+  rvx_tightly_coupled_memory #(
+
+      .MEMORY_SIZE_IN_BYTES(MEMORY_SIZE_IN_BYTES)
+
+  ) rvx_tightly_coupled_memory_instance (
 
       // Global signals
       .clock  (clock),

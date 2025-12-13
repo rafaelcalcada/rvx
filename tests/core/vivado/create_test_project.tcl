@@ -19,6 +19,6 @@ add_files -norecurse {../../../rtl/core/rvx_core_pc_gen.v}
 add_files -norecurse {../../../rtl/core/rvx_core_state.v}
 add_files -norecurse {../../../rtl/core/rvx_core_store_unit.v}
 add_files -norecurse {../../../rtl/core/rvx_core_trap.v}
-add_files -norecurse {../../../rtl/memory/rvx_ram.v}
+add_files -norecurse {../../../rtl/memory/rvx_tightly_coupled_memory.v}
 move_files -fileset sim_1 [get_files ./unit_tests.v]
 set_property file_type {Memory Initialization Files} [get_files $memory_init_files]
