@@ -51,7 +51,7 @@ extra:
 extra_css: [extra.css]
 plugins:
     - search
-docs_dir: docs/
+docs_dir: source/
 remote_branch: docs
 copyright: Copyright (c) 2020-2025 RVX Project Contributors
 nav:
