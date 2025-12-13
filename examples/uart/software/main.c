@@ -1,28 +1,29 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-#include "libsteel.h"
+#include "rvx.h"
 
-#define DEFAULT_UART (UartController *)0x80000000
+RvxUart *uart_address = (RvxUart *)0x80000000;
 
 // UART interrupt signal is connected to Fast IRQ #0
-__NAKED void fast0_irq_handler(void)
+RVX_NAKED void fast0_irq_handler(void)
 {
-  char rx = uart_read(DEFAULT_UART);
+  char rx = rvx_uart_read(uart_address);
   if (rx == '\r') // Enter key
-    uart_write_string(DEFAULT_UART, "\n\nType something else and press enter: ");
+    rvx_uart_write_string(uart_address, "\n\nType something else and press enter: ");
   else if (rx < 127)
-    uart_write(DEFAULT_UART, rx);
-  __ASM_VOLATILE("mret");
+    rvx_uart_write(uart_address, rx);
+  asm volatile("mret");
 }
 
 void main(void)
 {
-  uart_write_string(DEFAULT_UART, "RVX - UART demo");
-  uart_write_string(DEFAULT_UART, "\n\nType something and press Enter:\n");
-  csr_enable_vectored_mode_irq();
-  CSR_SET(CSR_MIE, MIP_MIE_MASK_F0I);
-  csr_global_enable_irq();
+  rvx_uart_init(uart_address, 1250); // 12 MHz / 9600 baud = 1250 cycles per baud
+  rvx_uart_write_string(uart_address, "RVX Project - UART Example\n");
+  rvx_uart_write_string(uart_address, "\n\nType something and press Enter:\n");
+  rvx_irq_enable_vectored_mode();
+  rvx_irq_enable(RVX_IRQ_FAST_MASK(0)); // UART is connected to Fast IRQ #0
+  rvx_irq_enable_global();
   while (1)
     ;
 }
