@@ -11,55 +11,59 @@ module unit_tests ();
 
   reg         clock;
   reg         reset;
-  reg         halt;
 
   reg         read_response_test;
   reg         write_response_test;
 
-  wire [31:0] rw_address;
-  wire [31:0] read_data;
-  wire        read_request;
-  wire        read_response;
-  wire [31:0] write_data;
-  wire [ 3:0] write_strobe;
-  wire        write_request;
-  wire        write_response;
+  // Instruction bus
+  wire [31:0] ibus_address;
+  wire [31:0] ibus_rdata;
+  wire        ibus_rrequest;
+  wire        ibus_rresponse;
+
+  // Data bus
+  wire [31:0] dbus_address;
+  wire [31:0] dbus_rdata;
+  wire        dbus_rrequest;
+  wire        dbus_rresponse;
+  wire [31:0] dbus_wdata;
+  wire [ 3:0] dbus_wstrobe;
+  wire        dbus_wrequest;
+  wire        dbus_wresponse;
 
   rvx_core dut0 (
 
       // Global signals
-
       .clock  (clock),
       .reset_n(!reset),
-      .halt   (halt),
 
-      // IO interface
+      // Instruction bus
+      .ibus_rdata    (ibus_rdata),
+      .ibus_rresponse(ibus_rresponse),
+      .ibus_address  (ibus_address),
+      .ibus_rrequest (ibus_rrequest),
 
-      .rw_address    (rw_address),
-      .read_data     (read_data),
-      .read_request  (read_request),
-      .read_response (read_response & read_response_test),
-      .write_data    (write_data),
-      .write_strobe  (write_strobe),
-      .write_request (write_request),
-      .write_response(write_response & write_response_test),
+      // Data bus
+      .dbus_rdata    (dbus_rdata),
+      .dbus_rresponse(dbus_rresponse),
+      .dbus_wresponse(dbus_wresponse),
+      .dbus_address  (dbus_address),
+      .dbus_rrequest (dbus_rrequest),
+      .dbus_wdata    (dbus_wdata),
+      .dbus_wstrobe  (dbus_wstrobe),
+      .dbus_wrequest (dbus_wrequest),
 
-      // Interrupt signals (hardwire inputs to zero if unused)
+      // Interrupt signals
+      .irq_external(1'b0),
+      .irq_timer   (1'b0),
+      .irq_software(1'b0),
 
-      .irq_external         (1'b0),
-      .irq_external_response(),
-      .irq_timer            (1'b0),
-      .irq_timer_response   (),
-      .irq_software         (1'b0),
-      .irq_software_response(),
-
-      // Real Time Clock (hardwire to zero if unused)
-
-      .real_time_clock(64'b0)
+      // Memory-mapped timer
+      .memory_mapped_timer(64'b0)
 
   );
 
-  ram_memory #(
+  rvx_ram #(
 
       .MEMORY_SIZE(2097152)
 
@@ -70,16 +74,21 @@ module unit_tests ();
       .clock  (clock),
       .reset_n(!reset),
 
-      // IO interface
+      // Port 0 (read/write) - Data bus
+      .port0_address  (dbus_address),
+      .port0_rdata    (dbus_rdata),
+      .port0_rrequest (dbus_rrequest),
+      .port0_rresponse(dbus_rresponse),
+      .port0_wdata    (dbus_wdata),
+      .port0_wstrobe  (dbus_wstrobe),
+      .port0_wrequest (dbus_wrequest),
+      .port0_wresponse(dbus_wresponse),
 
-      .rw_address    (rw_address),
-      .read_data     (read_data),
-      .read_request  (read_request),
-      .read_response (read_response),
-      .write_data    (write_data),
-      .write_strobe  (write_strobe),
-      .write_request (write_request),
-      .write_response(write_response)
+      // Port 1 (read-only) - Instruction bus
+      .port1_address  (ibus_address),
+      .port1_rdata    (ibus_rdata),
+      .port1_rrequest (ibus_rrequest),
+      .port1_rresponse(ibus_rresponse)
 
   );
 
@@ -229,20 +238,6 @@ module unit_tests ();
 
   end
 
-  always begin
-
-    halt = 1'b0;
-    #1000;
-
-    for (u = 0; u < 10000; u = u + 1) begin
-      halt = $random();
-      #20;
-    end
-
-    halt = 1'b0;
-
-  end
-
   initial begin
 
     i                        = 0;
@@ -281,7 +276,7 @@ module unit_tests ();
         // After each clock cycle it tests whether the test program finished its execution
         // This event is signaled by writing 1 to the address 0x00001000
         #20;
-        if (rw_address == 32'h00001000 && write_request == 1'b1 && write_data == 32'h00000001) begin
+        if (dbus_address == 32'h00001000 && dbus_wrequest == 1'b1 && dbus_wdata == 32'h00000001) begin
 
           // The beginning and end of signature are stored at
           // 0x00001ffc (ram[2046]) and 0x00001ff8 (ram[2047]).
@@ -340,81 +335,6 @@ module unit_tests ();
 
     $finish(0);
 
-  end
-
-endmodule
-
-module ram_memory #(
-
-    // Memory size in bytes
-    parameter MEMORY_SIZE = 8192,
-
-    // File with program and data
-    parameter MEMORY_INIT_FILE = ""
-
-) (
-
-    // Global signals
-
-    input wire clock,
-    input wire reset_n,
-
-    // IO interface
-
-    input  wire [31:0] rw_address,
-    output reg  [31:0] read_data,
-    input  wire        read_request,
-    output reg         read_response,
-    input  wire [31:0] write_data,
-    input  wire [ 3:0] write_strobe,
-    input  wire        write_request,
-    output reg         write_response
-
-);
-
-  wire        reset_internal;
-  wire [31:0] effective_address;
-  wire        invalid_address;
-
-  reg         reset_reg;
-  reg  [31:0] ram               [0:(MEMORY_SIZE/4)-1];
-
-  always @(posedge clock) reset_reg <= !reset_n;
-
-  assign reset_internal  = !reset_n | reset_reg;
-  assign invalid_address = $unsigned(rw_address) >= $unsigned(MEMORY_SIZE);
-
-  integer i;
-  initial begin
-    for (i = 0; i < MEMORY_SIZE / 4; i = i + 1) ram[i] = 32'h00000000;
-    if (MEMORY_INIT_FILE != "") $readmemh(MEMORY_INIT_FILE, ram);
-  end
-
-  assign effective_address = $unsigned(rw_address[31:0] >> 2);
-
-  always @(posedge clock) begin
-    if (reset_internal | invalid_address) read_data <= 32'h00000000;
-    else read_data <= ram[effective_address];
-  end
-
-  always @(posedge clock) begin
-    if (write_request) begin
-      if (write_strobe[0]) ram[effective_address][7:0] <= write_data[7:0];
-      if (write_strobe[1]) ram[effective_address][15:8] <= write_data[15:8];
-      if (write_strobe[2]) ram[effective_address][23:16] <= write_data[23:16];
-      if (write_strobe[3]) ram[effective_address][31:24] <= write_data[31:24];
-    end
-  end
-
-  always @(posedge clock) begin
-    if (reset_internal) begin
-      read_response  <= 1'b0;
-      write_response <= 1'b0;
-    end
-    else begin
-      read_response  <= read_request;
-      write_response <= write_request;
-    end
   end
 
 endmodule
