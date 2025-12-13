@@ -28,15 +28,15 @@
           "/workspaces/rvx/rtl/memory/",
           "/workspaces/rvx/rtl/interconnect/"
         ],
-        "verilog.linting.verilator.arguments": "-Wall --timing \"/workspaces/rvx/etc/verilator-waivers.vlt\"",
+        "verilog.linting.verilator.arguments": "-Wall --timing",
         "editor.tabSize": 2,
         "editor.detectIndentation": false,
         "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
-        "verilog.formatting.veribleVerilogFormatter.arguments": "--flagfile=etc/.verible-format",
+        "verilog.formatting.veribleVerilogFormatter.arguments": "--flagfile=.config/.verible-format",
         "editor.formatOnSave": true,
         "cmake.ignoreCMakeListsMissing": true,
         "python.defaultInterpreterPath": "/opt/venv/bin/python",
-        "C_Cpp.clang_format_style": "file:/workspaces/rvx/etc/.clang-format"
+        "C_Cpp.clang_format_style": "file:/workspaces/rvx/.config/.clang-format"
       },
       "extensions": [
         "ms-vscode.cpptools-extension-pack",
