@@ -30,14 +30,10 @@ module rvx_core #(
     output wire        dbus_wrequest,
 
     // Interrupt signals
-    input  wire [15:0] irq_fast,
-    input  wire        irq_external,
-    input  wire        irq_software,
-    input  wire        irq_timer,
-    output wire [15:0] irq_fast_response,
-    output wire        irq_external_response,
-    output wire        irq_software_response,
-    output wire        irq_timer_response,
+    input wire [15:0] irq_fast,
+    input wire        irq_external,
+    input wire        irq_software,
+    input wire        irq_timer,
 
     // Memory-mapped timer
     input wire [63:0] memory_mapped_timer
@@ -91,7 +87,6 @@ module rvx_core #(
   wire        take_trap_s1;
   wire [31:0] target_address_s1;
   wire        target_address_sel_s1;
-  wire [ 4:0] trap_cause_s1;
   wire [31:0] trap_handler_address_s1;
   wire [ 2:0] writeback_mux_sel_s1;
 
@@ -284,7 +279,6 @@ module rvx_core #(
   rvx_core_trap rvx_core_trap_instance (
 
       // Inputs
-      .current_state_s1                 (current_state_s1),
       .ecall_s1                         (ecall_s1),
       .ebreak_s1                        (ebreak_s1),
       .global_interrupt_enable_s1       (global_interrupt_enable_s1),
@@ -293,14 +287,9 @@ module rvx_core #(
       .misaligned_instruction_address_s1(misaligned_instruction_address_s1),
       .misaligned_load_s1               (misaligned_load_s1),
       .misaligned_store_s1              (misaligned_store_s1),
-      .trap_cause_s1                    (trap_cause_s1),
 
       // Outputs
-      .irq_fast_response_s1    (irq_fast_response),
-      .irq_external_response_s1(irq_external_response),
-      .irq_software_response_s1(irq_software_response),
-      .irq_timer_response_s1   (irq_timer_response),
-      .take_trap_s1            (take_trap_s1)
+      .take_trap_s1(take_trap_s1)
 
   );
 
@@ -474,7 +463,6 @@ module rvx_core #(
       .exception_address_s1      (exception_address_s1),
       .global_interrupt_enable_s1(global_interrupt_enable_s1),
       .interrupt_pending_s1      (interrupt_pending_s1),
-      .trap_cause_s1             (trap_cause_s1),
       .trap_handler_address_s1   (trap_handler_address_s1)
 
   );

@@ -41,7 +41,6 @@ module rvx_core_csr_file (
     output wire [31:0] exception_address_s1,
     output wire        global_interrupt_enable_s1,
     output wire        interrupt_pending_s1,
-    output wire [ 4:0] trap_cause_s1,
     output wire [31:0] trap_handler_address_s1
 
 );
@@ -86,8 +85,6 @@ module rvx_core_csr_file (
 
   assign interrupt_pending_s1 = (csr_mie_meie & csr_mip_meip) | (csr_mie_mtie & csr_mip_mtip) |
       (csr_mie_msie & csr_mip_msip) | (|(csr_mie_mfie & csr_mip_mfip));
-
-  assign trap_cause_s1 = csr_mcause_code;
 
   assign global_interrupt_enable_s1 = csr_mstatus_mie;
 
