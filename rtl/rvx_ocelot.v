@@ -3,26 +3,16 @@
 
 module rvx_ocelot #(
 
-    // Frequency of 'clock' signal
-    parameter CLOCK_FREQUENCY     = 50000000,
-    // Desired baud rate for UART unit
-    parameter UART_BAUD_RATE      = 9600,
-    // Memory size in bytes - must be a power of 2
-    parameter MEMORY_SIZE         = 8192,
-    // Text file with program and data (one hex value per line)
-    parameter MEMORY_INIT_FILE    = "",
-    // Address of the first instruction to fetch from memory
-    parameter BOOT_ADDRESS        = 32'h00000000,
-    // Number of available I/O ports
-    parameter GPIO_WIDTH          = 1,
-    // Number of CS (Chip Select) pins for the SPI controller
-    parameter SPI_NUM_CHIP_SELECT = 1
+    parameter MEMORY_SIZE_IN_BYTES  = 8192,
+    parameter MEMORY_INIT_FILE_PATH = "",
+    parameter BOOT_ADDRESS          = 32'h00000000,
+    parameter GPIO_WIDTH            = 1,
+    parameter SPI_NUM_CHIP_SELECT   = 1
 
 ) (
 
     input  wire                           clock,
     input  wire                           reset_n,
-    input  wire                           halt,
     input  wire                           uart_rx,
     output wire                           uart_tx,
     input  wire [         GPIO_WIDTH-1:0] gpio_input,
@@ -34,6 +24,13 @@ module rvx_ocelot #(
     output wire [SPI_NUM_CHIP_SELECT-1:0] cs
 
 );
+
+  // Instruction bus signals
+
+  wire [31:0] ibus_address;
+  wire [31:0] ibus_rdata;
+  wire        ibus_rrequest;
+  wire        ibus_rresponse;
 
   // System bus configuration
 
@@ -48,7 +45,7 @@ module rvx_ocelot #(
   wire [NUM_DEVICES*32-1:0] device_region_size;
 
   assign device_start_address[32*D0_RAM+:32]    = 32'h0000_0000;
-  assign device_region_size[32*D0_RAM+:32]      = MEMORY_SIZE;
+  assign device_region_size[32*D0_RAM+:32]      = MEMORY_SIZE_IN_BYTES;
 
   assign device_start_address[32*D1_UART+:32]   = 32'h8000_0000;
   assign device_region_size[32*D1_UART+:32]     = 16;
@@ -84,34 +81,19 @@ module rvx_ocelot #(
   wire [   NUM_DEVICES-1:0] device_write_request;
   wire [   NUM_DEVICES-1:0] device_write_response;
 
-  // Real-time clock (unused)
-
-  wire [              63:0] real_time_clock;
-
-  assign real_time_clock = 64'b0;
-
   // Interrupt signals
 
-  wire [15:0] irq_fast;
-  wire        irq_external;
-  wire        irq_timer;
-  wire        irq_software;
-
-  wire [15:0] irq_fast_response;
-  wire        irq_external_response;
-  wire        irq_timer_response;
-  wire        irq_software_response;
-
-  wire        irq_uart;
-  wire        irq_uart_response;
+  wire [              15:0] irq_fast;
+  wire                      irq_external;
+  wire                      irq_timer;
+  wire                      irq_software;
+  wire                      irq_uart;
 
   // Interrupt signals map
 
-  assign irq_fast          = {15'b0, irq_uart};  // Give UART interrupts the highest priority
-  assign irq_uart_response = irq_fast_response[0];
-
-  assign irq_external      = 1'b0;  // unused
-  assign irq_software      = 1'b0;  // unused
+  assign irq_fast     = {15'b0, irq_uart};
+  assign irq_external = 1'b0;  // unused
+  assign irq_software = 1'b0;  // unused
 
 
   rvx_core #(
@@ -121,39 +103,33 @@ module rvx_ocelot #(
   ) rvx_core_instance (
 
       // Global signals
-
       .clock  (clock),
       .reset_n(reset_n),
-      .halt   (halt),
 
-      // IO interface
+      // Instruction bus
+      .ibus_address  (ibus_address),
+      .ibus_rdata    (ibus_rdata),
+      .ibus_rrequest (ibus_rrequest),
+      .ibus_rresponse(ibus_rresponse),
 
-      .rw_address    (manager_rw_address),
-      .read_data     (manager_read_data),
-      .read_request  (manager_read_request),
-      .read_response (manager_read_response),
-      .write_data    (manager_write_data),
-      .write_strobe  (manager_write_strobe),
-      .write_request (manager_write_request),
-      .write_response(manager_write_response),
+      // Data bus
+      .dbus_address  (manager_rw_address),
+      .dbus_rdata    (manager_read_data),
+      .dbus_rrequest (manager_read_request),
+      .dbus_rresponse(manager_read_response),
+      .dbus_wdata    (manager_write_data),
+      .dbus_wstrobe  (manager_write_strobe),
+      .dbus_wrequest (manager_write_request),
+      .dbus_wresponse(manager_write_response),
 
-      // Interrupt request signals
-
+      // Interrupt requests
       .irq_fast    (irq_fast),
       .irq_external(irq_external),
       .irq_timer   (irq_timer),
       .irq_software(irq_software),
 
-      // Interrupt response signals
-
-      .irq_fast_response    (irq_fast_response),
-      .irq_external_response(irq_external_response),
-      .irq_timer_response   (irq_timer_response),
-      .irq_software_response(irq_software_response),
-
-      // Real Time Clock
-
-      .real_time_clock(real_time_clock)
+      // Memory-mapped timer
+      .memory_mapped_timer(64'b0)
 
   );
 
@@ -164,12 +140,10 @@ module rvx_ocelot #(
   ) rvx_bus_instance (
 
       // Global signals
-
       .clock  (clock),
       .reset_n(reset_n),
 
       // Interface with the manager device (Processor Core IP)
-
       .manager_rw_address    (manager_rw_address),
       .manager_read_data     (manager_read_data),
       .manager_read_request  (manager_read_request),
@@ -180,7 +154,6 @@ module rvx_ocelot #(
       .manager_write_response(manager_write_response),
 
       // Interface with the managed devices
-
       .device_rw_address    (device_rw_address),
       .device_read_data     (device_read_data),
       .device_read_request  (device_read_request),
@@ -191,68 +164,62 @@ module rvx_ocelot #(
       .device_write_response(device_write_response),
 
       // Base addresses and masks of the managed devices
-
       .device_start_address(device_start_address),
       .device_region_size  (device_region_size)
 
   );
 
-  rvx_ram #(
+  rvx_tightly_coupled_memory #(
 
-      .MEMORY_SIZE     (MEMORY_SIZE),
-      .MEMORY_INIT_FILE(MEMORY_INIT_FILE)
+      .MEMORY_SIZE_IN_BYTES (MEMORY_SIZE_IN_BYTES),
+      .MEMORY_INIT_FILE_PATH(MEMORY_INIT_FILE_PATH)
 
-  ) rvx_ram_instance (
+  ) rvx_tightly_coupled_memory_instance (
 
       // Global signals
-
       .clock  (clock),
       .reset_n(reset_n),
 
-      // IO interface
+      // Port 0 (read-only) - Instruction bus
+      .port0_address  (ibus_address),
+      .port0_rdata    (ibus_rdata),
+      .port0_rrequest (ibus_rrequest),
+      .port0_rresponse(ibus_rresponse),
 
-      .rw_address    (device_rw_address),
-      .read_data     (device_read_data[32*D0_RAM+:32]),
-      .read_request  (device_read_request[D0_RAM]),
-      .read_response (device_read_response[D0_RAM]),
-      .write_data    (device_write_data),
-      .write_strobe  (device_write_strobe),
-      .write_request (device_write_request[D0_RAM]),
-      .write_response(device_write_response[D0_RAM])
+      // Port 1 (read/write) - Data bus
+      .port1_address  (device_rw_address),
+      .port1_rdata    (device_read_data[32*D0_RAM+:32]),
+      .port1_rrequest (device_read_request[D0_RAM]),
+      .port1_rresponse(device_read_response[D0_RAM]),
+      .port1_wdata    (device_write_data),
+      .port1_wstrobe  (device_write_strobe),
+      .port1_wrequest (device_write_request[D0_RAM]),
+      .port1_wresponse(device_write_response[D0_RAM])
 
   );
 
-  rvx_uart #(
-
-      .CLOCK_FREQUENCY(CLOCK_FREQUENCY),
-      .UART_BAUD_RATE (UART_BAUD_RATE)
-
-  ) rvx_uart_instance (
+  rvx_uart rvx_uart_instance (
 
       // Global signals
 
       .clock  (clock),
       .reset_n(reset_n),
 
-      // IO interface
-
+      // Register read/write
       .rw_address    (device_rw_address[4:0]),
       .read_data     (device_read_data[32*D1_UART+:32]),
       .read_request  (device_read_request[D1_UART]),
       .read_response (device_read_response[D1_UART]),
-      .write_data    (device_write_data[7:0]),
+      .write_data    (device_write_data[31:0]),
       .write_request (device_write_request[D1_UART]),
       .write_response(device_write_response[D1_UART]),
 
       // RX/TX signals
-
       .uart_tx(uart_tx),
       .uart_rx(uart_rx),
 
-      // Interrupt signaling
-
-      .uart_irq         (irq_uart),
-      .uart_irq_response(irq_uart_response)
+      // Interrupt request
+      .uart_irq(irq_uart)
 
   );
 
@@ -340,9 +307,5 @@ module rvx_ocelot #(
       .cs  (cs)
 
   );
-
-  // Avoid warnings about intentionally unused pins/wires
-  wire unused_ok = &{1'b0, irq_external, irq_software, irq_external_response, irq_software_response, irq_timer_response,
-                     irq_fast_response[15:1], 1'b0};
 
 endmodule
