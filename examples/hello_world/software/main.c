@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-#include "libsteel.h"
-
-#define DEFAULT_UART (UartController *)0x80000000
+#include "rvx.h"
 
 void main(void)
 {
-  uart_write_string(DEFAULT_UART, "Hello World from RVX!");
+  RvxUart *uart_address = (RvxUart *)0x80000000;
+  rvx_uart_init(uart_address, 1250);
+  rvx_uart_write_string(uart_address, "Hello World from RVX!");
 }

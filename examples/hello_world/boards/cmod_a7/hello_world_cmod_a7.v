@@ -15,30 +15,32 @@ module hello_world_cmod_a7 (
     reset_debounced <= reset;
   end
 
-  rvx #(
+  rvx_ocelot #(
 
-      // Please adjust these two parameters accordingly
+      .MEMORY_INIT_FILE_PATH("hello_world.hex")
 
-      .CLOCK_FREQUENCY (12000000),
-      .MEMORY_INIT_FILE("hello_world.hex")
-
-  ) rvx_instance (
+  ) rvx_ocelot_instance (
 
       // Note that unused inputs are hardwired to zero,
       // while unused outputs are left open.
 
-      .clock      (clock),
-      .reset_n    (!reset_debounced),
-      .halt       (1'b0),
-      .uart_rx    (  /* unused, leave open */),
-      .uart_tx    (uart_tx),
-      .gpio_input (1'b0),
-      .gpio_oe    (  /* unused, leave open */),
-      .gpio_output(  /* unused, leave open */),
-      .sclk       (  /* unused, leave open */),
-      .pico       (  /* unused, leave open */),
-      .poci       (1'b0),
-      .cs         (  /* unused, leave open */)
+      .clock  (clock),
+      .reset_n(!reset_debounced),
+      .uart_tx(uart_tx),
+
+      // These input ports are not used in this example and are hardwired to zero
+      .gpio_input(1'b0),
+      .poci      (1'b0),
+
+      // These output ports are not used in this example and can be left unconnected
+      // verilator lint_off PINCONNECTEMPTY
+      .uart_rx    (),
+      .gpio_oe    (),
+      .gpio_output(),
+      .sclk       (),
+      .pico       (),
+      .cs         ()
+      // verilator lint_on PINCONNECTEMPTY
 
   );
 
