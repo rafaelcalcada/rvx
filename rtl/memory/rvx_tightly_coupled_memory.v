@@ -12,28 +12,24 @@ module rvx_tightly_coupled_memory #(
 ) (
 
     // Global signals
-
     input wire clock,
     input wire reset_n,
 
-    // Port 0 (read/wrire)
-
+    // Port 0 (read-only)
     input  wire [31:0] port0_address,
     output reg  [31:0] port0_rdata,
     input  wire        port0_rrequest,
     output reg         port0_rresponse,
-    input  wire [31:0] port0_wdata,
-    input  wire [ 3:0] port0_wstrobe,
-    input  wire        port0_wrequest,
-    output reg         port0_wresponse,
 
-    // Port 1 (read-only)
-
+    // Port 1 (read/write)
     input  wire [31:0] port1_address,
     output reg  [31:0] port1_rdata,
     input  wire        port1_rrequest,
-    output reg         port1_rresponse
-
+    output reg         port1_rresponse,
+    input  wire [31:0] port1_wdata,
+    input  wire [ 3:0] port1_wstrobe,
+    input  wire        port1_wrequest,
+    output reg         port1_wresponse
 
 );
 
@@ -67,11 +63,11 @@ module rvx_tightly_coupled_memory #(
   end
 
   always @(posedge clock) begin
-    if (port0_wrequest) begin
-      if (port0_wstrobe[0]) tcm[port0_effective_address][7:0] <= port0_wdata[7:0];
-      if (port0_wstrobe[1]) tcm[port0_effective_address][15:8] <= port0_wdata[15:8];
-      if (port0_wstrobe[2]) tcm[port0_effective_address][23:16] <= port0_wdata[23:16];
-      if (port0_wstrobe[3]) tcm[port0_effective_address][31:24] <= port0_wdata[31:24];
+    if (port1_wrequest) begin
+      if (port1_wstrobe[0]) tcm[port1_effective_address][7:0] <= port1_wdata[7:0];
+      if (port1_wstrobe[1]) tcm[port1_effective_address][15:8] <= port1_wdata[15:8];
+      if (port1_wstrobe[2]) tcm[port1_effective_address][23:16] <= port1_wdata[23:16];
+      if (port1_wstrobe[3]) tcm[port1_effective_address][31:24] <= port1_wdata[31:24];
     end
   end
 
@@ -79,12 +75,12 @@ module rvx_tightly_coupled_memory #(
     if (!reset_n) begin
       port0_rresponse <= 1'b0;
       port1_rresponse <= 1'b0;
-      port0_wresponse <= 1'b0;
+      port1_wresponse <= 1'b0;
     end
     else begin
       port0_rresponse <= port0_rrequest;
       port1_rresponse <= port1_rrequest;
-      port0_wresponse <= port0_wrequest;
+      port1_wresponse <= port1_wrequest;
     end
   end
 
