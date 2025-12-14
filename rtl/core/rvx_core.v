@@ -407,7 +407,7 @@ module rvx_core #(
 
       // Global signals
       .clock       (clock),
-      .clock_enable(clock_enable & !flush_pipeline_s1),
+      .clock_enable(clock_enable),
       .reset_n     (reset_n),
 
       // Read port 1
@@ -421,7 +421,7 @@ module rvx_core #(
       // Write port
       .rd_address_s2   (rd_address_s2),
       .rd_data_s2      (writeback_output_s2),
-      .write_request_s2(integer_file_write_request_s2)
+      .write_request_s2(integer_file_write_request_s2 & ~flush_pipeline_s1)
 
   );
 
@@ -452,7 +452,7 @@ module rvx_core #(
       // Inputs from pipeline stage 2
       .csr_address_s2      (csr_address_s2),
       .csr_operation_s2    (csr_operation_s2),
-      .csr_write_request_s2(csr_write_request_s2),
+      .csr_write_request_s2(csr_write_request_s2 & ~flush_pipeline_s1),
       .immediate_4_0_s2    (immediate_s2[4:0]),
       .rs1_data_s2         (rs1_data_s2),
 
