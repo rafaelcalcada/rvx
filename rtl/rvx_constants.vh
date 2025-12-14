@@ -170,4 +170,10 @@
 `define RVX_STATE_TRAP_TAKEN 4'b0100
 `define RVX_STATE_TRAP_RETURN 4'b1000
 
+// UART register addresses
+`define RVX_UART_WRITE_REG_ADDR 5'h00
+`define RVX_UART_READ_REG_ADDR 5'h04
+`define RVX_UART_STATUS_REG_ADDR 5'h08
+`define RVX_UART_BAUD_REG_ADDR 5'h0c
+
 `endif

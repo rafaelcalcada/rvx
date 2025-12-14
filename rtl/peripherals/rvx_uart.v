@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
+`include "rvx_constants.vh"
+
 module rvx_uart (
 
     // Global signals
@@ -25,12 +27,6 @@ module rvx_uart (
 
 );
 
-  // UART register addresses
-  localparam RVX_UART_WRITE_REG_ADDR = 5'h00;
-  localparam RVX_UART_READ_REG_ADDR = 5'h04;
-  localparam RVX_UART_STATUS_REG_ADDR = 5'h08;
-  localparam RVX_UART_BAUD_REG_ADDR = 5'h0c;
-
   reg [31:0] cycles_per_baud;
   reg [31:0] tx_cycle_counter;
   reg [31:0] rx_cycle_counter;
@@ -47,7 +43,7 @@ module rvx_uart (
     if (!reset_n) begin
       cycles_per_baud <= 0;
     end
-    else if (rw_address == RVX_UART_BAUD_REG_ADDR && write_request == 1'b1) begin
+    else if (rw_address == `RVX_UART_BAUD_REG_ADDR && write_request == 1'b1) begin
       cycles_per_baud <= write_data;
     end
   end
@@ -58,7 +54,7 @@ module rvx_uart (
       tx_register      <= 10'b1111111111;
       tx_bit_counter   <= 0;
     end
-    else if (tx_bit_counter == 0 && rw_address == RVX_UART_WRITE_REG_ADDR && write_request == 1'b1) begin
+    else if (tx_bit_counter == 0 && rw_address == `RVX_UART_WRITE_REG_ADDR && write_request == 1'b1) begin
       tx_cycle_counter <= 0;
       tx_register      <= {1'b1, write_data[7:0], 1'b0};
       tx_bit_counter   <= 10;
@@ -87,7 +83,7 @@ module rvx_uart (
       rx_active        <= 1'b0;
     end
     else if (uart_irq == 1'b1) begin
-      if (rw_address == RVX_UART_READ_REG_ADDR && read_request == 1'b1) begin
+      if (rw_address == `RVX_UART_READ_REG_ADDR && read_request == 1'b1) begin
         rx_cycle_counter <= 0;
         rx_register      <= 8'h00;
         rx_data          <= rx_data;
@@ -167,13 +163,13 @@ module rvx_uart (
     if (!reset_n) begin
       read_data <= 32'h00000000;
     end
-    else if (rw_address == RVX_UART_READ_REG_ADDR && read_request == 1'b1) begin
+    else if (rw_address == `RVX_UART_READ_REG_ADDR && read_request == 1'b1) begin
       read_data <= {24'b0, rx_data};
     end
-    else if (rw_address == RVX_UART_STATUS_REG_ADDR && read_request == 1'b1) begin
+    else if (rw_address == `RVX_UART_STATUS_REG_ADDR && read_request == 1'b1) begin
       read_data <= {30'b0, uart_irq, tx_bit_counter == 0};
     end
-    else if (rw_address == RVX_UART_BAUD_REG_ADDR && read_request == 1'b1) begin
+    else if (rw_address == `RVX_UART_BAUD_REG_ADDR && read_request == 1'b1) begin
       read_data <= cycles_per_baud;
     end
     else begin
