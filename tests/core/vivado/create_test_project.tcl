@@ -4,12 +4,12 @@ create_project test_project ./test_project -part xc7a35ticsg324-1L -force
 set_property simulator_language Verilog [current_project]
 add_files -norecurse $memory_init_files
 add_files -norecurse {./unit_tests.v}
+add_files -norecurse {../../../rtl/rvx_constants.vh}
 add_files -norecurse {../../../rtl/core/rvx_core.v}
 add_files -norecurse {../../../rtl/core/rvx_core_address_gen.v}
 add_files -norecurse {../../../rtl/core/rvx_core_alu.v}
 add_files -norecurse {../../../rtl/core/rvx_core_branch.v}
 add_files -norecurse {../../../rtl/core/rvx_core_bus_controller.v}
-add_files -norecurse {../../../rtl/core/rvx_core_constants.vh}
 add_files -norecurse {../../../rtl/core/rvx_core_csr_file.v}
 add_files -norecurse {../../../rtl/core/rvx_core_decoder.v}
 add_files -norecurse {../../../rtl/core/rvx_core_immediate_gen.v}

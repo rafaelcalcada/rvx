@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-`include "rvx_core_constants.vh"
+`include "rvx_constants.vh"
 
 module rvx_core_bus_controller #(
 
