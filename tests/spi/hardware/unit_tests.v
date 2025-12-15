@@ -1,1500 +1,442 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-`timescale 1ns / 1ps
+`timescale 1ns / 1ns
+
+`include "rvx_constants.vh"
+
+`define ASSERT(cond, msg)                                   \
+  if (!(cond)) begin                                        \
+    $display("");                                           \
+    $display("Assertion FAILED.");                          \
+    $display("  Condition: %s", `"cond`");                  \
+    $display("  Message: %s", msg);                         \
+    error_count = error_count + 1;                          \
+    $stop();                                                \
+  end                                                       \
+  else begin                                                \
+    $display("Passed: %s", `"cond`");                       \
+  end
 
 module unit_tests ();
 
-  localparam SPI_NUM_CHIP_SELECT = 8;
-
   // Global signals
+  reg            clock;
+  reg            areset_n;
+  reg            reset_n;
 
-  reg                            clock;
-  reg                            reset;
-
-  // IO interface
-
-  reg  [                    4:0] rw_address;
-  wire [                   31:0] read_data;
-  reg                            read_request;
-  wire                           read_response;
-  reg  [                    7:0] write_data;
-  reg  [                    3:0] write_strobe;
-  reg                            write_request;
-  wire                           write_response;
+  // Register read/write
+  reg     [ 4:0] rw_address;
+  wire    [31:0] read_data;
+  reg            read_request;
+  reg     [31:0] write_data;
+  reg     [ 3:0] write_strobe;
+  reg            write_request;
 
   // SPI signals
+  wire           sclk;
+  wire           mosi;
+  wire           miso;
+  wire           cs;
 
-  wire                           sclk;
-  wire                           pico;
-  wire                           poci;
-  wire [SPI_NUM_CHIP_SELECT-1:0] cs;
+  reg            gpio_cs;
 
-  rvx_spi #(
+  // Test variables
+  integer        error_count;
 
-      .SPI_NUM_CHIP_SELECT(SPI_NUM_CHIP_SELECT)
-
-  ) rvx_spi_instance (
+  // verilator lint_off PINCONNECTEMPTY
+  rvx_spi_manager rvx_spi_manager_instance (
 
       // Global signals
-
       .clock  (clock),
-      .reset_n(!reset),
+      .reset_n(reset_n),
 
       // IO interface
-
       .rw_address    (rw_address),
       .read_data     (read_data),
       .read_request  (read_request),
-      .read_response (read_response),
+      .read_response (), // unused
       .write_data    (write_data),
       .write_strobe  (write_strobe),
       .write_request (write_request),
-      .write_response(write_response),
+      .write_response(), // unused
 
       // SPI signals
-
       .sclk(sclk),
-      .pico(pico),
-      .poci(poci),
+      .mosi(mosi),
+      .miso(miso),
       .cs  (cs)
 
   );
+  // verilator lint_on PINCONNECTEMPTY
 
-  dummy_spi_peripheral_modes03 spi_modes03 (
+  test_spi_subordinate_0 test_spi_subordinate_0_instance (
 
-      .sclk(sclk),
-      .pico(pico),
-      .poci(poci),
-      .cs  (cs[0])
-
-  );
-
-  dummy_spi_peripheral_modes12 spi_modes12 (
-
-      .sclk(sclk),
-      .pico(pico),
-      .poci(poci),
-      .cs  (cs[1])
+      .areset_n(areset_n),
+      .sclk    (sclk),
+      .mosi    (mosi),
+      .miso    (miso),
+      .cs      (cs)
 
   );
 
-  // 50MHz clock (20ns period)
+  test_spi_subordinate_1 test_spi_subordinate_1_instance (
+
+      .areset_n(areset_n),
+      .sclk    (sclk),
+      .mosi    (mosi),
+      .miso    (miso),
+      .cs      (gpio_cs)
+
+  );
+
+  // Clock generation
+  localparam CLOCK_PERIOD = 20;
   initial clock = 1'b0;
-  always #10 clock = !clock;
+  always #(CLOCK_PERIOD / 2) clock = !clock;
 
-  integer i;
-  integer error_flag;
-  integer error_count;
+  function [8*11-1:0] spi_reg_name;
+    input [4:0] address;
+    begin
+      case (address)
+        `RVX_SPI_MODE_REG_ADDR:        spi_reg_name = "MODE";
+        `RVX_SPI_CHIP_SELECT_REG_ADDR: spi_reg_name = "CHIP_SELECT";
+        `RVX_SPI_DIVIDER_REG_ADDR:     spi_reg_name = "DIVIDER";
+        `RVX_SPI_WRITE_REG_ADDR:       spi_reg_name = "WRITE";
+        `RVX_SPI_READ_REG_ADDR:        spi_reg_name = "READ";
+        `RVX_SPI_STATUS_REG_ADDR:      spi_reg_name = "STATUS";
+        default:                       spi_reg_name = "UNKNOWN";
+      endcase
+    end
+  endfunction
+
+  task reset_all_devices;
+    begin
+      areset_n      = 1'b1;
+      reset_n       = 1'b0;
+      rw_address    = 5'h00;
+      read_request  = 1'b0;
+      write_request = 1'b0;
+      write_strobe  = 4'b0;
+      write_data    = 32'b0;
+      #(CLOCK_PERIOD * 2);
+      reset_n  = 1'b1;
+      areset_n = 1'b0;
+      #(CLOCK_PERIOD * 2);
+      areset_n = 1'b1;
+    end
+  endtask
+
+  task read_spi_register;
+    input [4:0] address;
+    begin
+      rw_address   = address;
+      read_request = 1'b1;
+      #(CLOCK_PERIOD);
+      read_request = 1'b0;
+      rw_address   = 5'h00;
+      $display("");
+      $display("Reading SPI register: %s", spi_reg_name(address));
+      $display("Read value: 0x%08h", read_data);
+    end
+  endtask
+
+  task write_spi_register;
+    input [4:0] address;
+    input [31:0] data;
+    begin
+      $display("");
+      $display("Writing SPI register: %s", spi_reg_name(address));
+      $display("Write value: 0x%08h", data);
+      rw_address    = address;
+      write_data    = data;
+      write_strobe  = 4'b1111;
+      write_request = 1'b1;
+      #(CLOCK_PERIOD);
+      write_request = 1'b0;
+      rw_address    = 5'h00;
+      write_data    = 32'b0;
+      write_strobe  = 4'b0;
+    end
+  endtask
+
+  task verify_byte_transmission;
+    input [7:0] expected_byte;
+    input [15:0] sclk_period;  // Delay between bits in clock periods
+    integer i;
+    integer transmission_error;
+    begin
+      $display("");
+      $display("Checking transmission of: 0x%02h", expected_byte);
+      for (i = 0; i <= 7; i = i + 1) begin
+        #(sclk_period);
+        if (mosi !== expected_byte[7-i]) begin
+          transmission_error = 1;
+          $display("Bit %0d mismatch: expected %b, got %b", i, expected_byte[7-i], mosi);
+        end
+        else begin
+          $display("Passed: MOSI === %b after %0d ns at t = %0d ns", mosi, sclk_period * (i + 1), $time);
+        end
+      end
+      if (transmission_error == 1) begin
+        $display("Transmission of byte 0x%02h FAILED.", expected_byte);
+        $stop();
+      end
+      else begin
+        $display("Byte 0x%02h transmission check complete.", expected_byte);
+      end
+    end
+  endtask
+
+  task test_transmission;
+    input [15:0] sclk_period;  // Delay between bits in clock periods
+    begin
+      // Send: 0xA5 (0x10100101)
+      write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h000000a5);
+      verify_byte_transmission(8'ha5, sclk_period);
+      #(CLOCK_PERIOD * 4);
+
+      // Send: 0x5A (0x01011010)
+      write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h0000005a);
+      verify_byte_transmission(8'h5a, sclk_period);
+      #(CLOCK_PERIOD * 4);
+
+      // Send: 0xFF (0x11111111)
+      write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h000000ff);
+      verify_byte_transmission(8'hff, sclk_period);
+      #(CLOCK_PERIOD * 4);
+
+      // Send: 0x00 (0x00000000)
+      write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h00000000);
+      verify_byte_transmission(8'h00, sclk_period);
+      #(CLOCK_PERIOD * 4);
+
+      // Send: 0x3C (0x00111100)
+      write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h0000003c);
+      verify_byte_transmission(8'h3c, sclk_period);
+      #(CLOCK_PERIOD * 4);
+
+      // Send: 0xC3 (0x11000011)
+      write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h000000c3);
+      verify_byte_transmission(8'hc3, sclk_period);
+      #(CLOCK_PERIOD * 4);
+
+      // Read received byte (subordinate sends the byte sent in the penultimate transmission)
+      read_spi_register(`RVX_SPI_READ_REG_ADDR);
+      `ASSERT(read_data === 32'h0000003c, "READ register does not contain the expected byte (0x3c).")
+    end
+  endtask
 
   initial begin
 
-    error_count   = 0;
-    reset         = 1'b0;
-    rw_address    = 32'b0;
-    read_request  = 1'b0;
-    write_request = 1'b0;
-    write_strobe  = 4'b0;
-    write_data    = 32'b0;
+    error_count = 0;
+    gpio_cs     = 1'b1;  // deselect subordinate 1
 
-    #20;
+    reset_all_devices();
 
-    reset = 1'b1;
+    $display("");
+    $display("Checking SPI Manager state after reset...");
+    $display("-----------------------------------------");
+    $display("");
 
-    #20;
+    `ASSERT(cs === 1'b1, "CS (Chip Select) is not logic HIGH after reset.")
+    `ASSERT(mosi === 1'b0, "MOSI is not logic LOW after reset.")
+    `ASSERT(sclk === 1'b0, "SCLK is not logic LOW after reset.")
+    read_spi_register(`RVX_SPI_MODE_REG_ADDR);
+    `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
+    read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
+    `ASSERT(read_data === 32'h00000001, "Register is not 1 after reset.")
+    read_spi_register(`RVX_SPI_DIVIDER_REG_ADDR);
+    `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
+    read_spi_register(`RVX_SPI_STATUS_REG_ADDR);
+    `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
+    read_spi_register(`RVX_SPI_READ_REG_ADDR);
+    `ASSERT(read_data === 32'h000000xx, "Register is not 0x000000xx after reset.")
+    read_spi_register(`RVX_SPI_WRITE_REG_ADDR);
+    `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
 
-    reset = 1'b0;
+    $display("");
+    $display("Testing read/write to SPI registers...");
+    $display("--------------------------------------");
 
-    #20;
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000001);
+    read_spi_register(`RVX_SPI_MODE_REG_ADDR);
+    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'hffffffff);
+    read_spi_register(`RVX_SPI_MODE_REG_ADDR);
+    `ASSERT(read_data === 32'h00000003, "Register is not 0x00000003 after write.")
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000000);
+    read_spi_register(`RVX_SPI_MODE_REG_ADDR);
+    `ASSERT(read_data === 32'h00000000, "Register is not 0x00000000 after write.")
+    write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000000);
+    read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
+    `ASSERT(read_data === 32'h00000000, "Register is not 0x00000000 after write.")
+    `ASSERT(cs === 1'b0, "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
+    write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000001);
+    read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
+    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `ASSERT(cs === 1'b1,
+            "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
 
-    // Test #1 - Check whether all CS lines are HIGH after reset
-    error_flag = 0;
-    $display("Running unit test #1...");
-    for (i = 0; i < SPI_NUM_CHIP_SELECT; i = i + 1) begin
-      if (cs[i] !== 1'b1) begin
-        error_flag  = 1;
-        error_count = error_count + 1;
-        $display("[ERROR] CS (Chip Select) %d is not logic HIGH after reset.", i);
-      end
-    end
+    $display("");
+    $display("Running SPI data transfer tests in mode 0 (base speed)...");
+    $display("---------------------------------------------------------");
 
-    // Test #2 - Check whether pico is zero after reset
-    error_flag = 0;
-    $display("Running unit test #2...");
-    if (pico !== 1'b0) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] PICO pin is not HIGH IMPEDANCE after reset.");
-    end
+    // Configure SPI: MODE 0, base speed, deassert CS (selects subordinate 0)
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000000);
+    write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h0000000);
+    write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000000);
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(cs === 1'b0, "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
 
-    // Test #3 - Check whether CPOL is 0 after reset
-    error_flag = 0;
-    $display("Running unit test #3...");
-    #20;
-    rw_address   = 5'h00;
-    read_request = 1'b1;
-    #20;
-    read_request = 1'b0;
-    if (read_data !== 32'h00000000) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] CPOL register is not 0 after reset. Actual value: 0x%h", read_data);
-    end
+    test_transmission(CLOCK_PERIOD * 2);
 
-    // Test #4 - Check whether CPHA is 0 after reset
-    error_flag = 0;
-    $display("Running unit test #4...");
-    #20;
-    rw_address   = 5'h04;
-    read_request = 1'b1;
-    #20;
-    read_request = 1'b0;
-    if (read_data !== 32'h00000000) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] CPHA register is not 0 after reset. Actual value: 0x%h", read_data);
-    end
+    // Deselect subordinate
+    write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000001);
+    read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
+    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `ASSERT(cs === 1'b1,
+            "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
 
-    // Test #5 - Check writing to CPOL register (legal value)
-    error_flag = 0;
-    $display("Running unit test #5...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    read_request  = 1'b1;
-    #20;
-    read_request = 1'b0;
-    if (read_data !== 32'h00000001) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Writing to CPOL register failed. Expected value: 0x%h. Actual value: 0x%h", write_data,
-               read_data);
-    end
+    $display("");
+    $display("Running SPI data transfer tests in mode 1 (base speed)...");
+    $display("---------------------------------------------------------");
 
-    // Test #6 - Check writing to CPHA register (legal value)
-    error_flag = 0;
-    $display("Running unit test #6...");
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    read_request  = 1'b1;
-    #20;
-    read_request = 1'b0;
-    if (read_data !== 32'h00000001) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Writing to CPHA register failed. Expected value: 0x%h. Actual value: 0x%h", write_data,
-               read_data);
-    end
+    // Configure SPI: MODE 1, base speed, deassert gpio_cs (selects subordinate 1)
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000001);
+    write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000000);
+    gpio_cs = 1'b0;
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
 
-    // Test #7 - Check writing to CPOL register (illegal value)
-    error_flag = 0;
-    $display("Running unit test #7...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'hff;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    read_request  = 1'b1;
-    #20;
-    read_request = 1'b0;
-    if (read_data !== 32'h00000001) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Writing illegal value to CPOL register. Expected value: 0x%h. Actual value: 0x%h",
-               32'h00000001, read_data);
-    end
+    test_transmission(CLOCK_PERIOD * 2);
 
-    // Test #8 - Check writing to CPHA register (illegal value)
-    error_flag = 0;
-    $display("Running unit test #8...");
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h78;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    read_request  = 1'b1;
-    #20;
-    read_request = 1'b0;
-    if (read_data !== 32'h00000000) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Writing illegal value to CPHA register. Expected value: 0x%h. Actual value: 0x%h",
-               32'h00000000, read_data);
-    end
+    // Deselect subordinate 1
+    gpio_cs = 1'b1;
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
 
-    // Test #9 - Check writing 0 to CPOL register (legal value)
-    error_flag = 0;
-    $display("Running unit test #9...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    read_request  = 1'b1;
-    #20;
-    read_request = 1'b0;
-    if (read_data !== 32'h00000000) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Writing to CPOL register failed. Expected value: 0x%h. Actual value: 0x%h", write_data,
-               read_data);
-    end
+    $display("");
+    $display("Running SPI data transfer tests in mode 2 (base speed)...");
+    $display("---------------------------------------------------------");
 
-    // Test #10 - Check writing 0 to CPHA register (legal value)
-    error_flag = 0;
-    $display("Running unit test #10...");
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    read_request  = 1'b1;
-    #20;
-    read_request = 1'b0;
-    if (read_data !== 32'h00000000) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Writing to CPHA register failed. Expected value: 0x%h. Actual value: 0x%h", write_data,
-               read_data);
-    end
+    // Configure SPI: MODE 2, base speed, deassert gpio_cs (selects subordinate 1)
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000002);
+    write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000000);
+    gpio_cs = 1'b0;
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
 
-    // Test #11 - Check deasserting and asserting CS lines
-    error_flag = 0;
-    $display("Running unit test #11...");
-    for (i = 0; i < SPI_NUM_CHIP_SELECT; i = i + 1) begin
-      #20;
-      rw_address    = 5'h08;
-      write_data    = i;
-      write_strobe  = 4'b1111;
-      write_request = 1'b1;
-      #20;
-      write_request = 1'b0;
-      read_request  = 1'b1;
-      #20;
-      read_request = 1'b0;
-      if (read_data !== i) begin
-        error_flag  = 1;
-        error_count = error_count + 1;
-        $display("[ERROR] Writing to CS register failed. Expected value: 0x%h. Actual value: 0x%h", write_data,
-                 read_data);
-      end
-      if (cs[i] !== 1'b0) begin
-        error_flag  = 1;
-        error_count = error_count + 1;
-        $display("[ERROR] CS line %d expected to be deasserted.", i);
-      end
-    end
-    #20;
-    rw_address    = 5'h08;
-    write_data    = 8'hff;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    read_request  = 1'b1;
-    #20;
-    read_request = 1'b0;
-    if (read_data !== 32'h000000ff) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Writing to CS register failed. Expected value: 0x%h. Actual value: 0x%h", write_data,
-               read_data);
-    end
-    for (i = 0; i < SPI_NUM_CHIP_SELECT; i = i + 1) begin
-      if (cs[i] !== 1'b1) begin
-        error_flag  = 1;
-        error_count = error_count + 1;
-        $display("[ERROR] CS line %d expected to be deasserted.", i);
-      end
-    end
+    test_transmission(CLOCK_PERIOD * 2);
 
-    // Test #12 - Test sending/receiving a byte at base speed, MODE 0
-    error_flag = 0;
-    $display("Running unit test #12...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h0c;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h08;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #40;
-    if (cs[0] !== 1'b0) begin
-      $display("[ERROR] CS line #0 expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    rw_address    = 5'h10;
-    write_data    = 8'hf0;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #120;
-    rw_address    = 5'h10;
-    write_data    = 8'h0f;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40;
-    rw_address    = 5'h08;
-    write_data    = 8'hff;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    if (cs[0] !== 1'b1) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] CS line #0 was expected to be asserted.");
-    end
-    #40;
-    rw_address   = 5'h14;
-    read_request = 1'b1;
-    #40;
-    if (read_data !== 32'h000000f0) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Read data is not what it is expected to be.");
-    end
+    // Deselect subordinate 1
+    gpio_cs = 1'b1;
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
 
-    // Test #13 - Test sending/receiving a byte at base speed, MODE 1
-    error_flag = 0;
-    $display("Running unit test #13...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h0c;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h08;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #40;
-    if (cs[1] !== 1'b0) begin
-      $display("[ERROR] CS line #1 expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    rw_address    = 5'h10;
-    write_data    = 8'hf0;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #120;
-    rw_address    = 5'h10;
-    write_data    = 8'h0f;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40;
-    rw_address    = 5'h08;
-    write_data    = 8'hff;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    if (cs[1] !== 1'b1) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] CS line #1 was expected to be asserted.");
-    end
-    #40;
-    rw_address   = 5'h14;
-    read_request = 1'b1;
-    #40;
-    if (read_data !== 32'h000000f0) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Read data is not what it is expected to be.");
-    end
+    $display("");
+    $display("Running SPI data transfer tests in mode 3 (base speed)...");
+    $display("---------------------------------------------------------");
 
-    // Test #14 - Test sending/receiving a byte at base speed, MODE 2
-    error_flag = 0;
-    $display("Running unit test #14...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h0c;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h08;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #40;
-    if (cs[1] !== 1'b0) begin
-      $display("[ERROR] CS line #1 expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    rw_address    = 5'h10;
-    write_data    = 8'hf0;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #120;
-    rw_address    = 5'h10;
-    write_data    = 8'h0f;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40;
-    rw_address    = 5'h08;
-    write_data    = 8'hff;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    if (cs[1] !== 1'b1) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] CS line #1 was expected to be asserted.");
-    end
-    #40;
-    rw_address   = 5'h14;
-    read_request = 1'b1;
-    #40;
-    if (read_data !== 32'h000000f0) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Read data is not what it is expected to be.");
-    end
+    // Configure SPI: MODE 3, base speed, deassert CS (selects subordinate 0)
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000003);
+    write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h0000000);
+    write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000000);
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(cs === 1'b0, "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
 
-    // Test #15 - Test sending/receiving a byte at base speed, MODE 3
-    error_flag = 0;
-    $display("Running unit test #15...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h0c;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h08;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #40;
-    if (cs[0] !== 1'b0) begin
-      $display("[ERROR] CS line #0 expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    rw_address    = 5'h10;
-    write_data    = 8'hf0;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #120;
-    rw_address    = 5'h10;
-    write_data    = 8'h0f;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #40;
-    rw_address    = 5'h08;
-    write_data    = 8'hff;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    if (cs[0] !== 1'b1) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] CS line #0 was expected to be asserted.");
-    end
-    #40;
-    rw_address   = 5'h14;
-    read_request = 1'b1;
-    #40;
-    if (read_data !== 32'h000000f0) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Read data is not what it is expected to be.");
-    end
+    test_transmission(CLOCK_PERIOD * 2);
 
-    // Test #16 - Test sending/receiving a byte at clock / 50, MODE 0
-    error_flag = 0;
-    $display("Running unit test #16...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h0c;
-    write_data    = 8'h19;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h08;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #40;
-    if (cs[0] !== 1'b0) begin
-      $display("[ERROR] CS line #0 expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    rw_address    = 5'h10;
-    write_data    = 8'hf0;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #2000;
-    rw_address    = 5'h10;
-    write_data    = 8'h0f;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000;
-    rw_address    = 5'h08;
-    write_data    = 8'hff;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    if (cs[0] !== 1'b1) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] CS line #0 was expected to be asserted.");
-    end
-    #40;
-    rw_address   = 5'h14;
-    read_request = 1'b1;
-    #40;
-    if (read_data !== 32'h000000f0) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Read data is not what it is expected to be.");
-    end
+    // Deselect subordinate
+    write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000001);
+    read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
+    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `ASSERT(cs === 1'b1,
+            "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
 
-    // Test #17 - Test sending/receiving a byte at clock / 50, MODE 1
-    error_flag = 0;
-    $display("Running unit test #17...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h0c;
-    write_data    = 8'h19;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h08;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #40;
-    if (cs[1] !== 1'b0) begin
-      $display("[ERROR] CS line #1 expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    rw_address    = 5'h10;
-    write_data    = 8'hf0;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #2000;
-    rw_address    = 5'h10;
-    write_data    = 8'h0f;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000;
-    rw_address    = 5'h08;
-    write_data    = 8'hff;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    if (cs[1] !== 1'b1) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] CS line #1 was expected to be asserted.");
-    end
-    #40;
-    rw_address   = 5'h14;
-    read_request = 1'b1;
-    #40;
-    if (read_data !== 32'h000000f0) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Read data is not what it is expected to be.");
-    end
+    $display("");
+    $display("Running SPI data transfer tests in mode 0 (divider = 4)...");
+    $display("---------------------------------------------------------");
 
-    // Test #18 - Test sending/receiving a byte at clock / 50, MODE 2
-    error_flag = 0;
-    $display("Running unit test #18...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h0c;
-    write_data    = 8'h19;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h08;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #40;
-    if (cs[1] !== 1'b0) begin
-      $display("[ERROR] CS line #1 expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    rw_address    = 5'h10;
-    write_data    = 8'hf0;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #2000;
-    rw_address    = 5'h10;
-    write_data    = 8'h0f;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000;
-    rw_address    = 5'h08;
-    write_data    = 8'hff;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    if (cs[1] !== 1'b1) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] CS line #1 was expected to be asserted.");
-    end
-    #40;
-    rw_address   = 5'h14;
-    read_request = 1'b1;
-    #40;
-    if (read_data !== 32'h000000f0) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Read data is not what it is expected to be.");
-    end
+    // Configure SPI: MODE 0, base speed, deassert CS (selects subordinate 0)
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000000);
+    write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000004);
+    write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000000);
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(cs === 1'b0, "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
 
-    // Test #19 - Test sending/receiving a byte at clock / 50, MODE 3
-    error_flag = 0;
-    $display("Running unit test #19...");
-    #20;
-    rw_address    = 5'h00;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h04;
-    write_data    = 8'h01;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h0c;
-    write_data    = 8'h19;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    rw_address    = 5'h08;
-    write_data    = 8'h00;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #40;
-    if (cs[0] !== 1'b0) begin
-      $display("[ERROR] CS line #0 expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    rw_address    = 5'h10;
-    write_data    = 8'hf0;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #2000;
-    rw_address    = 5'h10;
-    write_data    = 8'h0f;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b0) begin
-      $display("[ERROR] PICO pin expected to be logic LOW.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000
-    if (pico !== 1'b1) begin
-      $display("[ERROR] PICO pin expected to be logic HIGH.");
-      error_count = error_count + 1;
-    end
-    #1000;
-    rw_address    = 5'h08;
-    write_data    = 8'hff;
-    write_strobe  = 4'b1111;
-    write_request = 1'b1;
-    #20;
-    write_request = 1'b0;
-    #20;
-    if (cs[0] !== 1'b1) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] CS line #0 was expected to be asserted.");
-    end
-    #40;
-    rw_address   = 5'h14;
-    read_request = 1'b1;
-    #40;
-    if (read_data !== 32'h000000f0) begin
-      error_flag  = 1;
-      error_count = error_count + 1;
-      $display("[ERROR] Read data is not what it is expected to be.");
-    end
+    test_transmission(CLOCK_PERIOD * 10);
 
-    if (error_count === 0) $display("Passed all SPI Controller Software Unit Tests.");
-    else $display("[ERROR] SPI Controller failed one or more unit tests.");
+    // Deselect subordinate
+    write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000001);
+    read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
+    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `ASSERT(cs === 1'b1,
+            "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
+
+    $display("");
+    $display("Running SPI data transfer tests in mode 1 (base speed)...");
+    $display("---------------------------------------------------------");
+
+    // Configure SPI: MODE 1, base speed, deassert gpio_cs (selects subordinate 1)
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000001);
+    write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000004);
+    gpio_cs = 1'b0;
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
+
+    test_transmission(CLOCK_PERIOD * 10);
+
+    // Deselect subordinate 1
+    gpio_cs = 1'b1;
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
+
+    $display("");
+    $display("Running SPI data transfer tests in mode 2 (base speed)...");
+    $display("---------------------------------------------------------");
+
+    // Configure SPI: MODE 2, base speed, deassert gpio_cs (selects subordinate 1)
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000002);
+    write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000004);
+    gpio_cs = 1'b0;
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
+
+    test_transmission(CLOCK_PERIOD * 10);
+
+    // Deselect subordinate 1
+    gpio_cs = 1'b1;
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
+
+    $display("");
+    $display("Running SPI data transfer tests in mode 3 (base speed)...");
+    $display("---------------------------------------------------------");
+
+    // Configure SPI: MODE 3, base speed, deassert CS (selects subordinate 0)
+    write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000003);
+    write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000004);
+    write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000000);
+    #(CLOCK_PERIOD * 2);
+    `ASSERT(cs === 1'b0, "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
+
+    test_transmission(CLOCK_PERIOD * 10);
+
+    // Deselect subordinate
+    write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000001);
+    read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
+    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `ASSERT(cs === 1'b1,
+            "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
+
+    $display("");
+    $display("Testbench result:");
+    $display("-----------------");
+    $display("");
+    if (error_count === 0) $display("Passed all SPI Manager unit tests.");
+    else $display("[ERROR] SPI Manager failed one or more unit tests. Please investigate.");
+    $display("");
 
     $finish();
 
@@ -1502,52 +444,66 @@ module unit_tests ();
 
 endmodule
 
-module dummy_spi_peripheral_modes03 (
+// Subordinate device that samples MOSI on rising SCLK edge and updates MISO
+// on falling SCLK edge. This corresponds to SPI modes 0 and 3.
+// ----------------------------------------------------------------------------
 
+// verilator lint_off DECLFILENAME
+module test_spi_subordinate_0 (
+
+    input  wire areset_n,
     input  wire sclk,
-    input  wire pico,
+    input  wire mosi,
     input  wire cs,
-    output wire poci
+    output wire miso
 
 );
 
-  reg [7:0] rx_data = 8'h00;
-  reg       tx_bit = 1'b0;
-  reg [3:0] bit_count = 7;
+  reg [7:0] rx_data;
+  reg       tx_bit;
 
-  always @(posedge sclk) begin
-    if (!cs) rx_data <= {rx_data[6:0], pico};
+  always @(posedge sclk or negedge areset_n) begin
+    if (!areset_n) rx_data <= 8'h00;
+    else if (!cs) rx_data <= {rx_data[6:0], mosi};
   end
 
-  always @(negedge sclk) begin
-    if (!cs) tx_bit <= rx_data[7];
+  always @(negedge sclk or negedge areset_n) begin
+    if (!areset_n) tx_bit <= 1'b0;
+    else if (!cs) tx_bit <= rx_data[7];
   end
 
-  assign poci = cs ? 1'bZ : tx_bit;
+  assign miso = cs ? 1'bZ : tx_bit;
 
 endmodule
 
-module dummy_spi_peripheral_modes12 (
+// Subordinate device that samples MOSI on falling SCLK edge and updates MISO
+// on rising SCLK edge. This corresponds to SPI modes 1 and 2.
+// ----------------------------------------------------------------------------
 
+module test_spi_subordinate_1 (
+
+    input  wire areset_n,
     input  wire sclk,
-    input  wire pico,
+    input  wire mosi,
     input  wire cs,
-    output wire poci
+    output wire miso
 
 );
 
-  reg [7:0] rx_data = 8'h00;
-  reg       tx_bit = 1'b0;
-  reg [3:0] bit_count = 7;
+  reg [7:0] rx_data;
+  reg       tx_bit;
 
-  always @(negedge sclk) begin
-    if (!cs) rx_data <= {rx_data[6:0], pico};
+  always @(negedge sclk or negedge areset_n) begin
+    if (!areset_n) rx_data <= 8'h00;
+    else if (!cs) rx_data <= {rx_data[6:0], mosi};
   end
 
-  always @(posedge sclk) begin
-    if (!cs) tx_bit <= rx_data[7];
+  always @(posedge sclk or negedge areset_n) begin
+    if (!areset_n) tx_bit <= 1'b0;
+    else if (!cs) tx_bit <= rx_data[7];
   end
 
-  assign poci = cs ? 1'bZ : tx_bit;
+  assign miso = cs ? 1'bZ : tx_bit;
 
 endmodule
+// verilator lint_on DECLFILENAME
