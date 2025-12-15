@@ -176,4 +176,12 @@
 `define RVX_UART_STATUS_REG_ADDR 5'h08
 `define RVX_UART_BAUD_REG_ADDR 5'h0c
 
+// SPI register addresses
+`define RVX_SPI_MODE_REG_ADDR 5'h00
+`define RVX_SPI_CHIP_SELECT_REG_ADDR 5'h04
+`define RVX_SPI_DIVIDER_REG_ADDR 5'h08
+`define RVX_SPI_WRITE_REG_ADDR 5'h0c
+`define RVX_SPI_READ_REG_ADDR 5'h10
+`define RVX_SPI_STATUS_REG_ADDR 5'h14
+
 `endif
