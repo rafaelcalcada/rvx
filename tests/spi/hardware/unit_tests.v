@@ -22,7 +22,6 @@ module unit_tests ();
 
   // Global signals
   reg            clock;
-  reg            areset_n;
   reg            reset_n;
 
   // Register read/write
@@ -55,11 +54,11 @@ module unit_tests ();
       .rw_address    (rw_address),
       .read_data     (read_data),
       .read_request  (read_request),
-      .read_response (), // unused
+      .read_response (),
       .write_data    (write_data),
       .write_strobe  (write_strobe),
       .write_request (write_request),
-      .write_response(), // unused
+      .write_response(),
 
       // SPI signals
       .sclk(sclk),
@@ -72,21 +71,23 @@ module unit_tests ();
 
   test_spi_subordinate_0 test_spi_subordinate_0_instance (
 
-      .areset_n(areset_n),
-      .sclk    (sclk),
-      .mosi    (mosi),
-      .miso    (miso),
-      .cs      (cs)
+      .clock  (clock),
+      .reset_n(reset_n),
+      .sclk   (sclk),
+      .mosi   (mosi),
+      .miso   (miso),
+      .cs     (cs)
 
   );
 
   test_spi_subordinate_1 test_spi_subordinate_1_instance (
 
-      .areset_n(areset_n),
-      .sclk    (sclk),
-      .mosi    (mosi),
-      .miso    (miso),
-      .cs      (gpio_cs)
+      .clock  (clock),
+      .reset_n(reset_n),
+      .sclk   (sclk),
+      .mosi   (mosi),
+      .miso   (miso),
+      .cs     (gpio_cs)
 
   );
 
@@ -112,7 +113,6 @@ module unit_tests ();
 
   task reset_all_devices;
     begin
-      areset_n      = 1'b1;
       reset_n       = 1'b0;
       rw_address    = 5'h00;
       read_request  = 1'b0;
@@ -120,10 +120,8 @@ module unit_tests ();
       write_strobe  = 4'b0;
       write_data    = 32'b0;
       #(CLOCK_PERIOD * 2);
-      reset_n  = 1'b1;
-      areset_n = 1'b0;
+      reset_n = 1'b1;
       #(CLOCK_PERIOD * 2);
-      areset_n = 1'b1;
     end
   endtask
 
@@ -251,7 +249,7 @@ module unit_tests ();
     read_spi_register(`RVX_SPI_STATUS_REG_ADDR);
     `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
     read_spi_register(`RVX_SPI_READ_REG_ADDR);
-    `ASSERT(read_data === 32'h000000xx, "Register is not 0x000000xx after reset.")
+    `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
     read_spi_register(`RVX_SPI_WRITE_REG_ADDR);
     `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
 
@@ -451,7 +449,8 @@ endmodule
 // verilator lint_off DECLFILENAME
 module test_spi_subordinate_0 (
 
-    input  wire areset_n,
+    input  wire clock,
+    input  wire reset_n,
     input  wire sclk,
     input  wire mosi,
     input  wire cs,
@@ -459,17 +458,32 @@ module test_spi_subordinate_0 (
 
 );
 
-  reg [7:0] rx_data;
-  reg       tx_bit;
+  reg  [7:0] rx_data;
+  reg        tx_bit;
 
-  always @(posedge sclk or negedge areset_n) begin
-    if (!areset_n) rx_data <= 8'h00;
-    else if (!cs) rx_data <= {rx_data[6:0], mosi};
+  wire       sample_edge;
+  reg        sclk_prev;
+
+  always @(posedge clock) begin
+    if (!reset_n) begin
+      sclk_prev <= 1'b0;
+    end
+    else begin
+      sclk_prev <= sclk;
+    end
   end
 
-  always @(negedge sclk or negedge areset_n) begin
-    if (!areset_n) tx_bit <= 1'b0;
-    else if (!cs) tx_bit <= rx_data[7];
+  // Sample on rising edge of SCLK
+  assign sample_edge = !sclk_prev && sclk;
+
+  always @(posedge clock) begin
+    if (!reset_n) rx_data <= 8'h00;
+    else if (!cs & sample_edge) rx_data <= {rx_data[6:0], mosi};
+  end
+
+  always @(negedge clock) begin
+    if (!reset_n) tx_bit <= 1'b0;
+    else if (!cs & sample_edge) tx_bit <= rx_data[7];
   end
 
   assign miso = cs ? 1'bZ : tx_bit;
@@ -482,7 +496,8 @@ endmodule
 
 module test_spi_subordinate_1 (
 
-    input  wire areset_n,
+    input  wire clock,
+    input  wire reset_n,
     input  wire sclk,
     input  wire mosi,
     input  wire cs,
@@ -490,17 +505,32 @@ module test_spi_subordinate_1 (
 
 );
 
-  reg [7:0] rx_data;
-  reg       tx_bit;
+  reg  [7:0] rx_data;
+  reg        tx_bit;
 
-  always @(negedge sclk or negedge areset_n) begin
-    if (!areset_n) rx_data <= 8'h00;
-    else if (!cs) rx_data <= {rx_data[6:0], mosi};
+  wire       sample_edge;
+  reg        sclk_prev;
+
+  always @(posedge clock) begin
+    if (!reset_n) begin
+      sclk_prev <= 1'b0;
+    end
+    else begin
+      sclk_prev <= sclk;
+    end
   end
 
-  always @(posedge sclk or negedge areset_n) begin
-    if (!areset_n) tx_bit <= 1'b0;
-    else if (!cs) tx_bit <= rx_data[7];
+  // Sample on falling edge of SCLK
+  assign sample_edge = sclk_prev && !sclk;
+
+  always @(posedge clock) begin
+    if (!reset_n) rx_data <= 8'h00;
+    else if (!cs & sample_edge) rx_data <= {rx_data[6:0], mosi};
+  end
+
+  always @(negedge clock) begin
+    if (!reset_n) tx_bit <= 1'b0;
+    else if (!cs & sample_edge) tx_bit <= rx_data[7];
   end
 
   assign miso = cs ? 1'bZ : tx_bit;
