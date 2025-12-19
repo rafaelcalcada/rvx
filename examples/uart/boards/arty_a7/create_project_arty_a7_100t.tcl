@@ -30,7 +30,7 @@ add_files -norecurse { ../../../../rtl/interconnect/rvx_bus.v }
 add_files -norecurse { ../../../../rtl/memory/rvx_tightly_coupled_memory.v }
 add_files -norecurse { ../../../../rtl/peripherals/rvx_gpio.v }
 add_files -norecurse { ../../../../rtl/peripherals/rvx_mtimer.v }
-add_files -norecurse { ../../../../rtl/peripherals/rvx_spi.v }
+add_files -norecurse { ../../../../rtl/peripherals/rvx_spi_manager.v }
 add_files -norecurse { ../../../../rtl/peripherals/rvx_uart.v }
 add_files -norecurse { ../../software/build/uart_demo.hex }
 set_property file_type {Memory Initialization Files} [get_files ../../software/build/uart_demo.hex]
