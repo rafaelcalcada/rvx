@@ -1,61 +1,74 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-#include "libsteel.h"
+#include "rvx.h"
 
-#define DEFAULT_UART (UartController *)0x80000000
-#define DEFAULT_SPI (SpiController *)0x80030000
+RvxUart *uart_address = (RvxUart *)0x80000000;
+RvxSpiManager *spi_address = (RvxSpiManager *)0x80030000;
 
-void print_readout_value(const uint8_t rdata)
-{
-  uint8_t val = rdata;
-  char str_val[4] = "xxx\0";
-  for (int i = 1; i <= 3; i++)
-  {
-    str_val[3 - i] = (uint8_t)((val % 10UL) + '0');
-    val /= 10;
-  }
-  str_val[3] = '\0';
-  uart_write_string(DEFAULT_UART, "Read out value: ");
-  uart_write_string(DEFAULT_UART, str_val);
-  uart_write_string(DEFAULT_UART, "\n");
-}
+void print_byte(const uint8_t read_data);
 
 // UART interrupt signal is connected to Fast IRQ #0
-__NAKED void fast0_irq_handler(void)
+RVX_IRQ_HANDLER_M(fast0_irq_handler)
 {
-  spi_wait_ready(DEFAULT_SPI);
-  spi_select(DEFAULT_SPI, 0);
-  spi_write(DEFAULT_SPI, 0x9f);
-  volatile uint8_t read_val = spi_transfer(DEFAULT_SPI, 0x00);
-  spi_deselect(DEFAULT_SPI);
-  if (uart_read(DEFAULT_UART) == '\n') // Enter key
+  rvx_spi_chip_select_assert(spi_address);
+  rvx_spi_write(spi_address, 0x9F);                       // Send "Read Manufacturer ID" command
+  uint8_t read_val = rvx_spi_transfer(spi_address, 0x00); // Read manufacturer ID
+  rvx_spi_chip_select_deassert(spi_address);
+
+  if (rvx_uart_read(uart_address) == '\n') // Enter key pressed
   {
-    print_readout_value(read_val);
-    uart_write_string(DEFAULT_UART, "Manufacturer: ");
+    print_byte(read_val);
+    rvx_uart_write_string(uart_address, "Manufacturer: ");
     if (read_val == 0x01)
-      uart_write_string(DEFAULT_UART, "Infineon\n");
+    {
+      rvx_uart_write_string(uart_address, "Infineon\n");
+    }
     else if (read_val == 0xC2)
-      uart_write_string(DEFAULT_UART, "Macronix\n");
+    {
+      rvx_uart_write_string(uart_address, "Macronix\n");
+    }
     else if (read_val == 0x20)
-      uart_write_string(DEFAULT_UART, "Micron\n");
+    {
+      rvx_uart_write_string(uart_address, "Micron\n");
+    }
     else
-      uart_write_string(DEFAULT_UART, "Unknown\n");
+    {
+      rvx_uart_write_string(uart_address, "Unknown\n");
+    }
   }
-  __ASM_VOLATILE("mret");
 }
 
 void main(void)
 {
-  uart_write_string(DEFAULT_UART, "RVX - SPI demo");
-  uart_write_string(DEFAULT_UART, "\n\nPress Enter to read the SPI Flash Manufacturer ID.\n");
+  rvx_uart_init(uart_address, 1250); // 12 MHz / 9600 baud = 1250 cycles per baud
+  rvx_uart_write_string(uart_address, "RVX Project - SPI Manager Example");
+  rvx_uart_write_string(uart_address, "\n\nPress Enter to read the SPI Flash Manufacturer ID.\n");
+
   // Enable UART interrupts
-  csr_enable_vectored_mode_irq();
-  CSR_SET(CSR_MIE, MIP_MIE_MASK_F0I);
-  csr_global_enable_irq();
-  // Configure the controller
-  spi_set_mode(DEFAULT_SPI, SPI_MODE0_CPOL0_CPHA0);
-  // Wait for interrupts
+  rvx_irq_enable_vectored_mode();
+  rvx_irq_enable(RVX_IRQ_FAST_MASK(0));
+  rvx_irq_enable_global();
+
+  // Set SPI Manager to MODE 0
+  rvx_spi_mode_set(spi_address, RVX_SPI_MODE_0);
+
+  // Busy wait for interrupt
   while (1)
     ;
+}
+
+void print_byte(const uint8_t read_data)
+{
+  uint8_t high_nibble = (read_data >> 4) & 0x0F;
+  uint8_t low_nibble = read_data & 0x0F;
+  char str_val[5];
+  str_val[0] = '0';
+  str_val[1] = 'x';
+  str_val[2] = high_nibble < 10 ? high_nibble + '0' : high_nibble - 10 + 'a';
+  str_val[3] = low_nibble < 10 ? low_nibble + '0' : low_nibble - 10 + 'a';
+  str_val[4] = '\0';
+  rvx_uart_write_string(uart_address, "\nByte received: ");
+  rvx_uart_write_string(uart_address, str_val);
+  rvx_uart_write_string(uart_address, "\n");
 }

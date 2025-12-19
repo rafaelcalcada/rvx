@@ -10,13 +10,27 @@ set_msg_config -suppress -id {Device 21-2174}
 set_property simulator_language Verilog [current_project]
 add_files -fileset constrs_1 -norecurse { ./spi_arty_a7_constraints.xdc }
 add_files -norecurse .
-add_files -norecurse { ../../../../rtl/rvx.v }
-add_files -norecurse { ../../../../rtl/rvx_core.v }
-add_files -norecurse { ../../../../rtl/rvx_bus.v }
-add_files -norecurse { ../../../../rtl/rvx_uart.v }
-add_files -norecurse { ../../../../rtl/rvx_mtimer.v }
-add_files -norecurse { ../../../../rtl/rvx_gpio.v }
-add_files -norecurse { ../../../../rtl/rvx_spi.v }
-add_files -norecurse { ../../../../rtl/rvx_ram.v }
+add_files -norecurse { ../../../../rtl/rvx_constants.vh }
+add_files -norecurse { ../../../../rtl/rvx_ocelot.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_address_gen.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_alu.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_branch.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_bus_controller.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_csr_file.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_decoder.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_immediate_gen.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_integer_file.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_load_unit.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_pc_gen.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_state.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_store_unit.v }
+add_files -norecurse { ../../../../rtl/core/rvx_core_trap.v }
+add_files -norecurse { ../../../../rtl/interconnect/rvx_bus.v }
+add_files -norecurse { ../../../../rtl/memory/rvx_tightly_coupled_memory.v }
+add_files -norecurse { ../../../../rtl/peripherals/rvx_gpio.v }
+add_files -norecurse { ../../../../rtl/peripherals/rvx_mtimer.v }
+add_files -norecurse { ../../../../rtl/peripherals/rvx_spi_manager.v }
+add_files -norecurse { ../../../../rtl/peripherals/rvx_uart.v }
 add_files -norecurse { ../../software/build/spi_demo.hex }
 set_property file_type {Memory Initialization Files} [get_files ../../software/build/spi_demo.hex]

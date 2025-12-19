@@ -1,20 +1,15 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-module spi_arty_a7 #(
-
-    parameter GPIO_WIDTH          = 1,
-    parameter SPI_NUM_CHIP_SELECT = 1
-
-) (
+module spi_arty_a7 (
 
     input  wire clock,
     input  wire reset,
     input  wire uart_rx,
     output wire uart_tx,
     output wire sclk,
-    output wire pico,
-    input  wire poci,
+    output wire mosi,
+    input  wire miso,
     output wire cs
 
 );
@@ -30,30 +25,31 @@ module spi_arty_a7 #(
     reset_debounced <= reset;
   end
 
-  rvx #(
+  rvx_ocelot #(
 
-      .CLOCK_FREQUENCY    (50000000),
-      .UART_BAUD_RATE     (9600),
-      .MEMORY_SIZE        (8192),
-      .MEMORY_INIT_FILE   ("spi_demo.hex"),
-      .BOOT_ADDRESS       (32'h00000000),
-      .GPIO_WIDTH         (GPIO_WIDTH),
-      .SPI_NUM_CHIP_SELECT(SPI_NUM_CHIP_SELECT)
+      .MEMORY_SIZE_IN_BYTES (8192),
+      .MEMORY_INIT_FILE_PATH("spi_demo.hex"),
+      .BOOT_ADDRESS         (32'h00000000)
 
-  ) rvx_instance (
+  ) rvx_ocelot_instance (
 
-      .clock      (clock_50mhz),
-      .reset_n    (!reset_debounced),
-      .halt       (1'b0),
-      .uart_rx    (uart_rx),
-      .uart_tx    (uart_tx),
-      .gpio_input ({GPIO_WIDTH{1'b0}}),  // pull-down
-      .gpio_oe    (),                    // unused
-      .gpio_output(),                    // unused
-      .sclk       (sclk),
-      .pico       (pico),
-      .poci       (poci),
-      .cs         (cs)
+      .clock  (clock_50mhz),
+      .reset_n(!reset_debounced),
+      .uart_rx(uart_rx),
+      .uart_tx(uart_tx),
+      .sclk   (sclk),
+      .mosi   (mosi),
+      .miso   (miso),
+      .cs     (cs),
+
+      // This input port is not used in this example and is hardwired to zero
+      .gpio_input(1'b0),
+
+      // These output ports are not used in this example and can be left unconnected
+      // verilator lint_off PINCONNECTEMPTY
+      .gpio_oe    (),
+      .gpio_output()
+      // verilator lint_on PINCONNECTEMPTY
 
   );
 
