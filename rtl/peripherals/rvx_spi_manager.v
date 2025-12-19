@@ -4,7 +4,6 @@
 `include "rvx_constants.vh"
 
 module rvx_spi_manager (
-    // verilator lint_off UNUSEDSIGNAL
 
     // Global signals
     input wire clock,
@@ -15,7 +14,7 @@ module rvx_spi_manager (
     output reg  [31:0] read_data,
     input  wire        read_request,
     output reg         read_response,
-    input  wire [31:0] write_data,     // only lower bits used (7:0)
+    input  wire [31:0] write_data,
     input  wire [ 3:0] write_strobe,
     input  wire        write_request,
     output reg         write_response,
@@ -26,7 +25,6 @@ module rvx_spi_manager (
     input  wire miso,
     output wire cs
 
-    // verilator lint_on UNUSEDSIGNAL
 );
 
   // SPI FSM States
@@ -79,7 +77,7 @@ module rvx_spi_manager (
         default:                       read_data <= 32'h00000000;
       endcase
     end
-    else read_data <= 32'h00000000;
+    else read_data <= write_data;
   end
 
   // SPI register write logic
