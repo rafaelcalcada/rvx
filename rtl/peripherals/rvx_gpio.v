@@ -31,70 +31,43 @@ module rvx_gpio #(
 
 );
 
-  // Map registers
-  localparam REG_ADDR_WIDTH = 2'd3;
-
-  localparam REG_IN = 3'd0;
-  localparam REG_OE = 3'd1;
-  localparam REG_OUT = 3'd2;
-  localparam REG_CLR = 3'd3;
-  localparam REG_SET = 3'd4;
+  localparam REG_IN = 5'h00;
+  localparam REG_OE = 5'h04;
+  localparam REG_OUT = 5'h08;
+  localparam REG_CLR = 5'h0C;
+  localparam REG_SET = 5'h10;
 
 
   // Output Enable
-  reg                  oe_update;
   reg [GPIO_WIDTH-1:0] oe;
 
   // Output data
-  reg                  out_update;
   reg [GPIO_WIDTH-1:0] out;
-
-  // Clear mask
-  reg                  clr_update;
-
-  // Set mask
-  reg                  set_update;
-
 
   assign gpio_oe     = oe;
   assign gpio_output = out;
 
-
-  // Bus
-  wire address_aligned;
-  assign address_aligned = (~|rw_address[1:0]);
-
-  wire write_word;
-  assign write_word = (&write_strobe);
-
-  wire [REG_ADDR_WIDTH-1:0] address;
-  assign address = rw_address[2+:REG_ADDR_WIDTH];
-
+  wire address_aligned = (~|rw_address[1:0]);
+  wire write_word = (&write_strobe);
 
   always @(posedge clock) begin
     if (!reset_n) begin
       oe  <= {GPIO_WIDTH{1'b0}};
       out <= {GPIO_WIDTH{1'b0}};
     end
-    else begin
-      if (oe_update) begin
-        oe <= write_data[0+:GPIO_WIDTH];
-      end
-
-      if (out_update) begin
-        out <= write_data[0+:GPIO_WIDTH];
-      end
-
-      if (clr_update) begin
-        out <= out & ~write_data[0+:GPIO_WIDTH];
-      end
-
-      if (set_update) begin
-        out <= out | write_data[0+:GPIO_WIDTH];
-      end
+    else if (write_request & address_aligned & write_word) begin
+      case (rw_address[4:0])
+        REG_OE:  oe <= write_data[0+:GPIO_WIDTH];
+        REG_OUT: out <= write_data[0+:GPIO_WIDTH];
+        REG_CLR: out <= out & ~write_data[0+:GPIO_WIDTH];
+        REG_SET: out <= out | write_data[0+:GPIO_WIDTH];
+        default: begin
+          oe  <= oe;
+          out <= out;
+        end
+      endcase
     end
   end
-
 
   // Bus: Response to request
   always @(posedge clock) begin
@@ -108,7 +81,6 @@ module rvx_gpio #(
     end
   end
 
-
   // Bus: Read registers
   always @(posedge clock) begin
     if (!reset_n) begin
@@ -116,8 +88,8 @@ module rvx_gpio #(
     end
     else begin
       if (read_request && address_aligned) begin
-        case (address)
-          REG_IN:  read_data <= {{32 - GPIO_WIDTH{1'b0}}, gpio_input};
+        case (rw_address[4:0])
+          REG_IN:  read_data <= {{32 - GPIO_WIDTH{1'b0}}, (gpio_oe & out) | (~gpio_oe & gpio_input)};
           REG_OE:  read_data <= {{32 - GPIO_WIDTH{1'b0}}, oe};
           REG_OUT: read_data <= {{32 - GPIO_WIDTH{1'b0}}, out};
           REG_CLR: read_data <= 32'd0;
@@ -126,26 +98,6 @@ module rvx_gpio #(
           end
         endcase
       end
-    end
-  end
-
-
-  // Bus: Update registers
-  always @(*) begin
-    oe_update  = 1'b0;
-    out_update = 1'b0;
-    clr_update = 1'b0;
-    set_update = 1'b0;
-
-    if (write_request && address_aligned && write_word) begin
-      case (address)
-        REG_OE:  oe_update = 1'b1;
-        REG_OUT: out_update = 1'b1;
-        REG_CLR: clr_update = 1'b1;
-        REG_SET: set_update = 1'b1;
-        default: begin
-        end
-      endcase
     end
   end
 
