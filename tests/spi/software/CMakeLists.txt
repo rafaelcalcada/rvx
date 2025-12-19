@@ -90,15 +90,15 @@ project(${APP_NAME} LANGUAGES C CXX ASM)
 # Set compiler definitions
 add_compile_definitions(NO_STARTUP_FILES=1)
 
-# Obtain LibSteel
+# Obtain RVX
 include(FetchContent)
 
-FetchContent_Declare(steel
-  GIT_REPOSITORY https://github.com/rafaelcalcada/libsteel.git
-  GIT_TAG v2.0
+FetchContent_Declare(rvx
+  GIT_REPOSITORY https://github.com/rafaelcalcada/rvx-hal.git
+  GIT_TAG latest
 )
 
-FetchContent_MakeAvailable(steel)
+FetchContent_MakeAvailable(rvx)
 
 # Source files
 set(SOURCES
@@ -179,8 +179,8 @@ target_link_options(${APP_NAME}.elf
   -nostartfiles
 )
 
-# Link to libsteel
-target_link_libraries(${APP_NAME}.elf steel)
+# Link to RVX
+target_link_libraries(${APP_NAME}.elf rvx)
 
 # Set dependency on linker script
 set_target_properties(${APP_NAME}.elf PROPERTIES

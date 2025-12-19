@@ -5,124 +5,167 @@ module unit_tests (
 
     input  wire clock,
     input  wire reset,
-    input  wire halt,
     input  wire uart_rx,
     output wire uart_tx
 
 );
 
-  localparam SPI_NUM_CHIP_SELECT = 2;
+  wire sclk;
+  wire mosi;
+  wire miso;
+  wire cs;
+  wire gpio_cs;
 
-  wire                           sclk;
-  wire                           pico;
-  wire                           poci;
-  wire [SPI_NUM_CHIP_SELECT-1:0] cs;
+  reg  clock_50mhz;
+  reg  reset_debounced;
 
-  // Divides the 100MHz board block by 4
-  reg                            clock_50mhz;
-  initial clock_50mhz = 1'b0;
   always @(posedge clock) clock_50mhz <= !clock_50mhz;
+  always @(posedge clock_50mhz) reset_debounced <= reset;
 
-  // Buttons debouncing
-  reg reset_debounced;
-  reg halt_debounced;
-  always @(posedge clock_50mhz) begin
-    reset_debounced <= reset;
-    halt_debounced  <= halt;
-  end
+  rvx_ocelot #(
 
-  rvx #(
+      .MEMORY_SIZE_IN_BYTES (16384),
+      .MEMORY_INIT_FILE_PATH("unit_tests.hex"),
+      .BOOT_ADDRESS         (32'h00000000)
 
-      .CLOCK_FREQUENCY    (50000000),
-      .UART_BAUD_RATE     (9600),
-      .MEMORY_SIZE        (8192),
-      .MEMORY_INIT_FILE   ("unit_tests.hex"),
-      .BOOT_ADDRESS       (32'h00000000),
-      .SPI_NUM_CHIP_SELECT(2)
-
-  ) rvx_instance (
+  ) rvx_ocelot_instance (
 
       .clock      (clock_50mhz),
       .reset_n    (!reset_debounced),
-      .halt       (halt_debounced),
       .uart_rx    (uart_rx),
       .uart_tx    (uart_tx),
-      .gpio_input (1'b0),
-      .gpio_oe    (),
-      .gpio_output(),
       .sclk       (sclk),
-      .pico       (pico),
-      .poci       (poci),
-      .cs         (cs)
+      .mosi       (mosi),
+      .miso       (miso),
+      .cs         (cs),
+      .gpio_output(gpio_cs),
+
+      // This input port is not used in this example and is hardwired to zero
+      .gpio_input(1'b0),
+
+      // This output port is not used in this example and can be left unconnected
+      // verilator lint_off PINCONNECTEMPTY
+      .gpio_oe()
+      // verilator lint_on PINCONNECTEMPTY
 
   );
 
-  dummy_spi_peripheral_modes03 spi_modes03 (
+  test_spi_subordinate_0 test_spi_subordinate_0_instance (
 
-      .sclk(sclk),
-      .pico(pico),
-      .poci(poci),
-      .cs  (cs[0])
+      .clock  (clock_50mhz),
+      .reset_n(!reset_debounced),
+      .sclk   (sclk),
+      .mosi   (mosi),
+      .miso   (miso),
+      .cs     (cs)
 
   );
 
-  dummy_spi_peripheral_modes12 spi_modes12 (
+  test_spi_subordinate_1 test_spi_subordinate_1_instance (
 
-      .sclk(sclk),
-      .pico(pico),
-      .poci(poci),
-      .cs  (cs[1])
+      .clock  (clock_50mhz),
+      .reset_n(!reset_debounced),
+      .sclk   (sclk),
+      .mosi   (mosi),
+      .miso   (miso),
+      .cs     (gpio_cs)
 
   );
 
 endmodule
 
-module dummy_spi_peripheral_modes03 (
+// Subordinate device that samples MOSI on rising SCLK edge and updates MISO
+// on falling SCLK edge. This corresponds to SPI modes 0 and 3.
+// ----------------------------------------------------------------------------
 
+// verilator lint_off DECLFILENAME
+module test_spi_subordinate_0 (
+
+    input  wire clock,
+    input  wire reset_n,
     input  wire sclk,
-    input  wire pico,
+    input  wire mosi,
     input  wire cs,
-    output wire poci
+    output wire miso
 
 );
 
-  reg [7:0] rx_data = 8'h00;
-  reg       tx_bit = 1'b0;
-  reg [3:0] bit_count = 7;
+  reg  [7:0] rx_data;
+  reg        tx_bit;
 
-  always @(posedge sclk) begin
-    if (!cs) rx_data <= {rx_data[6:0], pico};
+  wire       sample_edge;
+  reg        sclk_prev;
+
+  always @(posedge clock) begin
+    if (!reset_n) begin
+      sclk_prev <= 1'b0;
+    end
+    else begin
+      sclk_prev <= sclk;
+    end
   end
 
-  always @(negedge sclk) begin
-    if (!cs) tx_bit <= rx_data[7];
+  // Sample on rising edge of SCLK
+  assign sample_edge = !sclk_prev && sclk;
+
+  always @(posedge clock) begin
+    if (!reset_n) rx_data <= 8'h00;
+    else if (!cs & sample_edge) rx_data <= {rx_data[6:0], mosi};
   end
 
-  assign poci = cs ? 1'bZ : tx_bit;
+  always @(negedge clock) begin
+    if (!reset_n) tx_bit <= 1'b0;
+    else if (!cs & sample_edge) tx_bit <= rx_data[7];
+  end
+
+  assign miso = cs ? 1'bZ : tx_bit;
 
 endmodule
 
-module dummy_spi_peripheral_modes12 (
+// Subordinate device that samples MOSI on falling SCLK edge and updates MISO
+// on rising SCLK edge. This corresponds to SPI modes 1 and 2.
+// ----------------------------------------------------------------------------
 
+module test_spi_subordinate_1 (
+
+    input  wire clock,
+    input  wire reset_n,
     input  wire sclk,
-    input  wire pico,
+    input  wire mosi,
     input  wire cs,
-    output wire poci
+    output wire miso
 
 );
 
-  reg [7:0] rx_data = 8'h00;
-  reg       tx_bit = 1'b0;
-  reg [3:0] bit_count = 7;
+  reg  [7:0] rx_data;
+  reg        tx_bit;
 
-  always @(negedge sclk) begin
-    if (!cs) rx_data <= {rx_data[6:0], pico};
+  wire       sample_edge;
+  reg        sclk_prev;
+
+  always @(posedge clock) begin
+    if (!reset_n) begin
+      sclk_prev <= 1'b0;
+    end
+    else begin
+      sclk_prev <= sclk;
+    end
   end
 
-  always @(posedge sclk) begin
-    if (!cs) tx_bit <= rx_data[7];
+  // Sample on falling edge of SCLK
+  assign sample_edge = sclk_prev && !sclk;
+
+  always @(posedge clock) begin
+    if (!reset_n) rx_data <= 8'h00;
+    else if (!cs & sample_edge) rx_data <= {rx_data[6:0], mosi};
   end
 
-  assign poci = cs ? 1'bZ : tx_bit;
+  always @(negedge clock) begin
+    if (!reset_n) tx_bit <= 1'b0;
+    else if (!cs & sample_edge) tx_bit <= rx_data[7];
+  end
+
+  assign miso = cs ? 1'bZ : tx_bit;
 
 endmodule
+// verilator lint_on DECLFILENAME
