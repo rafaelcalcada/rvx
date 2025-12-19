@@ -6,22 +6,21 @@ module rvx_ocelot #(
     parameter MEMORY_SIZE_IN_BYTES  = 8192,
     parameter MEMORY_INIT_FILE_PATH = "",
     parameter BOOT_ADDRESS          = 32'h00000000,
-    parameter GPIO_WIDTH            = 1,
-    parameter SPI_NUM_CHIP_SELECT   = 1
+    parameter GPIO_WIDTH            = 1
 
 ) (
 
-    input  wire                           clock,
-    input  wire                           reset_n,
-    input  wire                           uart_rx,
-    output wire                           uart_tx,
-    input  wire [         GPIO_WIDTH-1:0] gpio_input,
-    output wire [         GPIO_WIDTH-1:0] gpio_oe,
-    output wire [         GPIO_WIDTH-1:0] gpio_output,
-    output wire                           sclk,
-    output wire                           pico,
-    input  wire                           poci,
-    output wire [SPI_NUM_CHIP_SELECT-1:0] cs
+    input  wire                  clock,
+    input  wire                  reset_n,
+    input  wire                  uart_rx,
+    output wire                  uart_tx,
+    input  wire [GPIO_WIDTH-1:0] gpio_input,
+    output wire [GPIO_WIDTH-1:0] gpio_oe,
+    output wire [GPIO_WIDTH-1:0] gpio_output,
+    output wire                  sclk,
+    output wire                  mosi,
+    input  wire                  miso,
+    output wire                  cs
 
 );
 
@@ -201,7 +200,6 @@ module rvx_ocelot #(
   rvx_uart rvx_uart_instance (
 
       // Global signals
-
       .clock  (clock),
       .reset_n(reset_n),
 
@@ -277,33 +275,26 @@ module rvx_ocelot #(
 
   );
 
-  rvx_spi #(
-
-      .SPI_NUM_CHIP_SELECT(SPI_NUM_CHIP_SELECT)
-
-  ) rvx_spi_instance (
+  rvx_spi_manager rvx_spi_manager_instance (
 
       // Global signals
-
       .clock  (clock),
       .reset_n(reset_n),
 
-      // IO interface
-
+      // Register read/write
       .rw_address    (device_rw_address[4:0]),
       .read_data     (device_read_data[32*D4_SPI+:32]),
       .read_request  (device_read_request[D4_SPI]),
       .read_response (device_read_response[D4_SPI]),
-      .write_data    (device_write_data[7:0]),
+      .write_data    (device_write_data[31:0]),
       .write_strobe  (device_write_strobe),
       .write_request (device_write_request[D4_SPI]),
       .write_response(device_write_response[D4_SPI]),
 
       // SPI signals
-
       .sclk(sclk),
-      .pico(pico),
-      .poci(poci),
+      .mosi(mosi),
+      .miso(miso),
       .cs  (cs)
 
   );
