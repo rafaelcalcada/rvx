@@ -37,7 +37,6 @@ module rvx_spi_manager (
   // Signals and registers
   reg       cpol;
   reg       cpha;
-  reg       clock_rx_reg;
   reg       start_flag;
   reg       chip_select;
   reg       leading_cycle;
@@ -65,7 +64,7 @@ module rvx_spi_manager (
   // SPI register read logic
   // ---------------------------------------------------------------------------
 
-  wire busy = spi_state == STATE_CPOL || spi_state == STATE_CPOL_N;
+  wire busy = spi_state == STATE_CPOL || spi_state == STATE_CPOL_N || start_flag == 1'b1;
 
   always @(posedge clock) begin
     if (!reset_n) read_data <= 32'hdeadbeef;
@@ -238,12 +237,28 @@ module rvx_spi_manager (
   // MISO data reception logic
   // ---------------------------------------------------------------------------
 
+  wire sample_edge;
+  reg  sclk_prev;
+
   always @(posedge clock) begin
-    clock_rx_reg <= cpol ^ cpha ? !sclk : sclk;
+    if (!reset_n) begin
+      sclk_prev <= cpol;
+    end
+    else begin
+      sclk_prev <= sclk;
+    end
   end
 
-  always @(posedge clock_rx_reg) begin
-    rx_reg[7:0] <= {rx_reg[6:0], miso};
+  // Detect the sampling edge based on CPOL and CPHA
+  assign sample_edge = (cpol ^ cpha) ? (sclk_prev && !sclk) : (!sclk_prev && sclk);
+
+  always @(posedge clock) begin
+    if (!reset_n) begin
+      rx_reg <= 8'h00;
+    end
+    else if (sample_edge) begin
+      rx_reg[7:0] <= {rx_reg[6:0], miso};
+    end
   end
 
   // Chip select output
