@@ -78,13 +78,13 @@ module hello_world (
   .halt                     (1'b0                       ),
   .uart_rx                  (1'b0                       ),
   .gpio_input               (1'b0                       ),
-  .poci                     (1'b0                       ),
+  .miso                     (1'b0                       ),
 
-  // Unused outputs can be left open  
+  // Unused outputs can be left open
   .gpio_oe                  (                           ),
   .gpio_output              (                           ),
   .sclk                     (                           ),
-  .pico                     (                           ),  
+  .mosi                     (                           ),
   .cs                       (                           ));
 
 endmodule
@@ -116,7 +116,7 @@ Now that the FPGA is programmed, you can see the Hello World message on a host c
 
 - Connect the FPGA board to your computer
 - Install PySerial (or other serial terminal emulator):
-    
+
     ```
     python3 -m pip install pyserial
     ```
@@ -124,7 +124,7 @@ Now that the FPGA is programmed, you can see the Hello World message on a host c
 - Open a serial terminal
 
     With PySerial, a serial terminal can be opened by running:
-    
+
     ```
     python3 -m serial.tools.miniterm
     ```

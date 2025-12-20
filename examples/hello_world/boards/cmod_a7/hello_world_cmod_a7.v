@@ -30,7 +30,7 @@ module hello_world_cmod_a7 (
 
       // These input ports are not used in this example and are hardwired to zero
       .gpio_input(1'b0),
-      .poci      (1'b0),
+      .miso      (1'b0),
 
       // These output ports are not used in this example and can be left unconnected
       // verilator lint_off PINCONNECTEMPTY
@@ -38,7 +38,7 @@ module hello_world_cmod_a7 (
       .gpio_oe    (),
       .gpio_output(),
       .sclk       (),
-      .pico       (),
+      .mosi       (),
       .cs         ()
       // verilator lint_on PINCONNECTEMPTY
 
