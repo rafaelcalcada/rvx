@@ -24,7 +24,7 @@ void finish_test();
 int main()
 {
   rvx_uart_init(uart_address, 5208); // 50 MHz / 9600 baud = 5208 cycles per baud
-  rvx_uart_write_string(uart_address, "\nRunning RVX SPI Manager unit tests...\n");
+  rvx_uart_write_string(uart_address, "\nRunning RVX SPI Manager HAL unit tests...\n");
 
   rvx_gpio_pin_configure(gpio_address, 0, RVX_GPIO_OUTPUT); // Use GPIO pin 0 as CS for subordinate 1
   rvx_gpio_pin_set(gpio_address, 0);                        // Deassert CS for subordinate 1
@@ -101,7 +101,7 @@ int main()
   finish_test();
 
   if (error_count == 0)
-    rvx_uart_write_string(uart_address, "\n\nPassed all SPI Manager unit tests.");
+    rvx_uart_write_string(uart_address, "\n\nPassed all SPI Manager HAL unit tests.");
   else
     rvx_uart_write_string(uart_address,
                           "\n[ERROR] SPI Manager failed on one or more unit tests. Please investigate.\n");

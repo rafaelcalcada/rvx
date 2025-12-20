@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-`timescale 1ns / 1ns
+`timescale 1ns / 1ps
 
 `include "rvx_constants.vh"
 
@@ -18,7 +18,7 @@
     $display("Passed: %s", `"cond`");                       \
   end
 
-module unit_tests ();
+module rvx_spi_manager_tb ();
 
   // Global signals
   reg            clock;
@@ -199,27 +199,43 @@ module unit_tests ();
       verify_byte_transmission(8'h5a, sclk_period);
       #(CLOCK_PERIOD * 4);
 
+      // Read back
+      read_spi_register(`RVX_SPI_READ_REG_ADDR);
+      `ASSERT(read_data === 32'h000000a5, "READ register does not contain the expected byte (0xa5).")
+
       // Send: 0xFF (0x11111111)
       write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h000000ff);
       verify_byte_transmission(8'hff, sclk_period);
       #(CLOCK_PERIOD * 4);
+
+      // Read back
+      read_spi_register(`RVX_SPI_READ_REG_ADDR);
+      `ASSERT(read_data === 32'h0000005a, "READ register does not contain the expected byte (0x5a).")
 
       // Send: 0x00 (0x00000000)
       write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h00000000);
       verify_byte_transmission(8'h00, sclk_period);
       #(CLOCK_PERIOD * 4);
 
+      // Read back
+      read_spi_register(`RVX_SPI_READ_REG_ADDR);
+      `ASSERT(read_data === 32'h000000ff, "READ register does not contain the expected byte (0xff).")
+
       // Send: 0x3C (0x00111100)
       write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h0000003c);
       verify_byte_transmission(8'h3c, sclk_period);
       #(CLOCK_PERIOD * 4);
+
+      // Read back
+      read_spi_register(`RVX_SPI_READ_REG_ADDR);
+      `ASSERT(read_data === 32'h00000000, "READ register does not contain the expected byte (0x00).")
 
       // Send: 0xC3 (0x11000011)
       write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h000000c3);
       verify_byte_transmission(8'hc3, sclk_period);
       #(CLOCK_PERIOD * 4);
 
-      // Read received byte (subordinate sends the byte sent in the penultimate transmission)
+      // Read back
       read_spi_register(`RVX_SPI_READ_REG_ADDR);
       `ASSERT(read_data === 32'h0000003c, "READ register does not contain the expected byte (0x3c).")
     end

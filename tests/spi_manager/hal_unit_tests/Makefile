@@ -22,7 +22,7 @@ release:
 	@$(MAKE) -C build
 
 clean:
-	@rm -rf build dump
-	@echo "Build directory deleted."
+	@rm -rf build dump .Xil spi_manager_hal_unit_tests
+	@echo "Build directory and Vivado project deleted."
 
 .PHONY: debug release clean

@@ -1,0 +1,93 @@
+# RVX SPI Manager Tests
+
+This directory contains the following tests for the RVX SPI Manager module:
+
+- `testbench/` - Verilog testbench compatible with Verilator and Vivado
+- `hal_unit_tests/` - Unit tests for RVX HAL functionality related to the SPI Manager
+
+## Testbench
+
+The testbench (`testbench/rvx_spi_manager_tb.v`) verifies the SPI Manager's RTL implementation using either Verilator or Vivado.
+
+### Running with Verilator
+
+From the RVX development container:
+
+```bash
+cd tests/spi_manager/testbench/verilator
+make run
+```
+
+A successful test run will display: `Passed all SPI Manager unit tests`
+
+> **Note**: To run outside the dev container, make sure `verilator` is installed and available in your `PATH`.
+
+### Running with Vivado
+
+To run with Vivado, you'll need to have it installed on your machine. The RVX development container does **not** include Vivado.
+
+1. Launch **Vivado**
+2. Go to **Tools** → **Run Tcl script...**
+3. Select `tests/spi_manager/testbench/vivado/create_tests_project.tcl`
+4. In the **Tcl Console**, run:
+
+   ```tcl
+   launch_simulation
+   run -all
+   ```
+
+A successful test run will display: `Passed all SPI Manager unit tests`
+
+If you have `vivado` in your `PATH`, you can also run the testbench from the command line:
+
+```bash
+cd tests/spi_manager/testbench/vivado
+make run
+```
+
+## HAL Unit Tests
+
+The HAL unit tests verify that the RVX Hardware Abstraction Layer API works correctly with the SPI Manager. These tests run on an **Arty A7-35T Development Board** using the test program `spi_manager_hal_unit_tests.c`.
+
+### Prerequisites
+
+- Vivado (for synthesis and programming)
+- Arty A7-35T Development Board
+- Python 3 with `pyserial` installed
+
+### Steps
+
+1. Build the unit test program from the RVX development container:
+
+    ```bash
+    cd tests/spi_manager/hal_unit_tests
+    make
+    ```
+
+    > **Note**: The next steps must be executed outside the dev container.
+
+2. **Create the Vivado project**
+
+   - Launch **Vivado**
+   - Go to **Tools** → **Run Tcl script...**
+   - Select `tests/spi_manager/hal_unit_tests/create_tests_project.tcl` and click **OK**
+
+3. **Open a serial terminal**
+
+   ```bash
+   python3 -m serial.tools.miniterm /dev/ttyUSB1 9600
+   ```
+
+   > **Note**: Replace `/dev/ttyUSB1` with your actual serial port (e.g., `/dev/ttyUSB0` on Linux, `COM3` on Windows)
+
+4. **Program the FPGA**
+
+   - Generate the bitstream in Vivado
+   - Program the FPGA
+
+5. **Run the tests**
+
+   - Reset the board to start execution
+   - Monitor the serial output
+
+A successful test run will display: `Passed all SPI Manager HAL unit tests`

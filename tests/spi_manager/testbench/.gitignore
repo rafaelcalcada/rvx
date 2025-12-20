@@ -1,0 +1,6 @@
+vivado/rvx_spi_manager_tests
+vivado/.Xil
+vivado/vivado*.log
+vivado/vivado*.jou
+vivado/vivado*.zip
+verilator/verilated

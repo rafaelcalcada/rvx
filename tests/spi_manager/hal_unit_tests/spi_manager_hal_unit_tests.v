@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-module unit_tests (
+module spi_manager_hal_unit_tests (
 
     input  wire clock,
     input  wire reset,
@@ -25,7 +25,7 @@ module unit_tests (
   rvx_ocelot #(
 
       .MEMORY_SIZE_IN_BYTES (16384),
-      .MEMORY_INIT_FILE_PATH("unit_tests.hex"),
+      .MEMORY_INIT_FILE_PATH("spi_manager_hal_unit_tests.hex"),
       .BOOT_ADDRESS         (32'h00000000)
 
   ) rvx_ocelot_instance (
