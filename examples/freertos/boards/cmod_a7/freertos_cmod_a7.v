@@ -55,8 +55,8 @@ module freertos_cmod_a7 #(
       .gpio_oe    (gpio_oe),
       .gpio_output(gpio_output),
       .sclk       (),                  // unused
-      .pico       (),                  // unused
-      .poci       (1'b0),
+      .mosi       (),                  // unused
+      .miso       (1'b0),
       .cs         ()                   // unused
 
   );

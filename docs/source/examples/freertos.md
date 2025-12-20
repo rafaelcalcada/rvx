@@ -50,7 +50,7 @@ Using your preferred text editor, create a Verilog file name `freertos.v` and ad
 
 ```verilog title="freertos.v"
 module freertos #(
-  
+
   parameter GPIO_WIDTH = 2
 
   )(
@@ -85,13 +85,13 @@ module freertos #(
   .halt                     (1'b0                       ),
   .uart_rx                  (1'b0                       ),
   .gpio_input               ({GPIO_WIDTH{1'b0}}         ),
-  .poci                     (1'b0                       ),
+  .miso                     (1'b0                       ),
 
   // Unused outputs can be left open
-  .uart_tx                  (                           ),  
+  .uart_tx                  (                           ),
   .gpio_oe                  (                           ),
   .sclk                     (                           ),
-  .pico                     (                           ),  
+  .mosi                     (                           ),
   .cs                       (                           ));
 
 endmodule

@@ -41,10 +41,10 @@ The table below lists the configuration parameters of RVX Top Module, `rvx.v`:
 | ----------------------------------------------------------------------------------------- | ------------------- | ---------------- |
 | **BOOT_ADDRESS**</br>Memory address of the first instruction to be fetched and executed.  | 32-bit hexadecimal  | `32'h00000000`   |
 | **CLOCK_FREQUENCY**</br>Frequency (in Hertz) of the `clock` input signal.                 | Integer             | `50000000`       |
-| **UART_BAUD_RATE**</br>Baud rate of the UART module (in bauds per second).                | Integer             | `9600`           | 
-| **MEMORY_SIZE**</br>Size of the memory module (in bytes).                                 | Integer             | `8192`           | 
+| **UART_BAUD_RATE**</br>Baud rate of the UART module (in bauds per second).                | Integer             | `9600`           |
+| **MEMORY_SIZE**</br>Size of the memory module (in bytes).                                 | Integer             | `8192`           |
 | **MEMORY_INIT_FILE**</br>Absolute path to the memory initialization file.                 | String              | `(empty string)` |
-| **GPIO_WIDTH**</br>Number of general-purpose I/O pins.                                    | Integer             | `1`              | 
+| **GPIO_WIDTH**</br>Number of general-purpose I/O pins.                                    | Integer             | `1`              |
 | **SPI_NUM_CHIP_SELECT**</br>Number of Chip Select (CS) lines for the SPI Controller.      | Integer             | `1`              |
 
 ## I/O Signals
@@ -62,8 +62,8 @@ The input/output signals of RVX Top Module, `rvx.v`, are listed in the table bel
 | **gpio_oe**</br>GPIO output enable.             | Output    | `GPIO_WIDTH`          |
 | **gpio_output**</br>GPIO output signals.        | Output    | `GPIO_WIDTH`          |
 | **sclk**</br>SPI Controller clock.              | Output    | 1 bit                 |
-| **pico**</br>SPI Peripheral In Controller Out.  | Output    | 1 bit                 |
-| **poci**</br>SPI Peripheral Out Controller In.  | Input     | 1 bit                 |
+| **miso**</br>SPI Peripheral In Controller Out.  | Output    | 1 bit                 |
+| **mosi**</br>SPI Peripheral Out Controller In.  | Input     | 1 bit                 |
 | **cs**</br>SPI Chip Select lines.               | Output    | `SPI_NUM_CHIP_SELECT` |
 
 ## Memory Map
