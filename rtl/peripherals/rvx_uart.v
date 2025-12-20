@@ -27,6 +27,7 @@ module rvx_uart (
 
 );
 
+  // Signals and registers
   reg [31:0] cycles_per_baud;
   reg [31:0] tx_cycle_counter;
   reg [31:0] rx_cycle_counter;
@@ -35,9 +36,43 @@ module rvx_uart (
   reg [ 9:0] tx_register;
   reg [ 7:0] rx_register;
   reg [ 7:0] rx_data;
-  reg        rx_active;
+  reg        rx_started;
 
-  assign uart_tx = tx_register[0];
+  // Write and read responses
+  // ---------------------------------------------------------------------------
+
+  always @(posedge clock) begin
+    if (!reset_n) begin
+      read_response  <= 1'b0;
+      write_response <= 1'b0;
+    end
+    else begin
+      read_response  <= read_request;
+      write_response <= write_request;
+    end
+  end
+
+  // Register read logic
+  // ---------------------------------------------------------------------------
+
+  wire ready_to_send = (tx_bit_counter == 0);
+
+  always @(posedge clock) begin
+    if (!reset_n) begin
+      read_data <= 32'h00000000;
+    end
+    else if (read_request == 1'b1) begin
+      case (rw_address[4:0])
+        `RVX_UART_READ_REG_ADDR:   read_data <= {24'b0, rx_data};
+        `RVX_UART_STATUS_REG_ADDR: read_data <= {30'b0, uart_irq, ready_to_send};
+        `RVX_UART_BAUD_REG_ADDR:   read_data <= cycles_per_baud;
+        default:                   read_data <= 32'h00000000;
+      endcase
+    end
+  end
+
+  // Register write logic
+  // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
     if (!reset_n) begin
@@ -47,6 +82,9 @@ module rvx_uart (
       cycles_per_baud <= write_data;
     end
   end
+
+  // TX logic
+  // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
     if (!reset_n || cycles_per_baud == 0) begin
@@ -73,6 +111,9 @@ module rvx_uart (
     end
   end
 
+  // RX logic
+  // ---------------------------------------------------------------------------
+
   always @(posedge clock) begin
     if (!reset_n || cycles_per_baud == 0) begin
       rx_cycle_counter <= 0;
@@ -80,101 +121,48 @@ module rvx_uart (
       rx_data          <= 8'h00;
       rx_bit_counter   <= 0;
       uart_irq         <= 1'b0;
-      rx_active        <= 1'b0;
+      rx_started       <= 1'b0;
     end
     else if (uart_irq == 1'b1) begin
       if (rw_address == `RVX_UART_READ_REG_ADDR && read_request == 1'b1) begin
-        rx_cycle_counter <= 0;
-        rx_register      <= 8'h00;
-        rx_data          <= rx_data;
-        rx_bit_counter   <= 0;
-        uart_irq         <= 1'b0;
-        rx_active        <= 1'b0;
-      end
-      else begin
-        rx_cycle_counter <= 0;
-        rx_register      <= 8'h00;
-        rx_data          <= rx_data;
-        rx_bit_counter   <= 0;
-        uart_irq         <= 1'b1;
-        rx_active        <= 1'b0;
+        uart_irq <= 1'b0;
       end
     end
-    else if (rx_bit_counter == 0 && rx_active == 1'b0) begin
-      if (uart_rx == 1'b1) begin
-        rx_cycle_counter <= 0;
-        rx_register      <= 8'h00;
-        rx_data          <= rx_data;
-        rx_bit_counter   <= 0;
-        uart_irq         <= 1'b0;
-        rx_active        <= 1'b0;
-      end
-      else if (uart_rx == 1'b0) begin
+    else if (!rx_started) begin
+      if (uart_rx == 1'b0) begin
         if (rx_cycle_counter < {1'b0, cycles_per_baud[31:1]}) begin
           rx_cycle_counter <= rx_cycle_counter + 1;
-          rx_register      <= 8'h00;
-          rx_data          <= rx_data;
-          rx_bit_counter   <= 0;
-          uart_irq         <= 1'b0;
-          rx_active        <= 1'b0;
         end
         else begin
           rx_cycle_counter <= 0;
-          rx_register      <= 8'h00;
-          rx_data          <= rx_data;
-          rx_bit_counter   <= 8;
-          uart_irq         <= 1'b0;
-          rx_active        <= 1'b1;
+          rx_bit_counter   <= 0;
+          rx_started       <= 1'b1;
         end
+      end
+      else begin
+        rx_cycle_counter <= 0;
       end
     end
     else begin
       if (rx_cycle_counter < cycles_per_baud) begin
         rx_cycle_counter <= rx_cycle_counter + 1;
-        rx_register      <= rx_register;
-        rx_data          <= rx_data;
-        rx_bit_counter   <= rx_bit_counter;
-        uart_irq         <= 1'b0;
-        rx_active        <= 1'b1;
       end
       else begin
         rx_cycle_counter <= 0;
         rx_register      <= {uart_rx, rx_register[7:1]};
-        rx_data          <= (rx_bit_counter == 0) ? rx_register : rx_data;
-        rx_bit_counter   <= rx_bit_counter > 0 ? rx_bit_counter - 1 : 0;
-        uart_irq         <= (rx_bit_counter == 0) ? 1'b1 : 1'b0;
-        rx_active        <= 1'b1;
+        rx_bit_counter   <= rx_bit_counter + 1;
+        if (rx_bit_counter == 8) begin
+          rx_data    <= rx_register;
+          uart_irq   <= 1'b1;
+          rx_started <= 1'b0;
+        end
       end
     end
   end
 
-  always @(posedge clock) begin
-    if (!reset_n) begin
-      read_response  <= 1'b0;
-      write_response <= 1'b0;
-    end
-    else begin
-      read_response  <= read_request;
-      write_response <= write_request;
-    end
-  end
+  // TX output assignment
+  // ---------------------------------------------------------------------------
 
-  always @(posedge clock) begin
-    if (!reset_n) begin
-      read_data <= 32'h00000000;
-    end
-    else if (rw_address == `RVX_UART_READ_REG_ADDR && read_request == 1'b1) begin
-      read_data <= {24'b0, rx_data};
-    end
-    else if (rw_address == `RVX_UART_STATUS_REG_ADDR && read_request == 1'b1) begin
-      read_data <= {30'b0, uart_irq, tx_bit_counter == 0};
-    end
-    else if (rw_address == `RVX_UART_BAUD_REG_ADDR && read_request == 1'b1) begin
-      read_data <= cycles_per_baud;
-    end
-    else begin
-      read_data <= 32'h00000000;
-    end
-  end
+  assign uart_tx = tx_register[0];
 
 endmodule
