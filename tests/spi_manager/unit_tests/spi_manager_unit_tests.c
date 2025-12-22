@@ -11,12 +11,12 @@ int error_flag = 0;
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
-#define ASSERT(condition) assert(condition, "\n[ERROR]Assertion at line " MACRO_STRINGIFY(__LINE__) " failed.");
-#define ASSERT_EQ(val1, val2)                                                                                          \
-  assert_eq(val1, val2, "\n[ERROR] Value of " STRINGIFY(val1) " is not equal to " STRINGIFY(val2) ".");
+#define RVX_ASSERT(condition) rvx_assert(condition, "\n[ERROR]Assertion at line " MACRO_STRINGIFY(__LINE__) " failed.");
+#define RVX_ASSERT_EQ(val1, val2)                                                                                      \
+  rvx_assert_eq(val1, val2, "\n[ERROR] Value of " STRINGIFY(val1) " is not equal to " STRINGIFY(val2) ".");
 
-void assert(bool condition, const char *message);
-void assert_eq(uint8_t val1, uint8_t val2, const char *message);
+void rvx_assert(bool condition, const char *message);
+void rvx_assert_eq(uint8_t val1, uint8_t val2, const char *message);
 void print_byte(const uint8_t read_data);
 void transfer_test();
 void finish_test();
@@ -30,34 +30,34 @@ int main()
   rvx_gpio_pin_set(gpio_address, 0);                        // Deassert CS for subordinate 1
 
   rvx_uart_write_string(uart_address, "\nTest 1: MODE is 0 after reset... ");
-  ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_0);
+  RVX_ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_0);
   finish_test();
 
   rvx_uart_write_string(uart_address, "\nTest 2: If setting MODE to 1 succeeds... ");
   rvx_spi_mode_set(spi_address, RVX_SPI_MODE_1);
-  ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_1);
+  RVX_ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_1);
   finish_test();
 
   rvx_uart_write_string(uart_address, "\nTest 3: If setting MODE back to 0 succeeds... ");
   rvx_spi_mode_set(spi_address, RVX_SPI_MODE_0);
-  ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_0);
+  RVX_ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_0);
   finish_test();
 
   rvx_uart_write_string(uart_address, "\nTest 4: Chip Select assert/deassert... ");
   rvx_spi_chip_select_assert(spi_address);
-  ASSERT(spi_address->RVX_SPI_CHIP_SELECT == 0);
+  RVX_ASSERT(spi_address->RVX_SPI_CHIP_SELECT == 0);
   rvx_spi_chip_select_deassert(spi_address);
-  ASSERT(spi_address->RVX_SPI_CHIP_SELECT == 1);
+  RVX_ASSERT(spi_address->RVX_SPI_CHIP_SELECT == 1);
   finish_test();
 
   rvx_uart_write_string(uart_address, "\nTest 5: Transfering bytes to SPI Subordinate 0 in MODE 0... ");
   rvx_spi_chip_select_assert(spi_address);
   rvx_spi_clock_set_divider(spi_address, 24); // Set clock divider to 24 (equals 1 MHz if system clock is 50 MHz)
-  ASSERT(rvx_spi_clock_get_divider(spi_address) == 24);
+  RVX_ASSERT(rvx_spi_clock_get_divider(spi_address) == 24);
   rvx_spi_mode_set(spi_address, RVX_SPI_MODE_0);
-  ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_0);
+  RVX_ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_0);
   rvx_spi_chip_select_assert(spi_address);
-  ASSERT(spi_address->RVX_SPI_CHIP_SELECT == 0);
+  RVX_ASSERT(spi_address->RVX_SPI_CHIP_SELECT == 0);
   transfer_test();
   rvx_spi_chip_select_deassert(spi_address);
   finish_test();
@@ -65,37 +65,37 @@ int main()
   rvx_uart_write_string(uart_address, "\nTest 6: Transfering bytes to SPI Subordinate 1 in MODE 1... ");
   rvx_spi_chip_select_assert(spi_address);
   rvx_spi_clock_set_divider(spi_address, 24); // Set clock divider to 24 (equals 1 MHz if system clock is 50 MHz)
-  ASSERT(rvx_spi_clock_get_divider(spi_address) == 24);
+  RVX_ASSERT(rvx_spi_clock_get_divider(spi_address) == 24);
   rvx_spi_mode_set(spi_address, RVX_SPI_MODE_1);
-  ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_1);
+  RVX_ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_1);
   rvx_gpio_pin_clear(gpio_address, 0); // Assert CS for subordinate 1
-  ASSERT(rvx_gpio_pin_read(gpio_address, 0) == false);
+  RVX_ASSERT(rvx_gpio_pin_read(gpio_address, 0) == false);
   transfer_test();
   rvx_gpio_pin_set(gpio_address, 0); // Deassert CS for subordinate 1
-  ASSERT(rvx_gpio_pin_read(gpio_address, 0) == true);
+  RVX_ASSERT(rvx_gpio_pin_read(gpio_address, 0) == true);
   finish_test();
 
   rvx_uart_write_string(uart_address, "\nTest 7: Transfering bytes to SPI Subordinate 1 in MODE 2... ");
   rvx_spi_chip_select_assert(spi_address);
   rvx_spi_clock_set_divider(spi_address, 24); // Set clock divider to 24 (equals 1 MHz if system clock is 50 MHz)
-  ASSERT(rvx_spi_clock_get_divider(spi_address) == 24);
+  RVX_ASSERT(rvx_spi_clock_get_divider(spi_address) == 24);
   rvx_spi_mode_set(spi_address, RVX_SPI_MODE_2);
-  ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_2);
+  RVX_ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_2);
   rvx_gpio_pin_clear(gpio_address, 0); // Assert CS for subordinate 1
-  ASSERT(rvx_gpio_pin_read(gpio_address, 0) == false);
+  RVX_ASSERT(rvx_gpio_pin_read(gpio_address, 0) == false);
   transfer_test();
   rvx_gpio_pin_set(gpio_address, 0); // Deassert CS for subordinate 1
-  ASSERT(rvx_gpio_pin_read(gpio_address, 0) == true);
+  RVX_ASSERT(rvx_gpio_pin_read(gpio_address, 0) == true);
   finish_test();
 
   rvx_uart_write_string(uart_address, "\nTest 8: Transfering bytes to SPI Subordinate 0 in MODE 3... ");
   rvx_spi_chip_select_assert(spi_address);
   rvx_spi_clock_set_divider(spi_address, 24); // Set clock divider to 24 (equals 1 MHz if system clock is 50 MHz)
-  ASSERT(rvx_spi_clock_get_divider(spi_address) == 24);
+  RVX_ASSERT(rvx_spi_clock_get_divider(spi_address) == 24);
   rvx_spi_mode_set(spi_address, RVX_SPI_MODE_3);
-  ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_3);
+  RVX_ASSERT(rvx_spi_mode_get(spi_address) == RVX_SPI_MODE_3);
   rvx_spi_chip_select_assert(spi_address);
-  ASSERT(spi_address->RVX_SPI_CHIP_SELECT == 0);
+  RVX_ASSERT(spi_address->RVX_SPI_CHIP_SELECT == 0);
   transfer_test();
   rvx_spi_chip_select_deassert(spi_address);
   finish_test();
@@ -110,7 +110,7 @@ int main()
     ;
 }
 
-void assert(bool condition, const char *message)
+void rvx_assert(bool condition, const char *message)
 {
   if (!condition)
   {
@@ -120,7 +120,7 @@ void assert(bool condition, const char *message)
   }
 }
 
-void assert_eq(uint8_t val1, uint8_t val2, const char *message)
+void rvx_assert_eq(uint8_t val1, uint8_t val2, const char *message)
 {
   if (val1 != val2)
   {
@@ -151,17 +151,17 @@ void transfer_test()
   uint8_t received_byte;
   rvx_spi_write(spi_address, 0xa5);
   received_byte = rvx_spi_transfer(spi_address, 0x5a);
-  ASSERT_EQ(received_byte, 0xa5);
+  RVX_ASSERT_EQ(received_byte, 0xa5);
   received_byte = rvx_spi_transfer(spi_address, 0xff);
-  ASSERT_EQ(received_byte, 0x5a);
+  RVX_ASSERT_EQ(received_byte, 0x5a);
   received_byte = rvx_spi_transfer(spi_address, 0x00);
-  ASSERT_EQ(received_byte, 0xff);
+  RVX_ASSERT_EQ(received_byte, 0xff);
   received_byte = rvx_spi_transfer(spi_address, 0x3c);
-  ASSERT_EQ(received_byte, 0x00);
+  RVX_ASSERT_EQ(received_byte, 0x00);
   received_byte = rvx_spi_transfer(spi_address, 0xc3);
-  ASSERT_EQ(received_byte, 0x3c);
+  RVX_ASSERT_EQ(received_byte, 0x3c);
   received_byte = rvx_spi_transfer(spi_address, 0x00);
-  ASSERT_EQ(received_byte, 0xc3);
+  RVX_ASSERT_EQ(received_byte, 0xc3);
 }
 
 void finish_test()
