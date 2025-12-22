@@ -7,4 +7,3 @@ if {[file exists $project_file]} {
 set_property top rvx_spi_manager_tb [get_filesets sim_1]
 launch_simulation -simset sim_1
 run -all
-quit
