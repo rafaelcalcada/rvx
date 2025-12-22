@@ -16,8 +16,7 @@
     "vscode": {
       "settings": {
         "git.ignoredRepositories": [
-          "/workspaces/rvx/examples/**",
-          "/workspaces/rvx/templates/**"
+          "/workspaces/rvx/examples/**"
         ],
         "verilog.ctags.path": "/usr/local/bin/ctags",
         "verilog.linting.linter": "verilator",
