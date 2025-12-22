@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 # Name of the executable to be generated
-set(APP_NAME "spi_manager_hal_unit_tests")
+set(APP_NAME "spi_manager_unit_tests")
 
 # Inform the same value provided for the MEMORY_SIZE parameter of RVX
 set(MEMORY_SIZE 8K)
@@ -103,7 +103,7 @@ FetchContent_MakeAvailable(rvx)
 # Source files
 set(SOURCES
   ${CMAKE_SOURCE_DIR}/bootstrap.S
-  ${CMAKE_SOURCE_DIR}/spi_manager_hal_unit_tests.c
+  ${CMAKE_SOURCE_DIR}/spi_manager_unit_tests.c
 )
 
 # The executable

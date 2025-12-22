@@ -2,8 +2,8 @@
 
 This directory contains the following tests for the RVX SPI Manager module:
 
-- `testbench/` - Verilog testbench compatible with Verilator and Vivado
-- `hal_unit_tests/` - Unit tests for RVX HAL functionality related to the SPI Manager
+- `testbench/` - Verilog RTL testbench compatible with Verilator and Vivado
+- `unit_tests/` - Unit tests for the RVX HAL functionality related to the SPI Manager
 
 ## Testbench
 
@@ -18,9 +18,9 @@ cd tests/spi_manager/testbench/verilator
 make run
 ```
 
-A successful test run will display: `Passed all SPI Manager unit tests`
+A successful test run ends with the message: `Passed RTL testbench for the RVX SPI Manager`.
 
-> **Note**: To run outside the dev container, make sure `verilator` is installed and available in your `PATH`.
+> **Note**: To run outside the dev container, make sure `verilator` (v5.042 or higher) is installed and available in your `PATH`.
 
 ### Running with Vivado
 
@@ -28,7 +28,7 @@ To run with Vivado, you'll need to have it installed on your machine. The RVX de
 
 1. Launch **Vivado**
 2. Go to **Tools** → **Run Tcl script...**
-3. Select `tests/spi_manager/testbench/vivado/create_tests_project.tcl`
+3. Select `tests/spi_manager/testbench/vivado/create_test_project.tcl`
 4. In the **Tcl Console**, run:
 
    ```tcl
@@ -36,7 +36,7 @@ To run with Vivado, you'll need to have it installed on your machine. The RVX de
    run -all
    ```
 
-A successful test run will display: `Passed all SPI Manager unit tests`
+A successful test run ends with the message: `Passed RTL testbench for the RVX SPI Manager`.
 
 If you have `vivado` in your `PATH`, you can also run the testbench from the command line:
 
@@ -47,7 +47,7 @@ make run
 
 ## HAL Unit Tests
 
-The HAL unit tests verify that the RVX Hardware Abstraction Layer API works correctly with the SPI Manager. These tests run on an **Arty A7-35T Development Board** using the test program `spi_manager_hal_unit_tests.c`.
+The HAL unit tests verify that the RVX Hardware Abstraction Layer API works correctly with the SPI Manager. These tests run on an **Arty A7-35T Development Board** using the test program `spi_manager_unit_tests.c`.
 
 ### Prerequisites
 
@@ -60,7 +60,7 @@ The HAL unit tests verify that the RVX Hardware Abstraction Layer API works corr
 1. Build the unit test program from the RVX development container:
 
     ```bash
-    cd tests/spi_manager/hal_unit_tests
+    cd tests/spi_manager/unit_tests
     make
     ```
 
@@ -70,7 +70,7 @@ The HAL unit tests verify that the RVX Hardware Abstraction Layer API works corr
 
    - Launch **Vivado**
    - Go to **Tools** → **Run Tcl script...**
-   - Select `tests/spi_manager/hal_unit_tests/create_tests_project.tcl` and click **OK**
+   - Select `tests/spi_manager/unit_tests/create_test_project.tcl` and click **OK**
 
 3. **Open a serial terminal**
 
@@ -90,4 +90,4 @@ The HAL unit tests verify that the RVX Hardware Abstraction Layer API works corr
    - Reset the board to start execution
    - Monitor the serial output
 
-A successful test run will display: `Passed all SPI Manager HAL unit tests`
+A successful test run ends with the message: `Passed all RVX HAL unit tests for the SPI Manager`.

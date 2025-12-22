@@ -448,7 +448,7 @@ module rvx_spi_manager_tb ();
     $display("Testbench result:");
     $display("-----------------");
     $display("");
-    if (error_count === 0) $display("Passed all SPI Manager unit tests.");
+    if (error_count === 0) $display("Passed RTL testbench for the RVX SPI Manager.");
     else $display("[ERROR] SPI Manager failed one or more unit tests. Please investigate.");
     $display("");
 

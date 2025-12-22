@@ -101,7 +101,7 @@ int main()
   finish_test();
 
   if (error_count == 0)
-    rvx_uart_write_string(uart_address, "\n\nPassed all SPI Manager HAL unit tests.");
+    rvx_uart_write_string(uart_address, "\n\nPassed all RVX HAL unit tests for the SPI Manager.");
   else
     rvx_uart_write_string(uart_address,
                           "\n[ERROR] SPI Manager failed on one or more unit tests. Please investigate.\n");
