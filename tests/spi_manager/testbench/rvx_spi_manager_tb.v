@@ -4,19 +4,7 @@
 `timescale 1ns / 1ps
 
 `include "rvx_constants.vh"
-
-`define ASSERT(cond, msg)                                   \
-  if (!(cond)) begin                                        \
-    $display("");                                           \
-    $display("Assertion FAILED.");                          \
-    $display("  Condition: %s", `"cond`");                  \
-    $display("  Message: %s", msg);                         \
-    error_count = error_count + 1;                          \
-    $stop();                                                \
-  end                                                       \
-  else begin                                                \
-    $display("Passed: %s", `"cond`");                       \
-  end
+`include "rvx_test_macros.vh"
 
 module rvx_spi_manager_tb ();
 
@@ -201,7 +189,7 @@ module rvx_spi_manager_tb ();
 
       // Read back
       read_spi_register(`RVX_SPI_READ_REG_ADDR);
-      `ASSERT(read_data === 32'h000000a5, "READ register does not contain the expected byte (0xa5).")
+      `RVX_ASSERT(read_data === 32'h000000a5, "READ register does not contain the expected byte (0xa5).")
 
       // Send: 0xFF (0x11111111)
       write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h000000ff);
@@ -210,7 +198,7 @@ module rvx_spi_manager_tb ();
 
       // Read back
       read_spi_register(`RVX_SPI_READ_REG_ADDR);
-      `ASSERT(read_data === 32'h0000005a, "READ register does not contain the expected byte (0x5a).")
+      `RVX_ASSERT(read_data === 32'h0000005a, "READ register does not contain the expected byte (0x5a).")
 
       // Send: 0x00 (0x00000000)
       write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h00000000);
@@ -219,7 +207,7 @@ module rvx_spi_manager_tb ();
 
       // Read back
       read_spi_register(`RVX_SPI_READ_REG_ADDR);
-      `ASSERT(read_data === 32'h000000ff, "READ register does not contain the expected byte (0xff).")
+      `RVX_ASSERT(read_data === 32'h000000ff, "READ register does not contain the expected byte (0xff).")
 
       // Send: 0x3C (0x00111100)
       write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h0000003c);
@@ -228,7 +216,7 @@ module rvx_spi_manager_tb ();
 
       // Read back
       read_spi_register(`RVX_SPI_READ_REG_ADDR);
-      `ASSERT(read_data === 32'h00000000, "READ register does not contain the expected byte (0x00).")
+      `RVX_ASSERT(read_data === 32'h00000000, "READ register does not contain the expected byte (0x00).")
 
       // Send: 0xC3 (0x11000011)
       write_spi_register(`RVX_SPI_WRITE_REG_ADDR, 32'h000000c3);
@@ -237,7 +225,7 @@ module rvx_spi_manager_tb ();
 
       // Read back
       read_spi_register(`RVX_SPI_READ_REG_ADDR);
-      `ASSERT(read_data === 32'h0000003c, "READ register does not contain the expected byte (0x3c).")
+      `RVX_ASSERT(read_data === 32'h0000003c, "READ register does not contain the expected byte (0x3c).")
     end
   endtask
 
@@ -253,21 +241,21 @@ module rvx_spi_manager_tb ();
     $display("-----------------------------------------");
     $display("");
 
-    `ASSERT(cs === 1'b1, "CS (Chip Select) is not logic HIGH after reset.")
-    `ASSERT(mosi === 1'b0, "MOSI is not logic LOW after reset.")
-    `ASSERT(sclk === 1'b0, "SCLK is not logic LOW after reset.")
+    `RVX_ASSERT(cs === 1'b1, "CS (Chip Select) is not logic HIGH after reset.")
+    `RVX_ASSERT(mosi === 1'b0, "MOSI is not logic LOW after reset.")
+    `RVX_ASSERT(sclk === 1'b0, "SCLK is not logic LOW after reset.")
     read_spi_register(`RVX_SPI_MODE_REG_ADDR);
-    `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
+    `RVX_ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
     read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
-    `ASSERT(read_data === 32'h00000001, "Register is not 1 after reset.")
+    `RVX_ASSERT(read_data === 32'h00000001, "Register is not 1 after reset.")
     read_spi_register(`RVX_SPI_DIVIDER_REG_ADDR);
-    `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
+    `RVX_ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
     read_spi_register(`RVX_SPI_STATUS_REG_ADDR);
-    `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
+    `RVX_ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
     read_spi_register(`RVX_SPI_READ_REG_ADDR);
-    `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
+    `RVX_ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
     read_spi_register(`RVX_SPI_WRITE_REG_ADDR);
-    `ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
+    `RVX_ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
 
     $display("");
     $display("Testing read/write to SPI registers...");
@@ -275,22 +263,23 @@ module rvx_spi_manager_tb ();
 
     write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000001);
     read_spi_register(`RVX_SPI_MODE_REG_ADDR);
-    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `RVX_ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
     write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'hffffffff);
     read_spi_register(`RVX_SPI_MODE_REG_ADDR);
-    `ASSERT(read_data === 32'h00000003, "Register is not 0x00000003 after write.")
+    `RVX_ASSERT(read_data === 32'h00000003, "Register is not 0x00000003 after write.")
     write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000000);
     read_spi_register(`RVX_SPI_MODE_REG_ADDR);
-    `ASSERT(read_data === 32'h00000000, "Register is not 0x00000000 after write.")
+    `RVX_ASSERT(read_data === 32'h00000000, "Register is not 0x00000000 after write.")
     write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000000);
     read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
-    `ASSERT(read_data === 32'h00000000, "Register is not 0x00000000 after write.")
-    `ASSERT(cs === 1'b0, "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
+    `RVX_ASSERT(read_data === 32'h00000000, "Register is not 0x00000000 after write.")
+    `RVX_ASSERT(cs === 1'b0,
+                "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
     write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000001);
     read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
-    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
-    `ASSERT(cs === 1'b1,
-            "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
+    `RVX_ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `RVX_ASSERT(cs === 1'b1,
+                "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
 
     $display("");
     $display("Running SPI data transfer tests in mode 0 (base speed)...");
@@ -301,16 +290,17 @@ module rvx_spi_manager_tb ();
     write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h0000000);
     write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000000);
     #(CLOCK_PERIOD * 2);
-    `ASSERT(cs === 1'b0, "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
+    `RVX_ASSERT(cs === 1'b0,
+                "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
 
     test_transmission(CLOCK_PERIOD * 2);
 
     // Deselect subordinate
     write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000001);
     read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
-    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
-    `ASSERT(cs === 1'b1,
-            "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
+    `RVX_ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `RVX_ASSERT(cs === 1'b1,
+                "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
 
     $display("");
     $display("Running SPI data transfer tests in mode 1 (base speed)...");
@@ -321,14 +311,14 @@ module rvx_spi_manager_tb ();
     write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000000);
     gpio_cs = 1'b0;
     #(CLOCK_PERIOD * 2);
-    `ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
+    `RVX_ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
 
     test_transmission(CLOCK_PERIOD * 2);
 
     // Deselect subordinate 1
     gpio_cs = 1'b1;
     #(CLOCK_PERIOD * 2);
-    `ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
+    `RVX_ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
 
     $display("");
     $display("Running SPI data transfer tests in mode 2 (base speed)...");
@@ -339,14 +329,14 @@ module rvx_spi_manager_tb ();
     write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000000);
     gpio_cs = 1'b0;
     #(CLOCK_PERIOD * 2);
-    `ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
+    `RVX_ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
 
     test_transmission(CLOCK_PERIOD * 2);
 
     // Deselect subordinate 1
     gpio_cs = 1'b1;
     #(CLOCK_PERIOD * 2);
-    `ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
+    `RVX_ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
 
     $display("");
     $display("Running SPI data transfer tests in mode 3 (base speed)...");
@@ -357,16 +347,17 @@ module rvx_spi_manager_tb ();
     write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h0000000);
     write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000000);
     #(CLOCK_PERIOD * 2);
-    `ASSERT(cs === 1'b0, "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
+    `RVX_ASSERT(cs === 1'b0,
+                "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
 
     test_transmission(CLOCK_PERIOD * 2);
 
     // Deselect subordinate
     write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000001);
     read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
-    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
-    `ASSERT(cs === 1'b1,
-            "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
+    `RVX_ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `RVX_ASSERT(cs === 1'b1,
+                "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
 
     $display("");
     $display("Running SPI data transfer tests in mode 0 (divider = 4)...");
@@ -377,16 +368,17 @@ module rvx_spi_manager_tb ();
     write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000004);
     write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000000);
     #(CLOCK_PERIOD * 2);
-    `ASSERT(cs === 1'b0, "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
+    `RVX_ASSERT(cs === 1'b0,
+                "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
 
     test_transmission(CLOCK_PERIOD * 10);
 
     // Deselect subordinate
     write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000001);
     read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
-    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
-    `ASSERT(cs === 1'b1,
-            "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
+    `RVX_ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `RVX_ASSERT(cs === 1'b1,
+                "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
 
     $display("");
     $display("Running SPI data transfer tests in mode 1 (base speed)...");
@@ -397,14 +389,14 @@ module rvx_spi_manager_tb ();
     write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000004);
     gpio_cs = 1'b0;
     #(CLOCK_PERIOD * 2);
-    `ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
+    `RVX_ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
 
     test_transmission(CLOCK_PERIOD * 10);
 
     // Deselect subordinate 1
     gpio_cs = 1'b1;
     #(CLOCK_PERIOD * 2);
-    `ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
+    `RVX_ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
 
     $display("");
     $display("Running SPI data transfer tests in mode 2 (base speed)...");
@@ -415,14 +407,14 @@ module rvx_spi_manager_tb ();
     write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000004);
     gpio_cs = 1'b0;
     #(CLOCK_PERIOD * 2);
-    `ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
+    `RVX_ASSERT(gpio_cs === 1'b0, "CS (Chip Select) line for subordinate 1 is not asserted (logic LOW).")
 
     test_transmission(CLOCK_PERIOD * 10);
 
     // Deselect subordinate 1
     gpio_cs = 1'b1;
     #(CLOCK_PERIOD * 2);
-    `ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
+    `RVX_ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
 
     $display("");
     $display("Running SPI data transfer tests in mode 3 (base speed)...");
@@ -433,16 +425,17 @@ module rvx_spi_manager_tb ();
     write_spi_register(`RVX_SPI_DIVIDER_REG_ADDR, 32'h00000004);
     write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000000);
     #(CLOCK_PERIOD * 2);
-    `ASSERT(cs === 1'b0, "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
+    `RVX_ASSERT(cs === 1'b0,
+                "CS (Chip Select) line is not asserted (logic LOW) after writing 0 to CHIP SELECT register.")
 
     test_transmission(CLOCK_PERIOD * 10);
 
     // Deselect subordinate
     write_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR, 32'h00000001);
     read_spi_register(`RVX_SPI_CHIP_SELECT_REG_ADDR);
-    `ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
-    `ASSERT(cs === 1'b1,
-            "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
+    `RVX_ASSERT(read_data === 32'h00000001, "Register is not 0x00000001 after write.")
+    `RVX_ASSERT(cs === 1'b1,
+                "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
 
     $display("");
     $display("Testbench result:");
