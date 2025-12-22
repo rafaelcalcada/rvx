@@ -25,7 +25,8 @@
           "/workspaces/rvx/rtl/core/",
           "/workspaces/rvx/rtl/peripherals/",
           "/workspaces/rvx/rtl/memory/",
-          "/workspaces/rvx/rtl/interconnect/"
+          "/workspaces/rvx/rtl/interconnect/",
+          "/workspaces/rvx/tests/"
         ],
         "verilog.linting.verilator.arguments": "-Wall --timing",
         "editor.tabSize": 2,
