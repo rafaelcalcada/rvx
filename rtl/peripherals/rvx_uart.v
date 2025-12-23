@@ -93,7 +93,7 @@ module rvx_uart (
       tx_bit_counter   <= 0;
     end
     else if (tx_bit_counter == 0 && rw_address == `RVX_UART_WRITE_REG_ADDR && write_request == 1'b1) begin
-      tx_cycle_counter <= 0;
+      tx_cycle_counter <= 1;
       tx_register      <= {1'b1, write_data[7:0], 1'b0};
       tx_bit_counter   <= 10;
     end
@@ -104,7 +104,7 @@ module rvx_uart (
         tx_bit_counter   <= tx_bit_counter;
       end
       else begin
-        tx_cycle_counter <= 0;
+        tx_cycle_counter <= 1;
         tx_register      <= {1'b1, tx_register[9:1]};
         tx_bit_counter   <= tx_bit_counter > 0 ? tx_bit_counter - 1 : 0;
       end
@@ -116,7 +116,7 @@ module rvx_uart (
 
   always @(posedge clock) begin
     if (!reset_n || cycles_per_baud == 0) begin
-      rx_cycle_counter <= 0;
+      rx_cycle_counter <= 1;
       rx_register      <= 8'h00;
       rx_data          <= 8'h00;
       rx_bit_counter   <= 0;
@@ -134,13 +134,13 @@ module rvx_uart (
           rx_cycle_counter <= rx_cycle_counter + 1;
         end
         else begin
-          rx_cycle_counter <= 0;
+          rx_cycle_counter <= 1;
           rx_bit_counter   <= 0;
           rx_started       <= 1'b1;
         end
       end
       else begin
-        rx_cycle_counter <= 0;
+        rx_cycle_counter <= 1;
       end
     end
     else begin
@@ -148,7 +148,7 @@ module rvx_uart (
         rx_cycle_counter <= rx_cycle_counter + 1;
       end
       else begin
-        rx_cycle_counter <= 0;
+        rx_cycle_counter <= 1;
         rx_register      <= {uart_rx, rx_register[7:1]};
         rx_bit_counter   <= rx_bit_counter + 1;
         if (rx_bit_counter == 8) begin
