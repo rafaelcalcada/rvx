@@ -11,18 +11,12 @@ ifdef PREFIX
 TOOLCHAIN_PREFIX_FLAG = -DTOOLCHAIN_PREFIX="${PREFIX}/bin/riscv32-unknown-elf-"
 endif
 
-all: debug
-
-debug:
+all: 
 	@test -d build || ( mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug ${TOOLCHAIN_PREFIX_FLAG} .. )
 	@$(MAKE) -C build
 
-release:
-	@test -d build || ( mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ${TOOLCHAIN_PREFIX_FLAG} .. )
-	@$(MAKE) -C build
-
 clean:
-	@rm -rf build dump .Xil spi_manager_hal_unit_tests
+	@rm -rf build dump .Xil spi_manager_unit_tests
 	@echo "Build directory and Vivado project deleted."
 
 .PHONY: debug release clean

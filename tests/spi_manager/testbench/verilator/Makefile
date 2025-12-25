@@ -7,4 +7,5 @@ run: all
 	./verilated/rvx_spi_manager_tb
 
 clean:
-	rm -rf verilated 
+	@rm -rf verilated
+	@echo "Cleaned up generated files."

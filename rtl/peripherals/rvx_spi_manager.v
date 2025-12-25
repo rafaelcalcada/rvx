@@ -27,10 +27,11 @@ module rvx_spi_manager (
 
 );
 
-  // SPI FSM States
-  localparam STATE_READY = 3'b001;
-  localparam STATE_CPOL = 3'b010;
-  localparam STATE_CPOL_N = 3'b100;
+  // SPI FSM states
+  localparam STATE_RESET = 4'b0001;
+  localparam STATE_READY = 4'b0010;
+  localparam STATE_CPOL = 4'b0100;
+  localparam STATE_CPOL_N = 4'b1000;
 
   // Signals and registers
   reg       cpol;
@@ -38,7 +39,7 @@ module rvx_spi_manager (
   reg       start_flag;
   reg       chip_select;
   reg       leading_cycle;
-  reg [2:0] spi_state;
+  reg [3:0] spi_state;
   reg [7:0] tx_reg;
   reg [7:0] rx_reg;
   reg [3:0] bit_counter;
@@ -59,7 +60,7 @@ module rvx_spi_manager (
     end
   end
 
-  // SPI register read logic
+  // Register read logic
   // ---------------------------------------------------------------------------
 
   wire busy = spi_state == STATE_CPOL || spi_state == STATE_CPOL_N || start_flag == 1'b1;
@@ -80,7 +81,7 @@ module rvx_spi_manager (
     else read_data <= write_data;
   end
 
-  // SPI register write logic
+  // Register write logic
   // ---------------------------------------------------------------------------
 
   wire valid_write_request = write_request == 1'b1 && &write_strobe == 1'b1;
@@ -144,10 +145,11 @@ module rvx_spi_manager (
       leading_cycle <= 1'b0;
       bit_counter   <= 4'd0;
       cycle_counter <= 8'd0;
-      spi_state     <= STATE_READY;
+      spi_state     <= STATE_RESET;
     end
     else begin
       case (spi_state)
+        STATE_RESET: spi_state <= STATE_READY;
         STATE_READY: begin
           sclk          <= cpol;
           mosi          <= 1'b0;

@@ -13,6 +13,8 @@ You can contribute to RVX in two ways:
   Here's a few tips for a good pull request:
 
     - Make small commits and give them a descriptive message. Avoid making a big commit that changes a lot of files.
+
+      Sometimes changing a lot of files is unavoidable. If so, make sure that all the changes are related.
     
     - Send one pull request for each improvement, new feature or bug fix.
 
