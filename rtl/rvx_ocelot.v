@@ -6,7 +6,8 @@ module rvx_ocelot #(
     parameter MEMORY_SIZE_IN_BYTES  = 8192,
     parameter MEMORY_INIT_FILE_PATH = "",
     parameter BOOT_ADDRESS          = 32'h00000000,
-    parameter GPIO_WIDTH            = 1
+    parameter GPIO_WIDTH            = 1,
+    parameter ENABLE_ZMMUL          = 0
 
 ) (
 
@@ -97,7 +98,8 @@ module rvx_ocelot #(
 
   rvx_core #(
 
-      .BOOT_ADDRESS(BOOT_ADDRESS)
+      .BOOT_ADDRESS(BOOT_ADDRESS),
+      .ENABLE_ZMMUL(ENABLE_ZMMUL)
 
   ) rvx_core_instance (
 
