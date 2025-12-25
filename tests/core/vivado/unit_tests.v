@@ -31,7 +31,11 @@ module unit_tests ();
   wire        dbus_wrequest;
   wire        dbus_wresponse;
 
-  rvx_core dut0 (
+  rvx_core #(
+
+    .ENABLE_ZMMUL(1)
+
+  ) dut0 (
 
       // Global signals
       .clock  (clock),
@@ -94,7 +98,7 @@ module unit_tests ();
 
   always #10 clock = !clock;
 
-  reg [167:0] unit_test_programs_array[0:53] = {"add-01.hex",
+  reg [167:0] unit_test_programs_array[0:57] = {"add-01.hex",
                                                 "addi-01.hex",
                                                 "and-01.hex",
                                                 "andi-01.hex",
@@ -130,6 +134,10 @@ module unit_tests ();
                                                 "misalign-sw-01.hex",
                                                 "misalign1-jalr-01.hex",
                                                 "misalign2-jalr-01.hex",
+                                                "mul-01.hex",
+                                                "mulh-01.hex",
+                                                "mulhsu-01.hex",
+                                                "mulhu-01.hex",
                                                 "or-01.hex",
                                                 "ori-01.hex",
                                                 "sb-align-01.hex",
@@ -149,7 +157,7 @@ module unit_tests ();
                                                 "xor-01.hex",
                                                 "xori-01.hex"};
 
-  reg [519:0] golden_reference_array[0:53] = {"add-01.reference.hex",
+  reg [519:0] golden_reference_array[0:57] = {"add-01.reference.hex",
                                               "addi-01.reference.hex",
                                               "and-01.reference.hex",
                                               "andi-01.reference.hex",
@@ -185,6 +193,10 @@ module unit_tests ();
                                               "misalign-sw-01.reference.hex",
                                               "misalign1-jalr-01.reference.hex",
                                               "misalign2-jalr-01.reference.hex",
+                                              "mul-01.reference.hex",
+                                              "mulh-01.reference.hex",
+                                              "mulhsu-01.reference.hex",
+                                              "mulhu-01.reference.hex",
                                               "or-01.reference.hex",
                                               "ori-01.reference.hex",
                                               "sb-align-01.reference.hex",
@@ -204,8 +216,8 @@ module unit_tests ();
                                               "xor-01.reference.hex",
                                               "xori-01.reference.hex"};
 
-  // The tests below are expected to fail because 
-  // RVX does not support misaligned branch/jump instructions 
+  // The tests below are expected to fail because
+  // RVX does not support misaligned branch/jump instructions
   reg [167:0] expected_to_fail[0:7] = {"misalign-beq-01.hex",
                                        "misalign-bge-01.hex",
                                        "misalign-bgeu-01.hex",
@@ -257,7 +269,7 @@ module unit_tests ();
 
     for (k = 0; k < 54; k = k + 1) begin
 
-      // Reset     
+      // Reset
       reset = 1'b1;
       for (i = 0; i < 524287; i = i + 1) dut1.tcm[i] = 32'hdeadbeef;
       for (i = 0; i < 2048; i = i + 1) current_golden_reference[i] = 32'hdeadbeef;
@@ -309,7 +321,7 @@ module unit_tests ();
             z = z + 1;
           end
 
-          // Skip loop in a successful run 
+          // Skip loop in a successful run
           if (current_test_failed_flag == 0) j = 999999;
 
         end

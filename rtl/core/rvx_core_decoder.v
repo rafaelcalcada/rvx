@@ -3,7 +3,9 @@
 
 `include "rvx_constants.vh"
 
-module rvx_core_decoder (
+module rvx_core_decoder #(
+    parameter ENABLE_ZMMUL = 0
+) (
 
     input wire [31:0] instruction_s1,
 
@@ -76,6 +78,29 @@ module rvx_core_decoder (
   wire       srl = op_type & funct3 == `RISCV_FUNCT3_SRL & funct7 == `RISCV_FUNCT7_SRL;
   wire       sra = op_type & funct3 == `RISCV_FUNCT3_SRA & funct7 == `RISCV_FUNCT7_SRA;
 
+  // Zmmul instructions decoding
+  // ---------------------------------------------------------------------------
+
+  reg mul;
+  reg mulh;
+  reg mulhsu;
+  reg mulhu;
+
+  always @* begin
+    if (ENABLE_ZMMUL) begin
+      mul = op_type & funct3 == `RISCV_FUNCT3_MUL & funct7 == `RISCV_FUNCT7_MUL;
+      mulh = op_type & funct3 == `RISCV_FUNCT3_MULH & funct7 == `RISCV_FUNCT7_MULH;
+      mulhsu = op_type & funct3 == `RISCV_FUNCT3_MULHSU & funct7 == `RISCV_FUNCT7_MULHSU;
+      mulhu = op_type & funct3 == `RISCV_FUNCT3_MULHU & funct7 == `RISCV_FUNCT7_MULHU;
+    end else begin
+      // Hopefully, synthesis simplifies the design when not using Zmmul...
+      mul = 1'b0;
+      mulh = 1'b0;
+      mulhsu = 1'b0;
+      mulhu = 1'b0;
+    end
+  end
+
   // Zicsr instructions decoding
   // ---------------------------------------------------------------------------
 
@@ -100,7 +125,8 @@ module rvx_core_decoder (
   wire illegal_load = load_type & (funct3 == 3'b011 || funct3 == 3'b110 || funct3 == 3'b111);
   wire illegal_jalr = jalr_type & funct3 != 3'b000;
   wire illegal_branch = branch_type & (funct3 == 3'b010 || funct3 == 3'b011);
-  wire illegal_op = op_type & ~(add | sub | slt | sltu | is_and | is_or | is_xor | sll | srl | sra);
+  wire illegal_op = op_type & ~(add | sub | slt | sltu | is_and | is_or | is_xor | sll | srl | sra |
+                                mul | mulh | mulhsu | mulhu);
   wire illegal_op_imm = op_imm_type & ~(addi | slti | sltiu | andi | ori | xori | slli | srli | srai);
   wire illegal_system = system_type & ~(csr_type | ecall_s1 | ebreak_s1 | mret_s1);
   wire unknown_type = ~(branch_type | jal_type | jalr_type | auipc_type | lui_type | load_type | store_type |
@@ -136,12 +162,13 @@ module rvx_core_decoder (
   assign csr_operation_s1 = funct3;
 
   always @* begin : writeback_mux_sel_decoding
-    if (op_type == 1'b1 || op_imm_type == 1'b1) writeback_mux_sel_s1 = `RVX_WB_ALU;
+    if ((op_type == 1'b1 && { funct7[6], funct7[4:0] } == 6'b000000) || op_imm_type == 1'b1) writeback_mux_sel_s1 = `RVX_WB_ALU;
     else if (load_type == 1'b1) writeback_mux_sel_s1 = `RVX_WB_LOAD_UNIT;
     else if (jal_type == 1'b1 || jalr_type == 1'b1) writeback_mux_sel_s1 = `RVX_WB_PC_PLUS_4;
     else if (lui_type == 1'b1) writeback_mux_sel_s1 = `RVX_WB_UPPER_IMM;
     else if (auipc_type == 1'b1) writeback_mux_sel_s1 = `RVX_WB_TARGET_ADDER;
     else if (csr_type == 1'b1) writeback_mux_sel_s1 = `RVX_WB_CSR;
+    else if (ENABLE_ZMMUL && op_type == 1'b1 && funct7 == `RISCV_FUNCT7_MUL) writeback_mux_sel_s1 = `RVX_WB_MDU;
     else writeback_mux_sel_s1 = `RVX_WB_ALU;
   end
 
