@@ -5,7 +5,8 @@
 
 module rvx_core #(
 
-    parameter [31:0] BOOT_ADDRESS = 32'h00000000
+    parameter [31:0] BOOT_ADDRESS = 32'h00000000,
+    parameter        ENABLE_ZMMUL = 0
 
 ) (
 
@@ -100,11 +101,13 @@ module rvx_core #(
   wire [31:0] csr_data_out_s2;
   reg  [ 2:0] csr_operation_s2;
   reg         csr_write_request_s2;
+  reg  [ 2:0] funct3_s2;
   reg  [31:0] immediate_s2;
   reg         integer_file_write_request_s2;
   wire [31:0] load_data_s2;
   reg  [ 1:0] load_size_s2;
   reg         load_unsigned_s2;
+  wire [31:0] mdu_output_s2;
   wire [31:0] memory_data_s2;
   reg  [31:0] program_counter_plus_4_s2;
   reg  [ 4:0] rd_address_s2;
@@ -191,7 +194,7 @@ module rvx_core #(
     end
   end
 
-  // Pipeline stage 1 
+  // Pipeline stage 1
   // ---------------------------------------------------------------------------
 
   assign csr_address_s1 = instruction_s1[31:20];
@@ -232,7 +235,11 @@ module rvx_core #(
 
   );
 
-  rvx_core_decoder rvx_core_decoder_instance (
+  rvx_core_decoder #(
+
+      .ENABLE_ZMMUL(ENABLE_ZMMUL)
+
+  ) rvx_core_decoder_instance (
 
       // Inputs
       .instruction_s1(instruction_s1),
@@ -328,6 +335,7 @@ module rvx_core #(
       csr_address_s2                <= 12'h000;
       csr_operation_s2              <= 3'b000;
       csr_write_request_s2          <= 1'b0;
+      funct3_s2                     <= 3'b000;
       immediate_s2                  <= 32'h00000000;
       integer_file_write_request_s2 <= 1'b0;
       load_size_s2                  <= 2'b00;
@@ -345,6 +353,7 @@ module rvx_core #(
       csr_address_s2                <= csr_address_s1;
       csr_operation_s2              <= csr_operation_s1;
       csr_write_request_s2          <= csr_write_request_s1;
+      funct3_s2                     <= funct3_s1;
       immediate_s2                  <= immediate_s1;
       integer_file_write_request_s2 <= integer_file_write_request_s1;
       load_size_s2                  <= load_size_s1;
@@ -369,6 +378,7 @@ module rvx_core #(
       `RVX_WB_TARGET_ADDER: writeback_output_s2 = target_address_s2;
       `RVX_WB_CSR:          writeback_output_s2 = csr_data_out_s2;
       `RVX_WB_PC_PLUS_4:    writeback_output_s2 = program_counter_plus_4_s2;
+      `RVX_WB_MDU:          writeback_output_s2 = mdu_output_s2;
       default:              writeback_output_s2 = alu_output_s2;
     endcase
   end
@@ -399,6 +409,20 @@ module rvx_core #(
       .alu_output_s2(alu_output_s2)
 
   );
+
+  generate
+    if (ENABLE_ZMMUL) begin
+      rvx_core_mdu rvx_core_mdu_instance (
+
+        .funct3_s2      (funct3_s2),
+        .rs1_data_s2    (rs1_data_s2),
+        .rs2_data_s2    (rs2_data_s2),
+
+        .mdu_output_s2  (mdu_output_s2)
+
+      );
+    end
+  endgenerate
 
   // Integer and CSR Register files
   // ---------------------------------------------------------------------------
