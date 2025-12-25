@@ -6,7 +6,7 @@ hide: navigation
 
 ## Introduction
 
-RVX is a microcontroller IP core developed in Verilog that implements the RV32I instruction set of RISC-V. It is designed for easy, seamless integration into embedded systems and FPGA designs, facilitating the rapid development of innovative RISC-V applications.
+RVX is a microcontroller IP core developed in Verilog that implements the RV32I instruction set of RISC-V and optionnaly the Zmmul extension. It is designed for easy, seamless integration into embedded systems and FPGA designs, facilitating the rapid development of innovative RISC-V applications.
 
 RVX can run real-time operating systems such as FreeRTOS, as well as bare-metal embedded software. Its design includes components such as memory, timers, and interfaces for UART, GPIO, and SPI communication, enabling RVX to integrate with a variety of sensors and actuators commonly used in embedded applications.
 
@@ -17,6 +17,7 @@ RVX implements the following features of the RISC-V specifications:
 - the RV32I Base Integer Instruction Set, `v2.1`
 - the Zicsr Extension for Control and Status Register (CSR) Instructions, `v2.0`
 - the Machine-Level ISA, `v1.13`
+- Optionnal Zmmul extension for integer multiplication, `v0.1`
 
 ## Architecture
 
