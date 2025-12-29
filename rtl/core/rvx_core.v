@@ -101,7 +101,9 @@ module rvx_core #(
   wire [31:0] csr_data_out_s2;
   reg  [ 2:0] csr_operation_s2;
   reg         csr_write_request_s2;
+  // verilator lint_off UNUSEDSIGNAL
   reg  [ 2:0] funct3_s2;
+  // verilator lint_on UNUSEDSIGNAL
   reg  [31:0] immediate_s2;
   reg         integer_file_write_request_s2;
   wire [31:0] load_data_s2;
@@ -410,17 +412,23 @@ module rvx_core #(
 
   );
 
+  // MDU Unit (optionally enabled)
+  // ---------------------------------------------------------------------------
+
   generate
-    if (ENABLE_ZMMUL) begin
+    if (ENABLE_ZMMUL) begin : gen_rvx_core_mdu
       rvx_core_mdu rvx_core_mdu_instance (
 
-        .funct3_s2      (funct3_s2),
-        .rs1_data_s2    (rs1_data_s2),
-        .rs2_data_s2    (rs2_data_s2),
+          .funct3_s2  (funct3_s2),
+          .rs1_data_s2(rs1_data_s2),
+          .rs2_data_s2(rs2_data_s2),
 
-        .mdu_output_s2  (mdu_output_s2)
+          .mdu_output_s2(mdu_output_s2)
 
       );
+    end
+    else begin : gen_no_mdu
+      assign mdu_output_s2 = 32'h00000000;
     end
   endgenerate
 
