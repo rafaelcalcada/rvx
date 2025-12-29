@@ -3,9 +3,9 @@
 
 module unit_tests #(
 
-    // Memory size in bytes
     parameter MEMORY_SIZE_IN_BYTES = 2097152,
-    parameter BOOT_ADDRESS         = 32'h00000000
+    parameter BOOT_ADDRESS         = 32'h00000000,
+    parameter ENABLE_ZMMUL         = 1
 
 ) (
     input clock,
@@ -45,7 +45,10 @@ module unit_tests #(
   assign irq_software = 1'd0;
 
   rvx_core #(
-      .BOOT_ADDRESS(BOOT_ADDRESS)
+
+      .BOOT_ADDRESS(BOOT_ADDRESS),
+      .ENABLE_ZMMUL(ENABLE_ZMMUL)
+
   ) rvx_core_instance (
 
       // Global signals
