@@ -204,6 +204,9 @@ def main(argv=None):
             continue
 
         if not check_file(dump_path):
+            failed +=1
+            print_status(scolor.FAIL, prog_path)
+            print_status(scolor.NORMAL, f'-- Dump file not generated: {dump_path}')
             continue
 
         result, line, ref, dut = compare_dump(ref=ref_path, dut=dump_path)
