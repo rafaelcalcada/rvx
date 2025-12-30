@@ -29,7 +29,7 @@ add_files -norecurse { ../../../../rtl/core/rvx_core_trap.v }
 add_files -norecurse { ../../../../rtl/interconnect/rvx_bus.v }
 add_files -norecurse { ../../../../rtl/memory/rvx_tightly_coupled_memory.v }
 add_files -norecurse { ../../../../rtl/peripherals/rvx_gpio.v }
-add_files -norecurse { ../../../../rtl/peripherals/rvx_mtimer.v }
+add_files -norecurse { ../../../../rtl/peripherals/rvx_timer.v }
 add_files -norecurse { ../../../../rtl/peripherals/rvx_spi_manager.v }
 add_files -norecurse { ../../../../rtl/peripherals/rvx_uart.v }
 add_files -norecurse { ../../software/build/hello_world.hex }

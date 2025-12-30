@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-module rvx_mtimer (
+module rvx_timer (
 
     // Global signals
 

@@ -14,7 +14,7 @@ add_files -norecurse { ../../../../rtl/rvx.v }
 add_files -norecurse { ../../../../rtl/rvx_core.v }
 add_files -norecurse { ../../../../rtl/rvx_bus.v }
 add_files -norecurse { ../../../../rtl/rvx_uart.v }
-add_files -norecurse { ../../../../rtl/rvx_mtimer.v }
+add_files -norecurse { ../../../../rtl/rvx_timer.v }
 add_files -norecurse { ../../../../rtl/rvx_gpio.v }
 add_files -norecurse { ../../../../rtl/rvx_spi.v }
 add_files -norecurse { ../../../../rtl/rvx_ram.v }

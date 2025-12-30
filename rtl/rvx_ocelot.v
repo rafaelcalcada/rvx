@@ -223,7 +223,7 @@ module rvx_ocelot #(
 
   );
 
-  rvx_mtimer rvx_mtimer_instance (
+  rvx_timer rvx_timer_instance (
 
       // Global signals
 
