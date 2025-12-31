@@ -84,7 +84,8 @@ module rvx_spi_manager (
   // Register write logic
   // ---------------------------------------------------------------------------
 
-  wire valid_write_request = write_request == 1'b1 && &write_strobe == 1'b1;
+  wire valid_write_strobe = (write_strobe == 4'b1111 || write_strobe == 4'b0011 || write_strobe == 4'b0001);
+  wire valid_write_request = write_request == 1'b1 && valid_write_strobe;
 
   always @(posedge clock) begin
     if (!reset_n) begin

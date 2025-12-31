@@ -18,6 +18,7 @@ module rvx_uart_tb ();
   reg            read_request;
   reg     [31:0] write_data;
   reg            write_request;
+  reg     [ 3:0] write_strobe;
 
   // UART signals
   wire           uart_tx;
@@ -42,6 +43,7 @@ module rvx_uart_tb ();
       .read_request  (read_request),
       .read_response (),
       .write_data    (write_data),
+      .write_strobe  (write_strobe),
       .write_request (write_request),
       .write_response(),
 
@@ -108,10 +110,12 @@ module rvx_uart_tb ();
       rw_address    = address;
       write_data    = data;
       write_request = 1'b1;
+      write_strobe  = 4'b1111;
       #(CLOCK_PERIOD);
       write_request = 1'b0;
       rw_address    = 5'h00;
       write_data    = 32'b0;
+      write_strobe  = 4'b0000;
     end
   endtask
 

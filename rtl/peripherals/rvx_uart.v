@@ -15,6 +15,7 @@ module rvx_uart (
     input  wire        read_request,
     output reg         read_response,
     input  wire [31:0] write_data,
+    input  wire [ 3:0] write_strobe,
     input  wire        write_request,
     output reg         write_response,
 
@@ -74,11 +75,14 @@ module rvx_uart (
   // Register write logic
   // ---------------------------------------------------------------------------
 
+  wire valid_write_strobe = (write_strobe == 4'b1111 || write_strobe == 4'b0011 || write_strobe == 4'b0001);
+  wire valid_write_request = write_request == 1'b1 && valid_write_strobe;
+
   always @(posedge clock) begin
     if (!reset_n) begin
       cycles_per_baud <= 0;
     end
-    else if (rw_address == `RVX_UART_BAUD_REG_ADDR && write_request == 1'b1) begin
+    else if (rw_address == `RVX_UART_BAUD_REG_ADDR && valid_write_request == 1'b1) begin
       cycles_per_baud <= write_data;
     end
   end
@@ -92,7 +96,7 @@ module rvx_uart (
       tx_register      <= 10'b1111111111;
       tx_bit_counter   <= 0;
     end
-    else if (tx_bit_counter == 0 && rw_address == `RVX_UART_WRITE_REG_ADDR && write_request == 1'b1) begin
+    else if (tx_bit_counter == 0 && rw_address == `RVX_UART_WRITE_REG_ADDR && valid_write_request == 1'b1) begin
       tx_cycle_counter <= 1;
       tx_register      <= {1'b1, write_data[7:0], 1'b0};
       tx_bit_counter   <= 10;

@@ -211,6 +211,7 @@ module rvx_ocelot #(
       .read_request  (device_read_request[D1_UART]),
       .read_response (device_read_response[D1_UART]),
       .write_data    (device_write_data[31:0]),
+      .write_strobe  (device_write_strobe),
       .write_request (device_write_request[D1_UART]),
       .write_response(device_write_response[D1_UART]),
 
@@ -243,7 +244,7 @@ module rvx_ocelot #(
 
       // Interrupt signaling
 
-      .irq(irq_timer)
+      .timer_irq(irq_timer)
 
   );
 
