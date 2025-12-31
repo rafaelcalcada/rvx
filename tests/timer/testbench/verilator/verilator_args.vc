@@ -1,0 +1,7 @@
+--Wall
+-Wno-TIMESCALEMOD
+--timing
+--default-language 1364-2001
+-I../../../../tests/
+-I../../../../rtl/
+-I../../../../rtl/peripherals/
