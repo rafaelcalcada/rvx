@@ -92,15 +92,14 @@ module rvx_timer (
       counter <= 64'd0;
     end
     else begin
-      if (valid_write_request == 1'b1) begin
-        case (rw_address[4:0])
-          `RVX_TIMER_COUNTERL_REG_ADDR: counter[31:0] <= write_data;
-          `RVX_TIMER_COUNTERH_REG_ADDR: counter[63:32] <= write_data;
-          default:                      ;
-        endcase
+      if (valid_write_request == 1'b1 && rw_address[4:0] == `RVX_TIMER_COUNTERL_REG_ADDR) begin
+        counter[31:0] <= write_data;
+      end
+      else if (valid_write_request == 1'b1 && rw_address[4:0] == `RVX_TIMER_COUNTERH_REG_ADDR) begin
+        counter[63:32] <= write_data;
       end
       else if (counter_enable) begin
-        counter <= counter + 64'd1;
+        counter <= counter + 1;
       end
     end
   end
@@ -113,9 +112,7 @@ module rvx_timer (
       timer_irq <= 1'b0;
     end
     else begin
-      if (valid_write_request == 1'b0) begin
-        timer_irq <= (counter >= compare) ? 1'b1 : 1'b0;
-      end
+      timer_irq <= (counter >= compare) ? 1'b1 : 1'b0;
     end
   end
 
