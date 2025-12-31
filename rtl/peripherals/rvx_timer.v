@@ -52,12 +52,12 @@ module rvx_timer (
     end
     else if (read_request == 1'b1) begin
       case (rw_address[4:0])
-        `RVX_TIMER_CONTROL_REG_ADDR:  read_data <= {31'b0, counter_enable};
-        `RVX_TIMER_COUNTERL_REG_ADDR: read_data <= counter[31:0];
-        `RVX_TIMER_COUNTERH_REG_ADDR: read_data <= counter[63:32];
-        `RVX_TIMER_COMPAREL_REG_ADDR: read_data <= compare[31:0];
-        `RVX_TIMER_COMPAREH_REG_ADDR: read_data <= compare[63:32];
-        default:                      read_data <= 32'h00000000;
+        `RVX_TIMER_COUNTER_ENABLE_REG_ADDR: read_data <= {31'b0, counter_enable};
+        `RVX_TIMER_COUNTERL_REG_ADDR:       read_data <= counter[31:0];
+        `RVX_TIMER_COUNTERH_REG_ADDR:       read_data <= counter[63:32];
+        `RVX_TIMER_COMPAREL_REG_ADDR:       read_data <= compare[31:0];
+        `RVX_TIMER_COMPAREH_REG_ADDR:       read_data <= compare[63:32];
+        default:                            read_data <= 32'h00000000;
       endcase
     end
   end
@@ -76,10 +76,10 @@ module rvx_timer (
     end
     else if (valid_write_request == 1'b1) begin
       case (rw_address[4:0])
-        `RVX_TIMER_CONTROL_REG_ADDR:  counter_enable <= write_data[0];
-        `RVX_TIMER_COMPAREL_REG_ADDR: compare[31:0] <= write_data;
-        `RVX_TIMER_COMPAREH_REG_ADDR: compare[63:32] <= write_data;
-        default:                      ;
+        `RVX_TIMER_COUNTER_ENABLE_REG_ADDR: counter_enable <= write_data[0];
+        `RVX_TIMER_COMPAREL_REG_ADDR:       compare[31:0] <= write_data;
+        `RVX_TIMER_COMPAREH_REG_ADDR:       compare[63:32] <= write_data;
+        default:                            ;
       endcase
     end
   end
