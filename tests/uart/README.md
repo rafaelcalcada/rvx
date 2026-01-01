@@ -1,6 +1,6 @@
 # RVX UART Module Tests
 
-This directory contains the following tests for the RVX UART module module:
+This directory contains the following tests for the RVX UART module:
 
 - `testbench/` - Verilog RTL testbench compatible with Verilator and Vivado
 - `unit_tests/` - Unit tests for the RVX HAL functionality related to the UART module
