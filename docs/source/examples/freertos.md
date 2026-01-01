@@ -89,7 +89,7 @@ module freertos #(
 
   // Unused outputs can be left open
   .uart_tx                  (                           ),
-  .gpio_oe                  (                           ),
+  .gpio_output_enable       (                           ),
   .sclk                     (                           ),
   .mosi                     (                           ),
   .cs                       (                           ));

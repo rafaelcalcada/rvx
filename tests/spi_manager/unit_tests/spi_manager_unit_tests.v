@@ -45,7 +45,7 @@ module spi_manager_unit_tests (
 
       // This output port is not used in this example and can be left unconnected
       // verilator lint_off PINCONNECTEMPTY
-      .gpio_oe()
+      .gpio_output_enable()
       // verilator lint_on PINCONNECTEMPTY
 
   );

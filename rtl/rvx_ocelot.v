@@ -16,7 +16,7 @@ module rvx_ocelot #(
     input  wire                  uart_rx,
     output wire                  uart_tx,
     input  wire [GPIO_WIDTH-1:0] gpio_input,
-    output wire [GPIO_WIDTH-1:0] gpio_oe,
+    output wire [GPIO_WIDTH-1:0] gpio_output_enable,
     output wire [GPIO_WIDTH-1:0] gpio_output,
     output wire                  sclk,
     output wire                  mosi,
@@ -265,16 +265,16 @@ module rvx_ocelot #(
       .read_data     (device_read_data[32*D3_GPIO+:32]),
       .read_request  (device_read_request[D3_GPIO]),
       .read_response (device_read_response[D3_GPIO]),
-      .write_data    (device_write_data[GPIO_WIDTH-1:0]),
+      .write_data    (device_write_data),
       .write_strobe  (device_write_strobe),
       .write_request (device_write_request[D3_GPIO]),
       .write_response(device_write_response[D3_GPIO]),
 
       // I/O signals
 
-      .gpio_input (gpio_input),
-      .gpio_oe    (gpio_oe),
-      .gpio_output(gpio_output)
+      .gpio_input        (gpio_input),
+      .gpio_output_enable(gpio_output_enable),
+      .gpio_output       (gpio_output)
 
   );
 
@@ -289,7 +289,7 @@ module rvx_ocelot #(
       .read_data     (device_read_data[32*D4_SPI+:32]),
       .read_request  (device_read_request[D4_SPI]),
       .read_response (device_read_response[D4_SPI]),
-      .write_data    (device_write_data[31:0]),
+      .write_data    (device_write_data),
       .write_strobe  (device_write_strobe),
       .write_request (device_write_request[D4_SPI]),
       .write_response(device_write_response[D4_SPI]),

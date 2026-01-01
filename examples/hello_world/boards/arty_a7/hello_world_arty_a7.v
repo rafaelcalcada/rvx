@@ -36,12 +36,12 @@ module hello_world_arty_a7 (
 
       // These output ports are not used in this example and can be left unconnected
       // verilator lint_off PINCONNECTEMPTY
-      .uart_rx    (),
-      .gpio_oe    (),
-      .gpio_output(),
-      .sclk       (),
-      .mosi       (),
-      .cs         ()
+      .uart_rx           (),
+      .gpio_output_enable(),
+      .gpio_output       (),
+      .sclk              (),
+      .mosi              (),
+      .cs                ()
       // verilator lint_on PINCONNECTEMPTY
 
   );

@@ -47,8 +47,8 @@ module spi_arty_a7 (
 
       // These output ports are not used in this example and can be left unconnected
       // verilator lint_off PINCONNECTEMPTY
-      .gpio_oe    (),
-      .gpio_output()
+      .gpio_output_enable(),
+      .gpio_output       ()
       // verilator lint_on PINCONNECTEMPTY
 
   );

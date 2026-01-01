@@ -34,11 +34,11 @@ module timer_unit_tests (
 
       // These output ports are not used in this test and can be left unconnected
       // verilator lint_off PINCONNECTEMPTY
-      .gpio_oe    (),
-      .gpio_output(),
-      .sclk       (),
-      .mosi       (),
-      .cs         ()
+      .gpio_output_enable(),
+      .gpio_output       (),
+      .sclk              (),
+      .mosi              (),
+      .cs                ()
 
       // verilator lint_on PINCONNECTEMPTY
 

@@ -81,7 +81,7 @@ module hello_world (
   .miso                     (1'b0                       ),
 
   // Unused outputs can be left open
-  .gpio_oe                  (                           ),
+  .gpio_output_enable       (                           ),
   .gpio_output              (                           ),
   .sclk                     (                           ),
   .mosi                     (                           ),

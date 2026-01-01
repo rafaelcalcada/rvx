@@ -140,26 +140,26 @@ Using your preferred text editor, create a Verilog file called `rvx_wrapper.v` a
 
 module rvx_wrapper (
 
-  input   wire          clock       ,
-  input   wire          reset       ,
-  input   wire          halt        ,
+  input   wire          clock,
+  input   wire          reset,
+  input   wire          halt,
 
   // UART pins
   // You can remove them if your application does not use the UART controller
-  input   wire          uart_rx     ,
-  output  wire          uart_tx     ,
+  input   wire          uart_rx,
+  output  wire          uart_tx,
 
   // General Purpose I/O pins
   // You can remove them if your application does not use the GPIO controller
-  input   wire  [3:0]   gpio_input  ,
-  output  wire  [3:0]   gpio_oe     ,
-  output  wire  [3:0]   gpio_output ,
+  input   wire  [3:0]   gpio_input,
+  output  wire  [3:0]   gpio_output_enable,
+  output  wire  [3:0]   gpio_output,
 
   // Serial Peripheral Interface (SPI) pins
   // You can remove them if your application does not use the SPI controller
-  output  wire          sclk        ,
-  output  wire          mosi        ,
-  input   wire          miso        ,
+  output  wire          sclk,
+  output  wire          mosi,
+  input   wire          miso,
   output  wire  [0:0]   cs
 
   );
@@ -201,7 +201,7 @@ module rvx_wrapper (
     .uart_rx                  (uart_rx                    ),
     .uart_tx                  (uart_tx                    ),
     .gpio_input               (gpio_input                 ),
-    .gpio_oe                  (gpio_oe                    ),
+    .gpio_output_enable       (gpio_output_enable         ),
     .gpio_output              (gpio_output                ),
     .sclk                     (sclk                       ),
     .miso                     (miso                       ),

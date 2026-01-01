@@ -60,7 +60,7 @@ The input/output signals of RVX Top Module, `rvx.v`, are listed in the table bel
 | **uart_rx**</br>UART receiver pin.              | Input     | 1 bit                 |
 | **uart_tx**</br>UART transmitter pin.           | Output    | 1 bit                 |
 | **gpio_input**</br>GPIO input signals.          | Input     | `GPIO_WIDTH`          |
-| **gpio_oe**</br>GPIO output enable.             | Output    | `GPIO_WIDTH`          |
+| **gpio_output_enable**</br>GPIO output enable.  | Output    | `GPIO_WIDTH`          |
 | **gpio_output**</br>GPIO output signals.        | Output    | `GPIO_WIDTH`          |
 | **sclk**</br>SPI Controller clock.              | Output    | 1 bit                 |
 | **miso**</br>SPI Peripheral In Controller Out.  | Output    | 1 bit                 |

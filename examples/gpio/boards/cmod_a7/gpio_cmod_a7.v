@@ -17,13 +17,13 @@ module gpio_cmod_a7 #(
 
   // GPIO signals
   wire [GPIO_WIDTH-1:0] gpio_input;
-  wire [GPIO_WIDTH-1:0] gpio_oe;
+  wire [GPIO_WIDTH-1:0] gpio_output_enable;
   wire [GPIO_WIDTH-1:0] gpio_output;
 
   genvar i;
   for (i = 0; i < GPIO_WIDTH; i = i + 1) begin
-    assign gpio_input[i] = gpio_oe[i] == 1'b1 ? gpio_output[i] : gpio[i];
-    assign gpio[i]       = gpio_oe[i] == 1'b1 ? gpio_output[i] : 1'bZ;
+    assign gpio_input[i] = gpio_output_enable[i] == 1'b1 ? gpio_output[i] : gpio[i];
+    assign gpio[i]       = gpio_output_enable[i] == 1'b1 ? gpio_output[i] : 1'bZ;
   end
 
   // Buttons debouncing
@@ -43,18 +43,18 @@ module gpio_cmod_a7 #(
 
   ) rvx_instance (
 
-      .clock      (clock),
-      .reset_n    (!reset_debounced),
-      .halt       (1'b0),
-      .uart_rx    (uart_rx),
-      .uart_tx    (uart_tx),
-      .gpio_input (gpio_input),
-      .gpio_oe    (gpio_oe),
-      .gpio_output(gpio_output),
-      .sclk       (),                  // unused
-      .mosi       (),                  // unused
-      .miso       (1'b0),
-      .cs         ()                   // unused
+      .clock             (clock),
+      .reset_n           (!reset_debounced),
+      .halt              (1'b0),
+      .uart_rx           (uart_rx),
+      .uart_tx           (uart_tx),
+      .gpio_input        (gpio_input),
+      .gpio_output_enable(gpio_output_enable),
+      .gpio_output       (gpio_output),
+      .sclk              (),                    // unused
+      .mosi              (),                    // unused
+      .miso              (1'b0),
+      .cs                ()                     // unused
 
   );
 
