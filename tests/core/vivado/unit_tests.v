@@ -5,8 +5,6 @@
 // SPDX-License-Identifier: MIT
 // ----------------------------------------------------------------------------
 
-`timescale 1ns / 1ps
-
 module unit_tests ();
 
   reg         clock;
@@ -33,7 +31,7 @@ module unit_tests ();
 
   rvx_core #(
 
-    .ENABLE_ZMMUL(1)
+      .ENABLE_ZMMUL(1)
 
   ) dut0 (
 

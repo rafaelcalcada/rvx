@@ -145,3 +145,4 @@ add_files -norecurse {../../../rtl/core/rvx_core_trap.v}
 add_files -norecurse {../../../rtl/memory/rvx_tightly_coupled_memory.v}
 move_files -fileset sim_1 [get_files ./unit_tests.v]
 set_property file_type {Memory Initialization Files} [get_files $memory_init_files]
+set_property -name xsim.elaborate.xelab.more_options -value "--timescale 1ns/1ps" -object [get_filesets sim_1]

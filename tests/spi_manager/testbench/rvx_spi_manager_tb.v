@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-`timescale 1ns / 1ps
-
 `include "rvx_constants.vh"
 `include "rvx_test_macros.vh"
 
