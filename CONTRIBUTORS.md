@@ -5,7 +5,8 @@ This is the list of significant contributors to RVX in the order they started co
 For the full list of contributors, see the revision history in source control.
 
 * Rafael Calcada - [github.com/rafaelcalcada](https://github.com/rafaelcalcada)  
-* Alexander Markov - [github.com/AlexxMarkov](https://github.com/AlexxMarkov)  
+* Alexander Markov - [github.com/AlexxMarkov](https://github.com/AlexxMarkov)
+* Pierre-Alexandre Peyronnet - [github.com/VoltXd](https://github.com/VoltXd)
 
 # How to Contribute
 
