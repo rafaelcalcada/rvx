@@ -3,7 +3,7 @@ cd [file normalize [file dirname [info script]]]
 # Check if the memory initialization file exists
 if {![file exists "./build/timer_unit_tests.hex"]} {
   send_msg_id "RVX-001" ERROR "Memory initialization file 'timer_unit_tests.hex' does not exist. This file needs to be generated to run the unit tests." -continue
-  puts "Tip: To generate this file, run 'make' from the tests/uart/unit_tests directory (from RVX development container)."
+  puts "Tip: To generate this file, run 'make' from the tests/timer/unit_tests directory (from RVX development container)."
   return
 }
 
