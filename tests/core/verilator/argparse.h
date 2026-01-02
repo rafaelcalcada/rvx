@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2020-2025 RVX Project Contributors
+// Copyright (c) 2020-2026 RVX Project Contributors
 
 #ifndef ARGPARSE_H
 #define ARGPARSE_H
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 enum RamInitVariants
 {

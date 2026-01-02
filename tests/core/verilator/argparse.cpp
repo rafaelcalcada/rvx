@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2020-2025 RVX Project Contributors
+// Copyright (c) 2020-2026 RVX Project Contributors
 
 #include "argparse.h"
 
-#include <stdlib.h>
-#include <iostream>
 #include <getopt.h>
+#include <iostream>
+#include <stdlib.h>
 #include <string.h>
 
 #include "log.h"
@@ -68,21 +68,19 @@ enum opts
   cmd_log_level,
 };
 
-static constexpr option long_opts[] =
-    {
-        {"help", no_argument, NULL, opts::cmd_help},
-        {"out-wave", required_argument, NULL, opts::cmd_out_wave},
-        {"ram-init-h32", required_argument, NULL, opts::cmd_ram_init_h32},
-        {"ram-init-bin", required_argument, NULL, opts::cmd_ram_init_bin},
-        {"ram-dump-h32", required_argument, NULL, opts::cmd_ram_dump_h32},
-        {"cycles", required_argument, NULL, opts::cmd_cycles},
-        //        { "ecall",          no_argument,        NULL, opts::cmd_ecall               },
-        {"wr-addr", required_argument, NULL, opts::cmd_wr_addr},
-        {"host-out", required_argument, NULL, opts::cmd_host_out},
-        {"quiet", no_argument, NULL, opts::cmd_quiet},
-        {"log-out", required_argument, NULL, opts::cmd_log_out},
-        {"log-level", required_argument, NULL, opts::cmd_log_level},
-        {NULL, no_argument, NULL, 0}};
+static constexpr option long_opts[] = {{"help", no_argument, NULL, opts::cmd_help},
+                                       {"out-wave", required_argument, NULL, opts::cmd_out_wave},
+                                       {"ram-init-h32", required_argument, NULL, opts::cmd_ram_init_h32},
+                                       {"ram-init-bin", required_argument, NULL, opts::cmd_ram_init_bin},
+                                       {"ram-dump-h32", required_argument, NULL, opts::cmd_ram_dump_h32},
+                                       {"cycles", required_argument, NULL, opts::cmd_cycles},
+                                       //        { "ecall",          no_argument,        NULL, opts::cmd_ecall },
+                                       {"wr-addr", required_argument, NULL, opts::cmd_wr_addr},
+                                       {"host-out", required_argument, NULL, opts::cmd_host_out},
+                                       {"quiet", no_argument, NULL, opts::cmd_quiet},
+                                       {"log-out", required_argument, NULL, opts::cmd_log_out},
+                                       {"log-level", required_argument, NULL, opts::cmd_log_level},
+                                       {NULL, no_argument, NULL, 0}};
 
 static size_t get_int_arg(const char *arg)
 {

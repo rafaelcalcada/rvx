@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2020-2025 RVX Project Contributors
+// Copyright (c) 2020-2026 RVX Project Contributors
 
 #include "ram_init.h"
 
-#include <fstream>
 #include "log.h"
+#include <fstream>
 
 void ram_init_h32(const char *path, uint32_t words, DutRamWrite write)
 {
@@ -99,8 +99,8 @@ void ram_init_bin(const char *path, uint32_t words, DutRamWrite write)
 
     for (size_t i = count; i != 0; i--)
     {
-        data <<= 8;
-        data |= (buffer[i-1] & 0xff);
+      data <<= 8;
+      data |= (buffer[i - 1] & 0xff);
     }
 
     if (load_address > words)

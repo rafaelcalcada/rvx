@@ -53,7 +53,7 @@ plugins:
     - search
 docs_dir: source/
 remote_branch: docs
-copyright: Copyright (c) 2020-2025 RVX Project Contributors
+copyright: Copyright (c) 2020-2026 RVX Project Contributors
 nav:
     - Homepage: 'index.md'    
     - User Guide: 'userguide.md'

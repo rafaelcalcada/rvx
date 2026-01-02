@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: MIT */
-/* Copyright (c) 2020-2025 RVX Project Contributors */
+/* Copyright (c) 2020-2026 RVX Project Contributors */
 
 OUTPUT_ARCH("riscv")
 ENTRY(rvx_boot)
