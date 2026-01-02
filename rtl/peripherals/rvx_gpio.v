@@ -5,7 +5,7 @@
 
 module rvx_gpio #(
 
-    parameter GPIO_WIDTH = 32
+    parameter GPIO_WIDTH = 1
 
 ) (
 
@@ -18,7 +18,9 @@ module rvx_gpio #(
     output reg  [31:0] read_data,
     input  wire        read_request,
     output reg         read_response,
+    // verilator lint_off UNUSEDSIGNAL
     input  wire [31:0] write_data,
+    // verilator lint_on UNUSEDSIGNAL
     input  wire [ 3:0] write_strobe,
     input  wire        write_request,
     output reg         write_response,
@@ -53,7 +55,7 @@ module rvx_gpio #(
     end
     else if (read_request == 1'b1) begin
       case (rw_address[4:0])
-        `RVX_GPIO_INPUT_REG_ADDR: begin
+        `RVX_GPIO_READ_REG_ADDR: begin
           read_data <= {
             {32 - GPIO_WIDTH{1'b0}}, (gpio_output_enable & gpio_output) | (~gpio_output_enable & gpio_input)
           };
