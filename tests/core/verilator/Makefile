@@ -1,20 +1,13 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2020-2026 RVX Project Contributors
 
-ifeq ($(VERILATOR_ROOT),)
-VERILATOR = verilator
-else
-export VERILATOR_ROOT
-VERILATOR = $(VERILATOR_ROOT)/bin/verilator
-endif
+.PHONY: all run clean
 
-VERILATOR_OPTS ?= -f vargs.vc --trace-fst -cc --exe --build -Mdir verilated --trace \
-                  unit_tests.v vcfg.vlt main.cpp argparse.cpp \
-                  ram_init.cpp \
-                  -o unit_tests
+all:
+	verilator -f verilator_args.vc verilator_config.vlt unit_tests.v main.cpp argparse.cpp ram_init.cpp -o unit_tests
 
-default:
-	$(VERILATOR) $(VERILATOR_OPTS)
+run: all
+	python3 unit_tests.py
 
 clean:
-	-rm -rf obj_dir *.log *.dmp *.vpd core dump
+	-rm -rf verilated memory_dump *.log *.dmp *.vpd

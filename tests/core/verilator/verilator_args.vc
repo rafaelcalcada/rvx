@@ -1,3 +1,9 @@
+-cc
+--trace-fst
+--exe
+--build
+--trace
+-Mdir verilated
 --Wall
 --default-language 1364-2001
 --timescale 1ns/1ps

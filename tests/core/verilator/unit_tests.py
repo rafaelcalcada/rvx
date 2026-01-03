@@ -158,7 +158,7 @@ def main(argv=None):
 
     parser.add_argument('--dump',
                         type=str,
-                        default='dump',
+                        default='memory_dump',
                         help='Dump directory')
 
     parser.add_argument('--wave',
