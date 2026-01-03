@@ -3,6 +3,6 @@
 --timing
 --default-language 1364-2001
 --timescale 1ns/1ps
--I../../../../tests/
--I../../../../rtl/
--I../../../../rtl/peripherals/
+-I../../../tests/
+-I../../../rtl/
+-I../../../rtl/peripherals/
