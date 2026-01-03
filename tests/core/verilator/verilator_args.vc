@@ -10,3 +10,5 @@
 -I../../../rtl/
 -I../../../rtl/core/
 -I../../../rtl/memory/
+-I../../../rtl/interconnect/
+-I../../../rtl/peripherals/

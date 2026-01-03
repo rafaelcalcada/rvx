@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
-module unit_tests #(
+module rvx_simulator #(
 
     parameter MEMORY_SIZE_IN_BYTES = 2097152,
     parameter BOOT_ADDRESS         = 32'h00000000,
