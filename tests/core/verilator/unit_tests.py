@@ -153,7 +153,7 @@ def main(argv=None):
 
     parser.add_argument('--sim',
                         type=str,
-                        default='obj_dir/unit_tests',
+                        default='verilated/unit_tests',
                         help='Path to the simulator')
 
     parser.add_argument('--dump',

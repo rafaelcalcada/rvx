@@ -8,7 +8,7 @@ export VERILATOR_ROOT
 VERILATOR = $(VERILATOR_ROOT)/bin/verilator
 endif
 
-VERILATOR_OPTS ?= -f vargs.vc --trace-fst -cc --exe --build --trace \
+VERILATOR_OPTS ?= -f vargs.vc --trace-fst -cc --exe --build -Mdir verilated --trace \
                   unit_tests.v vcfg.vlt main.cpp argparse.cpp \
                   ram_init.cpp \
                   -o unit_tests
