@@ -11,7 +11,7 @@ set_property simulator_language Verilog [current_project]
 add_files -fileset constrs_1 -norecurse { ./uart_cmod_a7_constraints.xdc }
 add_files -norecurse .
 add_files -norecurse { ../../../../rtl/rvx_constants.vh }
-add_files -norecurse { ../../../../rtl/rvx_ocelot.v }
+add_files -norecurse { ../../../../rtl/rvx.v }
 add_files -norecurse { ../../../../rtl/core/rvx_core.v }
 add_files -norecurse { ../../../../rtl/core/rvx_core_address_gen.v }
 add_files -norecurse { ../../../../rtl/core/rvx_core_alu.v }

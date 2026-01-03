@@ -16,12 +16,12 @@ module uart_cmod_a7 (
     reset_debounced <= reset;
   end
 
-  rvx_ocelot #(
+  rvx #(
 
       .MEMORY_SIZE_IN_BYTES (8192),
       .MEMORY_INIT_FILE_PATH("uart_demo.hex")
 
-  ) rvx_ocelot_instance (
+  ) rvx_instance (
 
       .clock  (clock),
       .reset_n(!reset_debounced),

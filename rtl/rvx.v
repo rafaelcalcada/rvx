@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
-module rvx_ocelot #(
+module rvx #(
 
     parameter MEMORY_SIZE_IN_BYTES  = 8192,
     parameter MEMORY_INIT_FILE_PATH = "",

@@ -15,14 +15,14 @@ module gpio_unit_tests (
   always @(posedge clock) clock_50mhz <= !clock_50mhz;
   always @(posedge clock_50mhz) reset_debounced <= reset;
 
-  rvx_ocelot #(
+  rvx #(
 
       .MEMORY_SIZE_IN_BYTES (16384),
       .MEMORY_INIT_FILE_PATH("gpio_unit_tests.hex"),
       .BOOT_ADDRESS         (32'h00000000),
       .GPIO_WIDTH           (32)
 
-  ) rvx_ocelot_instance (
+  ) rvx_instance (
 
       .clock     (clock_50mhz),
       .reset_n   (!reset_debounced),

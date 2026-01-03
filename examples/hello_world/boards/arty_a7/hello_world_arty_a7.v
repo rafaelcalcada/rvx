@@ -20,11 +20,11 @@ module hello_world_arty_a7 (
     reset_debounced <= reset;
   end
 
-  rvx_ocelot #(
+  rvx #(
 
       .MEMORY_INIT_FILE_PATH("hello_world.hex")
 
-  ) rvx_ocelot_instance (
+  ) rvx_instance (
 
       .clock  (clock_50mhz),
       .reset_n(!reset_debounced),
