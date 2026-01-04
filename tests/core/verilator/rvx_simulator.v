@@ -8,105 +8,107 @@ module rvx_simulator #(
     parameter ENABLE_ZMMUL         = 1
 
 ) (
+
     input clock,
-    input reset
+    input reset_n
+
 );
 
-  // Instruction bus
-  wire [31:0] ibus_address;
-  wire [31:0] ibus_rdata;
-  wire        ibus_rrequest;
-  wire        ibus_rresponse;
+  // SPI signals
+  wire sclk;
+  wire mosi;
+  wire miso;
+  wire cs;
 
-  // Data bus
-  wire [31:0] dbus_address;
-  wire [31:0] dbus_rdata;
-  wire        dbus_rrequest;
-  wire        dbus_rresponse;
-  wire [31:0] dbus_wdata;
-  wire [ 3:0] dbus_wstrobe;
-  wire        dbus_wrequest;
-  wire        dbus_wresponse;
+  rvx #(
 
-  // Memory-mapped timer (unused)
-  wire [63:0] memory_mapped_timer;
-  assign memory_mapped_timer = 64'b0;
+      .MEMORY_SIZE_IN_BYTES(MEMORY_SIZE_IN_BYTES),
+      .BOOT_ADDRESS        (BOOT_ADDRESS),
+      .ENABLE_ZMMUL        (ENABLE_ZMMUL),
+      .GPIO_WIDTH          (32)
 
-  // Interrupt signals
+  ) rvx_instance (
 
-  wire [15:0] irq_fast;
-  wire        irq_external;
-  wire        irq_timer;
-  wire        irq_software;
-
-  assign irq_fast     = 16'd0;
-  assign irq_external = 1'd0;
-  assign irq_timer    = 1'd0;
-  assign irq_software = 1'd0;
-
-  rvx_core #(
-
-      .BOOT_ADDRESS(BOOT_ADDRESS),
-      .ENABLE_ZMMUL(ENABLE_ZMMUL)
-
-  ) rvx_core_instance (
-
-      // Global signals
       .clock  (clock),
-      .reset_n(!reset),
+      .reset_n(reset_n),
+      .sclk   (sclk),
+      .mosi   (mosi),
+      .miso   (miso),
+      .cs     (cs),
 
-      // Instruction bus
-      .ibus_rdata    (ibus_rdata),
-      .ibus_rresponse(ibus_rresponse),
-      .ibus_address  (ibus_address),
-      .ibus_rrequest (ibus_rrequest),
+      // The GPIO input ports are hardwired to a known value for simulation purposes
+      .gpio_input(32'ha5a5a5a5),
 
-      // Data bus
-      .dbus_rdata    (dbus_rdata),
-      .dbus_rresponse(dbus_rresponse),
-      .dbus_wresponse(dbus_wresponse),
-      .dbus_address  (dbus_address),
-      .dbus_rrequest (dbus_rrequest),
-      .dbus_wdata    (dbus_wdata),
-      .dbus_wstrobe  (dbus_wstrobe),
-      .dbus_wrequest (dbus_wrequest),
+      // The UART RX line is held high (idle) for simulation purposes
+      .uart_rx(1'b1),
 
-      // Interrupt signals
-      .irq_fast    (irq_fast),
-      .irq_external(irq_external),
-      .irq_software(irq_software),
-      .irq_timer   (irq_timer),
+      // These output ports are not used by the simulator and are left unconnected
+      // verilator lint_off PINCONNECTEMPTY
+      .uart_tx           (),
+      .gpio_output_enable(),
+      .gpio_output       ()
+      // verilator lint_on PINCONNECTEMPTY
 
-      // Memory-mapped timer
-      .memory_mapped_timer(memory_mapped_timer)
   );
 
-  rvx_tightly_coupled_memory #(
+  test_spi_subordinate test_spi_subordinate_instance (
 
-      .MEMORY_SIZE_IN_BYTES(MEMORY_SIZE_IN_BYTES)
-
-  ) rvx_tightly_coupled_memory_instance (
-
-      // Global signals
       .clock  (clock),
-      .reset_n(!reset),
-
-      // Port 0 (read-only) - Instruction bus
-      .port0_address  (ibus_address),
-      .port0_rdata    (ibus_rdata),
-      .port0_rrequest (ibus_rrequest),
-      .port0_rresponse(ibus_rresponse),
-
-      // Port 1 (read/write) - Data bus
-      .port1_address  (dbus_address),
-      .port1_rdata    (dbus_rdata),
-      .port1_rrequest (dbus_rrequest),
-      .port1_rresponse(dbus_rresponse),
-      .port1_wdata    (dbus_wdata),
-      .port1_wstrobe  (dbus_wstrobe),
-      .port1_wrequest (dbus_wrequest),
-      .port1_wresponse(dbus_wresponse)
+      .reset_n(reset_n),
+      .sclk   (sclk),
+      .mosi   (mosi),
+      .miso   (miso),
+      .cs     (cs)
 
   );
 
 endmodule
+
+// Subordinate device that samples MOSI on rising SCLK edge and updates MISO
+// on falling SCLK edge. This corresponds to SPI modes 0 and 3.
+// ----------------------------------------------------------------------------
+
+// verilator lint_off DECLFILENAME
+module test_spi_subordinate (
+
+    input  wire clock,
+    input  wire reset_n,
+    input  wire sclk,
+    input  wire mosi,
+    input  wire cs,
+    output wire miso
+
+);
+
+  reg  [7:0] rx_data;
+  reg        tx_bit;
+
+  wire       sample_edge;
+  reg        sclk_prev;
+
+  always @(posedge clock) begin
+    if (!reset_n) begin
+      sclk_prev <= 1'b0;
+    end
+    else begin
+      sclk_prev <= sclk;
+    end
+  end
+
+  // Sample on rising edge of SCLK
+  assign sample_edge = !sclk_prev && sclk;
+
+  always @(posedge clock) begin
+    if (!reset_n) rx_data <= 8'h00;
+    else if (!cs & sample_edge) rx_data <= {rx_data[6:0], mosi};
+  end
+
+  always @(negedge clock) begin
+    if (!reset_n) tx_bit <= 1'b0;
+    else if (!cs & sample_edge) tx_bit <= rx_data[7];
+  end
+
+  assign miso = cs ? 1'bZ : tx_bit;
+
+endmodule
+// verilator lint_on DECLFILENAME

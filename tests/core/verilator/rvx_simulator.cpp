@@ -68,9 +68,9 @@ static void eval(vluint64_t cycles_cnt = 1)
 
 static void reset_dut()
 {
-  dut->reset = 1;
+  dut->reset_n = 0;
   eval(100);
-  dut->reset = 0;
+  dut->reset_n = 1;
 }
 
 void exit_app(int sig)
@@ -93,13 +93,15 @@ static void ram_init(const char *path, RamInitVariants variants)
   switch (variants)
   {
   case RamInitVariants::H32:
-    ram_init_h32(args.ram_init_path, ram_size / 4, [](uint32_t i, uint32_t v)
-                 { dut->rootp->rvx_simulator__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
+    ram_init_h32(
+        args.ram_init_path, ram_size / 4, [](uint32_t i, uint32_t v)
+        { dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
     break;
 
   case RamInitVariants::BIN:
-    ram_init_bin(args.ram_init_path, ram_size / 4, [](uint32_t i, uint32_t v)
-                 { dut->rootp->rvx_simulator__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
+    ram_init_bin(
+        args.ram_init_path, ram_size / 4, [](uint32_t i, uint32_t v)
+        { dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
     break;
   }
 }
@@ -123,7 +125,8 @@ static void ram_dump_h32(const char *path, uint32_t offset, uint32_t size)
 
   for (int i = 0; i < size; i++)
   {
-    uint32_t data = dut->rootp->rvx_simulator__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[offset + i];
+    uint32_t data =
+        dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[offset + i];
     snprintf(buff, sizeof(buff), "%08" PRIx32, (const uint32_t)data);
     file << buff << '\n';
   }
@@ -136,26 +139,29 @@ static bool is_finished(uint32_t addr)
 {
   // After each clock cycle it tests whether the test program finished its execution
   // This event is signaled by writing 1 to the address 0x00001000
-  return (dut->rootp->rvx_simulator__DOT__dbus_address == addr) && dut->rootp->rvx_simulator__DOT__dbus_wrequest &&
-         dut->rootp->rvx_simulator__DOT__dbus_wdata == 0x00000001;
+  return (dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address == addr) &&
+         dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request &&
+         dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data == 0x00000001;
 }
 
 static bool is_host_out(uint32_t addr)
 {
   static bool is_pos_edg = false;
 
-  bool is_write = (addr != 0x0) && (not is_pos_edg and dut->rootp->rvx_simulator__DOT__dbus_wrequest) &&
-                  (dut->rootp->rvx_simulator__DOT__dbus_address == addr) &&
-                  dut->rootp->rvx_simulator__DOT__dbus_wrequest && dut->rootp->rvx_simulator__DOT__dbus_wdata;
+  bool is_write = (addr != 0x0) &&
+                  (not is_pos_edg and dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request) &&
+                  (dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address == addr) &&
+                  dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request &&
+                  dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data;
 
-  is_pos_edg = dut->rootp->rvx_simulator__DOT__dbus_wrequest;
+  is_pos_edg = dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request;
 
   return is_write;
 }
 
 static uint32_t get_signature(uint32_t addr)
 {
-  return dut->rootp->rvx_simulator__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[addr];
+  return dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[addr];
 }
 
 int main(int argc, char *argv[])
@@ -215,7 +221,7 @@ int main(int argc, char *argv[])
     // --host-out
     if (is_host_out(args.host_out))
     {
-      Log::host_out((char)dut->rootp->rvx_simulator__DOT__dbus_wdata);
+      Log::host_out((char)dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data);
     }
   }
 }
