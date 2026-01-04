@@ -1,7 +1,3 @@
 `verilator_config
 
-public_flat -module "rvx_ram" -var "ram"
 public_flat_rd -module "rvx_simulator" -var "MEMORY_SIZE_IN_BYTES"
-public_flat_rd -module "rvx_simulator" -var "rw_address"
-public_flat_rd -module "rvx_simulator" -var "write_request"
-public_flat_rd -module "rvx_simulator" -var "write_data"
