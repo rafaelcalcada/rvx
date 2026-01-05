@@ -4,11 +4,13 @@
 .PHONY: all run clean
 
 all:
-	$(MAKE) -C ../../../simulator/
+	$(MAKE) -C ../../simulator/ -j$(nproc)
+	$(MAKE) -C ../riscv_test_suite/ all -j$(nproc)
 
 run: all
 	python3 unit_tests.py
 
 clean:
-	$(MAKE) -C ../../../simulator/ clean
+	$(MAKE) -C ../../simulator/ clean
+	$(MAKE) -C ../riscv_test_suite/ clean
 	-rm -rf memory_dump
