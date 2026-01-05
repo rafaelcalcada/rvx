@@ -203,8 +203,8 @@ int main(int argc, char *argv[])
       Log::info("Exit: wr-addr");
 
       // The beginning and end of signature are stored at
-      uint32_t start_addr = get_signature(2047);
-      uint32_t stop_addr = get_signature(2046);
+      uint32_t start_addr = get_signature(1);
+      uint32_t stop_addr = get_signature(2);
       uint32_t size = stop_addr - start_addr;
 
       Log::info("Signature size: %u", size);
