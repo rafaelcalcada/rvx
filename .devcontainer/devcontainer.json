@@ -36,8 +36,13 @@
         "verilog.formatting.veribleVerilogFormatter.arguments": "--flagfile=.config/.verible-format",
         // C/C++ extension settings
         "C_Cpp.clang_format_style": "file:/workspaces/rvx/.config/.clang-format",
+        "C_Cpp.default.compilerPath": "/usr/local/bin/riscv32-unknown-elf-gcc",
         // CMake extension settings        
+        "cmake.configureOnOpen": false,
         "cmake.ignoreCMakeListsMissing": true,
+        "cmake.sourceDirectory": "",
+        "cmake.automaticReconfigure": false,
+        "cmake.enableAutomaticKitScan": false,
         // Python extension settings
         "python.defaultInterpreterPath": "/opt/venv/bin/python"
       },
