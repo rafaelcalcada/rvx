@@ -5,9 +5,9 @@ set_property include_dirs "[file normalize ../../../rtl] [file normalize ../../.
 add_files -norecurse ../rvx_gpio_tb.v
 add_files -norecurse ../../../rtl/peripherals/rvx_gpio.v
 add_files -norecurse ../../../rtl/rvx_constants.vh
-add_files -norecurse ../../../testbenches/rvx_test_macros.vh
+add_files -norecurse ../../../tb/rvx_test_macros.vh
 move_files -fileset sim_1 [get_files ../rvx_gpio_tb.v]
-move_files -fileset sim_1 [get_files ../../../testbenches/rvx_test_macros.vh]
+move_files -fileset sim_1 [get_files ../../../tb/rvx_test_macros.vh]
 set_property used_in_simulation true [get_files  ../../../rtl/rvx_constants.vh]
-set_property used_in_simulation true [get_files  ../../../testbenches/rvx_test_macros.vh]
+set_property used_in_simulation true [get_files  ../../../tb/rvx_test_macros.vh]
 set_property -name xsim.elaborate.xelab.more_options -value "--timescale 1ns/1ps" -object [get_filesets sim_1]

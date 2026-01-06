@@ -29,7 +29,7 @@
           "/workspaces/rvx/rtl/peripherals/",
           "/workspaces/rvx/rtl/memory/",
           "/workspaces/rvx/rtl/interconnect/",
-          "/workspaces/rvx/testbenches/"
+          "/workspaces/rvx/tb/"
         ],
         "verilog.linting.verilator.arguments": "-Wall --timing",
         "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
