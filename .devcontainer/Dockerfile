@@ -12,10 +12,9 @@ RUN apt-get update && apt-get install -y --ignore-missing \
   flex bison gdb bash-completion clang-format ccache ssh help2man perl make autoconf g++ \
   libgoogle-perftools-dev numactl perl-doc libfl2 libfl-dev zlib1g-dev automake autotools-dev \
   python3-tomli libmpc-dev libmpfr-dev libgmp-dev gawk texinfo gperf libtool patchutils bc \
-  libexpat-dev libglib2.0-dev libslirp-dev locales unzip gnupg && \
-  locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8 && \
-  apt-get clean && rm -rf /var/lib/apt/lists/*
-
+  libexpat-dev libglib2.0-dev libslirp-dev locales unzip gnupg device-tree-compiler \
+  libboost-regex-dev libboost-system-dev && locale-gen en_US.UTF-8 && \
+  update-locale LANG=en_US.UTF-8 && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 2. Create the RVX user
 RUN if id -u ubuntu 2>/dev/null; then \
@@ -58,10 +57,12 @@ RUN git clone https://github.com/universal-ctags/ctags.git /tmp/ctags && \
 # 8. Customize bash prompt
 RUN echo "PS1='\[\033[01;32m\]\u@\h \[\033[01;34m\]\w\[\033[01;33m\]\$(__git_ps1 \" (%s)\")\[\033[00m\] \$ '" >> /home/rvx/.bashrc
 
-# 9. Create a system-wide Python environment and install Cocotb
-RUN python3 -m venv /opt/venv && \
-  /opt/venv/bin/pip install --upgrade pip setuptools wheel \
-  && /opt/venv/bin/pip install cocotb>=2.0
+# 9. Install RISC-V Spike Simulator
+RUN git clone https://github.com/riscv-software-src/riscv-isa-sim.git /tmp/riscv-isa-sim && \
+  cd /tmp/riscv-isa-sim && mkdir build && cd build && \
+  ../configure --prefix=/usr/local && \
+  make -j$(nproc) && make install && \
+  rm -rf /tmp/riscv-isa-sim
 
 # 10. Use the venv binaries
 ENV PATH="/opt/venv/bin:$PATH"
