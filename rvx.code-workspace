@@ -11,6 +11,10 @@
     {
       "path": "/workspaces/rvx/riscv_compliance/riscv_test_suite",
       "name": "RISC-V Test Suite"
+    },
+    {
+      "path": "/workspaces/rvx/hal",
+      "name": "RVX HAL"
     }
   ]
 }
