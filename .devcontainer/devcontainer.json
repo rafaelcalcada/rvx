@@ -13,11 +13,14 @@
     "dev-container"
   ],
   "customizations": {
+    // Global settings (can be overridden per-folder)
     "vscode": {
       "settings": {
-        "git.ignoredRepositories": [
-          "/workspaces/rvx/examples/**"
-        ],
+        // Editor settings
+        "editor.tabSize": 2,
+        "editor.detectIndentation": false,
+        "editor.formatOnSave": true,
+        // Verilog extension settings
         "verilog.ctags.path": "/usr/local/bin/ctags",
         "verilog.linting.linter": "verilator",
         "verilog.linting.verilator.includePath": [
@@ -29,15 +32,14 @@
           "/workspaces/rvx/tests/"
         ],
         "verilog.linting.verilator.arguments": "-Wall --timing",
-        "editor.tabSize": 2,
-        "editor.detectIndentation": false,
         "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
         "verilog.formatting.veribleVerilogFormatter.arguments": "--flagfile=.config/.verible-format",
-        "editor.formatOnSave": true,
-        "cmake.ignoreCMakeListsMissing": true,
-        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        // C/C++ extension settings
         "C_Cpp.clang_format_style": "file:/workspaces/rvx/.config/.clang-format",
-        "C_Cpp.default.compilerPath": "/usr/local/bin/riscv32-unknown-elf-gcc"
+        // CMake extension settings        
+        "cmake.ignoreCMakeListsMissing": true,
+        // Python extension settings
+        "python.defaultInterpreterPath": "/opt/venv/bin/python"
       },
       "extensions": [
         "ms-vscode.cpptools-extension-pack",
@@ -50,7 +52,8 @@
         "avetis.tokyo-night",
         "ms-dotnettools.vscode-dotnet-runtime",
         "ms-azuretools.vscode-docker",
-        "mshr-h.veriloghdl"
+        "mshr-h.veriloghdl",
+        "zhwu95.riscv"
       ]
     }
   },

@@ -1,0 +1,8 @@
+{
+  "C_Cpp.default.compilerPath": "/usr/local/bin/riscv32-unknown-elf-gcc",
+  "C_Cpp.default.includePath": [
+    "${workspaceFolder}/include/**"
+  ],
+  "C_Cpp.intelliSenseEngine": "Tag Parser",
+  "editor.formatOnSave": false
+}

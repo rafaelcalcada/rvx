@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "path": "/workspaces/rvx",
+      "name": "RVX (Project Root)"
+    },
+    {
+      "path": "/workspaces/rvx/simulator",
+      "name": "RVX Simulator"
+    },
+    {
+      "path": "/workspaces/rvx/riscv_compliance/riscv_test_suite",
+      "name": "RISC-V Test Suite"
+    }
+  ]
+}
