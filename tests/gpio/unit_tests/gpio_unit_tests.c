@@ -31,7 +31,7 @@ int main()
   finish_test();
 
   rvx_uart_write_string(uart_address, "\nTest 4: Read all inputs... ");
-  RVX_ASSERT(gpio_address->RVX_GPIO_INPUT_REG == 0xa5a5a5a5);
+  RVX_ASSERT(gpio_address->RVX_GPIO_READ_REG == 0xa5a5a5a5);
   finish_test();
 
   rvx_uart_write_string(uart_address, "\nTest 5: Configure a pin as output... ");
