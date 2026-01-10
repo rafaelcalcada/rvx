@@ -2,7 +2,7 @@
 --trace-fst
 --exe
 --build
---trace
+--timing
 -Mdir verilated
 --Wall
 --default-language 1364-2001

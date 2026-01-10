@@ -21,8 +21,9 @@ using Trace = VerilatedFstC;
 
 vluint64_t trace_time = 0;
 vluint64_t clk_cur_cycles = 0;
-vluint64_t clk_half_cycles = 2;
-Dut *dut = new Dut;
+vluint64_t clk_half_cycles = 0;
+VerilatedContext *contextp = new VerilatedContext;
+Dut *dut = new Dut{contextp};
 Trace *trace = new Trace;
 Args args;
 
@@ -42,35 +43,6 @@ static void close_trace()
     trace->dump(trace_time);
     trace->close();
   }
-}
-
-static void clk()
-{
-  static vluint64_t interval = 0;
-
-  if (trace_time >= interval)
-  {
-    dut->clock ^= 1;
-    interval = trace_time + clk_half_cycles;
-    clk_cur_cycles += dut->clock & 0x1;
-  }
-}
-
-static void eval(vluint64_t cycles_cnt = 1)
-{
-  while (cycles_cnt--)
-  {
-    clk();
-    dut->eval();
-    trace->dump(trace_time++);
-  }
-}
-
-static void reset_dut()
-{
-  dut->reset_n = 0;
-  eval(100);
-  dut->reset_n = 1;
 }
 
 void exit_app(int sig)
@@ -178,13 +150,52 @@ int main(int argc, char *argv[])
     open_trace(args.out_wave_path);
   }
 
-  reset_dut();
+  // Assert reset
+  dut->reset_n = 0;
+  dut->clock = 0;
+  dut->eval();
 
+  // Keep reset high for 5 clock cycles
+  for (int i = 0; i < 10; i++)
+  {
+    contextp->timeInc(10);
+    dut->clock ^= 1;
+    dut->eval();
+    trace->dump(contextp->time());
+  }
+
+  // Deassert reset
+  contextp->timeInc(10);
+  dut->reset_n = 1;
+  dut->clock = 1;
+  dut->eval();
+  trace->dump(contextp->time());
+
+  // Load program into RAM
+  // Need to be done after reset, as reset would clear memory
   ram_init(args.ram_init_path, args.ram_init_variants);
 
   while (true)
   {
-    eval();
+    dut->clock ^= 1;
+    dut->eval();
+
+    // uart out
+    if (dut->rootp->clock && dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address == 0x80000000 &&
+        dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request &&
+        dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_uart_instance__DOT__tx_bit_counter == 0)
+    {
+      std::cout << (char)dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data;
+      // std::cout.flush();
+      contextp->timeInc(20 * 5208); // UART baud rate delay simulation
+    }
+    else
+    {
+      contextp->timeInc(20);
+    }
+
+    contextp->timeInc(10);
+    trace->dump(contextp->time());
 
     // --cycles
     if (args.max_cycles)
