@@ -18,7 +18,8 @@ set(RVX_BARE_METAL TRUE)
 # Fetch RVX HAL
 include(FetchContent)
 FetchContent_Declare(rvx_hal
-  SOURCE_DIR ${CMAKE_SOURCE_DIR}/../hal
+  GIT_REPOSITORY https://github.com/rafaelcalcada/rvx-hal.git
+  GIT_TAG main
 )
 FetchContent_MakeAvailable(rvx_hal)
 
