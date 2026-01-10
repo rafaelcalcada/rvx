@@ -56,7 +56,7 @@ module rvx_uart (
   // Register read logic
   // ---------------------------------------------------------------------------
 
-  wire ready_to_send = (tx_bit_counter == 0);
+  wire ready_to_send = (tx_bit_counter == 0) && (cycles_per_baud != 0);
 
   always @(posedge clock) begin
     if (!reset_n) begin
