@@ -76,5 +76,5 @@ void run_rvx_hal_timer_test()
   else
     rvx_uart_write_string(rvx_test_uart_address, "\n\nPassed RVX HAL Timer integration tests.");
 
-  rvx_uart_write_string(rvx_test_uart_address, "\n\n");
+  rvx_uart_write_string(rvx_test_uart_address, "\n");
 }

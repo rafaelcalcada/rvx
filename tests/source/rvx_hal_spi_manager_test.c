@@ -107,7 +107,7 @@ void run_rvx_hal_spi_manager_test()
   else
     rvx_uart_write_string(rvx_test_uart_address, "\n\nPassed RVX HAL SPI Manager integration tests.");
 
-  rvx_uart_write_string(rvx_test_uart_address, "\n\n");
+  rvx_uart_write_string(rvx_test_uart_address, "\n");
 }
 
 void transfer_test()

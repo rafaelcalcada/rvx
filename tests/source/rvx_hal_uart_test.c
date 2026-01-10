@@ -94,7 +94,7 @@ void run_rvx_hal_uart_test()
   else
     rvx_uart_write_string(rvx_test_uart_address, "\n\nPassed RVX HAL UART integration tests.");
 
-  rvx_uart_write_string(rvx_test_uart_address, "\n\n");
+  rvx_uart_write_string(rvx_test_uart_address, "\n");
 }
 
 /// @brief Transfer a byte via UART using busy-wait and verify reception.
