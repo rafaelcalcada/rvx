@@ -1,14 +1,9 @@
 `verilator_config
 
+// Make parameters and signals accessible
 public_flat_rd -module "rvx_simulator" -var "MEMORY_SIZE_IN_BYTES"
-
-// Make TCM memory array accessible
 public_flat_rw -module "rvx_tightly_coupled_memory" -var "tcm"
-
-// Make bus manager signals accessible
 public_flat_rd -module "rvx" -var "manager_rw_address"
 public_flat_rd -module "rvx" -var "manager_write_request"
 public_flat_rd -module "rvx" -var "manager_write_data"
-
-// Make UART signals accessible
 public_flat_rd -module "rvx_uart" -var "tx_bit_counter"
