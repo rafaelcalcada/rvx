@@ -18,7 +18,7 @@ set(RVX_BARE_METAL TRUE)
 # Fetch RVX HAL
 include(FetchContent)
 FetchContent_Declare(rvx_hal
-  SOURCE_DIR ${CMAKE_SOURCE_DIR}/../../hal
+  SOURCE_DIR ${CMAKE_SOURCE_DIR}/../hal
 )
 FetchContent_MakeAvailable(rvx_hal)
 
