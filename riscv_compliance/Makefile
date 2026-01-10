@@ -3,12 +3,12 @@
 
 .PHONY: all run clean
 
-all:
+all: build
+	python3 run_tests.py --wave
+
+build:
 	$(MAKE) -C ../simulator/ -j$(nproc)
 	$(MAKE) -C riscv_test_suite/ all -j$(nproc)
-
-run: all
-	python3 run_tests.py --wave
 
 clean:
 	$(MAKE) -C ../simulator/ clean
