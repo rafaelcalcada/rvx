@@ -9,12 +9,16 @@
       "name": "RVX Simulator"
     },
     {
-      "path": "/workspaces/rvx/riscv_compliance/riscv_test_suite",
-      "name": "RISC-V Test Suite"
-    },
-    {
       "path": "/workspaces/rvx/hal",
       "name": "RVX HAL"
+    },
+    {
+      "path": "/workspaces/rvx/tests/riscv_compliance",
+      "name": "RISC-V Compliance Tests"
+    },
+    {
+      "path": "/workspaces/rvx/tests/rvx_hal",
+      "name": "RVX HAL Tests"
     }
   ]
 }
