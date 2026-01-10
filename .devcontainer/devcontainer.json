@@ -37,7 +37,7 @@
         // C/C++ extension settings
         "C_Cpp.clang_format_style": "file:/workspaces/rvx/.config/.clang-format",
         "C_Cpp.default.compilerPath": "/usr/local/bin/riscv32-unknown-elf-gcc",
-        // CMake extension settings        
+        // CMake extension settings
         "cmake.configureOnOpen": false,
         "cmake.ignoreCMakeListsMissing": true,
         "cmake.sourceDirectory": "",
@@ -58,7 +58,8 @@
         "ms-dotnettools.vscode-dotnet-runtime",
         "ms-azuretools.vscode-docker",
         "mshr-h.veriloghdl",
-        "zhwu95.riscv"
+        "zhwu95.riscv",
+        "lramseyer.vaporview"
       ]
     }
   },
