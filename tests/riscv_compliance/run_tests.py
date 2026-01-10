@@ -153,7 +153,7 @@ def main(argv=None):
 
     parser.add_argument('--sim',
                         type=str,
-                        default='../simulator/verilated/rvx_simulator',
+                        default='/workspaces/rvx/simulator/verilated/rvx_simulator',
                         help='Path to the simulator')
 
     parser.add_argument('--dump',
