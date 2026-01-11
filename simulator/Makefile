@@ -4,7 +4,9 @@
 .PHONY: all run clean
 
 all:
-	verilator -f verilator_args.vc verilator_config.vlt rvx_simulator.v rvx_simulator.cpp argparse.cpp ram_init.cpp -o rvx_simulator
+	@test -d build || mkdir -p build
+	cmake -B build --log-level=NOTICE -DCMAKE_BUILD_TYPE=Release
+	cmake --build build -j$(nproc)
 
 clean:
-	-rm -rf verilated memory_dump *.log *.dmp *.vpd
+	-rm -rf build verilated memory_dump *.log *.dmp *.vpd
