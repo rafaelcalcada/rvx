@@ -3,6 +3,7 @@ import sys
 import argparse
 import subprocess
 from pathlib import Path
+import shutil
 
 
 class scolor:
@@ -112,16 +113,19 @@ def check_file(path: str):
 
 def run_sim(sim_path: str, prog_dir: str, prog_name: str, dump_dir: str, wave: bool):
     args = [f'{sim_path}',
-            f'--ram-init-h32={prog_dir}/{prog_name}',
-            f'--ram-dump-h32={dump_dir}/{prog_name}',
-            f'--cycles={500000}',
-            f'--wr-addr={0x00000000}']
+            f'{prog_dir}/{prog_name}',
+            f'--dump={dump_dir}/{prog_name}',
+            f'--max-cycles={500000}']
 
     if wave:
         args.append(f'--out-wave={dump_dir}/{prog_name}.fst')
 
     with open(f'{dump_dir}/{prog_name}.log', 'w') as fd:
-        subprocess.run(args, stdout=fd)
+      result = subprocess.run(args, stdout=fd)
+      if result.returncode != 0:
+        return False
+      else:
+        return True
 
 
 def compare_dump(ref: str, dut: str):
@@ -174,6 +178,12 @@ def main(argv=None):
     if not os.path.exists(args.dump):
         os.makedirs(args.dump)
 
+    if os.path.exists(args.dump):
+      print_status(scolor.NORMAL, f'Removing existing test output directory: {args.dump}')
+      shutil.rmtree(args.dump)
+
+    os.makedirs(args.dump)
+
     passed = 0
     skipped = 0
     failed = 0
@@ -194,11 +204,17 @@ def main(argv=None):
         prog_dir = Path(prog_path).parent
         prog_name = Path(prog_path).name
         dump_path = f'{args.dump}/{prog_name}'
-        run_sim(sim_path=args.sim,
+        run_status = run_sim(sim_path=args.sim,
                 prog_dir=prog_dir,
                 prog_name=prog_name,
                 dump_dir=args.dump,
                 wave=args.wave)
+
+        if not run_status:
+            failed +=1
+            print_status(scolor.FAIL, prog_path)
+            print_status(scolor.NORMAL, f'-- Simulator execution failed.')
+            continue
 
         if not check_file(ref_path):
             continue
