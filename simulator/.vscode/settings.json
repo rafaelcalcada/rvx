@@ -3,5 +3,8 @@
   "C_Cpp.default.includePath": [
     "${workspaceFolder}/verilated",
     "/usr/local/share/verilator/include/**"
+  ],
+  "C_Cpp.default.compileCommands": [
+    "${workspaceFolder}/build/compile_commands.json"
   ]
 }
