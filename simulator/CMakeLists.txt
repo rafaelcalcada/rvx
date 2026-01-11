@@ -7,11 +7,6 @@ project(rvx_simulator LANGUAGES CXX)
 
 find_package(verilator REQUIRED)
 
-add_executable(rvx_simulator rvx_simulator.cpp ram_init.cpp argparse.cpp)
-
-# Suppress stringop-overread warnings from Verilator-generated code
-target_compile_options(rvx_simulator PRIVATE -Wno-stringop-overread)
-
 set(RVX_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set(VERILATOR_INCLUDE_DIRS
@@ -22,8 +17,26 @@ set(VERILATOR_INCLUDE_DIRS
   ${RVX_ROOT_DIR}/rtl/memory
 )
 
+set(VERILATOR_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/verilator_config.vlt
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/rvx_simulator.v
+)
+
+set(SIMULATOR_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/rvx_simulator.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/ram_init.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/source/argparse.cpp
+)
+
+add_executable(rvx_simulator ${SIMULATOR_SOURCES})
+
+target_include_directories(rvx_simulator PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Suppress stringop-overread warnings from Verilator-generated code
+target_compile_options(rvx_simulator PRIVATE -Wno-stringop-overread)
+
 verilate(rvx_simulator
-  SOURCES verilator_config.vlt rvx_simulator.v
+  SOURCES ${VERILATOR_SOURCES}
   TOP_MODULE rvx_simulator
   DIRECTORY verilated
   PREFIX Vrvx_simulator
