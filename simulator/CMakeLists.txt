@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 3.28)
 
 project(rvx_simulator LANGUAGES CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 find_package(verilator REQUIRED)
 
 set(RVX_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
