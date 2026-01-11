@@ -9,7 +9,7 @@ RVX_SIMULATOR_PATH = /workspaces/rvx/simulator/
 .PHONY: all run clean
 
 all: build
-	python3 run_tests.py --wave
+	python3 run_tests.py
 
 build:
 	$(MAKE) -C ${RVX_SIMULATOR_PATH} -j$(nproc)
