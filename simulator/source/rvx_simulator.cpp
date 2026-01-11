@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
+// Standard library includes
 #include <csignal>
 #include <fstream>
 #include <iostream>
 #include <string>
 
+// Verilator includes
+#include "rvx_simulator.h"
+#include "rvx_simulator___024root.h"
 #include <verilated_fst_c.h>
 
+// Project includes
 #include "argparse.h"
 #include "log.h"
 #include "ram_init.h"
-#include "rvx_simulator.h"
-#include "rvx_simulator___024root.h"
 
 using Dut = rvx_simulator;
 using Trace = VerilatedFstC;
