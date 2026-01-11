@@ -17,76 +17,53 @@
 #include "log.h"
 #include "ram_init.h"
 
+// Type aliases
 using Dut = rvx_simulator;
 using Trace = VerilatedFstC;
 
-vluint64_t trace_time = 0;
-vluint64_t clk_cur_cycles = 0;
-vluint64_t clk_half_cycles = 0;
-VerilatedContext *contextp = new VerilatedContext;
-Dut *dut = new Dut{contextp};
-Trace *trace = new Trace;
-Args args;
-
-static void open_trace(const char *out_wave_path)
-{
-  Verilated::traceEverOn(true);
-  dut->trace(trace, 99);
-  trace->set_time_resolution("1ns");
-  trace->set_time_unit("1ns");
-  trace->open(out_wave_path);
-}
-
-static void close_trace()
-{
-  if (trace->isOpen())
-  {
-    trace->dump(trace_time);
-    trace->close();
-  }
-}
+// Global flag to indicate if a shutdown has been requested (Ctrl+C)
+static bool shutdown_requested = false;
 
 void exit_app(int sig)
 {
   (void)sig;
-  close_trace();
-  Log::info("Exit.");
-  std::exit(EXIT_SUCCESS);
+  shutdown_requested = true;
+  Log::info("Exit requested, finishing simulation...");
 }
 
-static void ram_init(const char *path, RamInitVariants variants)
+static void ram_init(Dut *dut, const Args &args)
 {
-  if (not path)
+  if (not args.ram_init_path)
   {
     return;
   }
 
   uint32_t ram_size = dut->rootp->rvx_simulator__DOT__MEMORY_SIZE_IN_BYTES;
 
-  switch (variants)
+  switch (args.ram_init_variants)
   {
   case RamInitVariants::H32:
     ram_init_h32(
-        args.ram_init_path, ram_size / 4, [](uint32_t i, uint32_t v)
+        args.ram_init_path, ram_size / 4, [&dut](uint32_t i, uint32_t v)
         { dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
     break;
 
   case RamInitVariants::BIN:
     ram_init_bin(
-        args.ram_init_path, ram_size / 4, [](uint32_t i, uint32_t v)
+        args.ram_init_path, ram_size / 4, [&dut](uint32_t i, uint32_t v)
         { dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
     break;
   }
 }
 
-static void ram_dump_h32(const char *path, uint32_t offset, uint32_t size)
+static void ram_dump_h32(Dut *dut, const Args &args, uint32_t offset, uint32_t size)
 {
   std::ofstream file;
-  file.open(path, std::ios::out | std::ios::trunc);
+  file.open(args.ram_dump_h32, std::ios::out | std::ios::trunc);
 
   if (!file.is_open())
   {
-    Log::error("Error file opening: %s", path);
+    Log::error("Error file opening: %s", args.ram_dump_h32);
     std::exit(EXIT_FAILURE);
   }
 
@@ -108,39 +85,60 @@ static void ram_dump_h32(const char *path, uint32_t offset, uint32_t size)
   file.close();
 }
 
-static bool is_finished(uint32_t addr)
-{
-  // After each clock cycle it tests whether the test program finished its execution
-  // This event is signaled by writing 1 to the address 0x00001000
-  return (dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address == addr) &&
-         dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request &&
-         dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data == 0x00000001;
-}
-
-static bool is_host_out(uint32_t addr)
-{
-  static bool is_pos_edg = false;
-
-  bool is_write = (addr != 0x0) &&
-                  (not is_pos_edg and dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request) &&
-                  (dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address == addr) &&
-                  dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request &&
-                  dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data;
-
-  is_pos_edg = dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request;
-
-  return is_write;
-}
-
-static uint32_t get_signature(uint32_t addr)
-{
-  return dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[addr];
-}
-
 int main(int argc, char *argv[])
 {
+  // Register signal handlers
   std::signal(SIGINT, exit_app);
   std::signal(SIGTERM, exit_app);
+
+  // Simulation objects
+  VerilatedContext *contextp = new VerilatedContext;
+  Dut *dut = new Dut(contextp);
+  Args args;
+  Trace *trace = new Trace;
+
+  // Read from RVX Tightly Coupled Memory at the given address
+  auto read_memory = [&dut](uint32_t memory_address)
+  {
+    return dut->rootp
+        ->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[memory_address >> 2];
+  };
+
+  /**
+   * @brief Returns true if the running program has finished execution.
+   * @note A program signals its end by writing 1 to address 0x00000000.
+   */
+  auto program_end = [&]()
+  {
+    return (dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address == 0x00000000 &&
+            dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request == 1 &&
+            dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data == 0x00000001);
+  };
+
+  auto is_host_out = [&](uint32_t addr)
+  {
+    static bool is_pos_edg = false;
+
+    bool is_write = (addr != 0x0) &&
+                    (not is_pos_edg and dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request) &&
+                    (dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address == addr) &&
+                    dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request &&
+                    dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data;
+
+    is_pos_edg = dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request;
+
+    return is_write;
+  };
+
+  // Closes the simulation trace file if tracing is enabled
+  auto close_trace = [&]()
+  {
+    if (trace->isOpen())
+    {
+      trace->dump(contextp->time());
+      trace->close();
+    }
+  };
 
   // Default log level
   Log::set_level(Log::DEBUG);
@@ -148,7 +146,11 @@ int main(int argc, char *argv[])
 
   if (args.out_wave_path)
   {
-    open_trace(args.out_wave_path);
+    Verilated::traceEverOn(true);
+    dut->trace(trace, 99);
+    trace->set_time_resolution("1ns");
+    trace->set_time_unit("1ns");
+    trace->open(args.out_wave_path);
   }
 
   // Assert reset
@@ -174,10 +176,17 @@ int main(int argc, char *argv[])
 
   // Load program into RAM
   // Need to be done after reset, as reset would clear memory
-  ram_init(args.ram_init_path, args.ram_init_variants);
+  ram_init(dut, args);
 
   while (true)
   {
+    if (shutdown_requested)
+    {
+      Log::info("Shutting down simulation...");
+      close_trace();
+      break;
+    }
+
     dut->clock ^= 1;
     dut->eval();
 
@@ -199,31 +208,31 @@ int main(int argc, char *argv[])
     trace->dump(contextp->time());
 
     // --cycles
-    if (args.max_cycles)
+    /*if (args.max_cycles)
     {
-      if (clk_cur_cycles >= args.max_cycles)
+      if (contextp->time() >= args.max_cycles)
       {
         Log::info("Exit: end cycles");
         close_trace();
         std::exit(EXIT_SUCCESS);
       }
-    }
+    }*/
 
     // --wr-addr
-    if (is_finished(args.wr_addr))
+    if (program_end())
     {
       Log::info("Exit: wr-addr");
 
       // The beginning and end of signature are stored at
-      uint32_t start_addr = get_signature(1);
-      uint32_t stop_addr = get_signature(2);
+      uint32_t start_addr = read_memory(0x00000004);
+      uint32_t stop_addr = read_memory(0x00000008);
       uint32_t size = stop_addr - start_addr;
 
       Log::info("Signature size: %u", size);
 
       if (args.ram_dump_h32 and (size >= 4))
       {
-        ram_dump_h32(args.ram_dump_h32, start_addr, size);
+        ram_dump_h32(dut, args, start_addr, size);
       }
 
       close_trace();
