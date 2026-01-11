@@ -3,9 +3,11 @@
 
 module rvx_simulator #(
 
+    /* verilator public_flat_rd_on */
     parameter MEMORY_SIZE_IN_BYTES = 2097152,
     parameter BOOT_ADDRESS         = 32'h00000000,
     parameter ENABLE_ZMMUL         = 1
+    /* verilator public_off */
 
 ) (
 

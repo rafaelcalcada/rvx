@@ -19,11 +19,6 @@ set(VERILATOR_INCLUDE_DIRS
   ${RVX_ROOT_DIR}/rtl/memory
 )
 
-set(VERILATOR_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/verilator_config.vlt
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/rvx_simulator.v
-)
-
 set(SIMULATOR_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/source/rvx_simulator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/ram_init.cpp
@@ -38,7 +33,7 @@ target_include_directories(rvx_simulator PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/inc
 target_compile_options(rvx_simulator PRIVATE -Wno-stringop-overread)
 
 verilate(rvx_simulator
-  SOURCES ${VERILATOR_SOURCES}
+  SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/source/rvx_simulator.v
   TOP_MODULE rvx_simulator
   DIRECTORY verilated
   PREFIX Vrvx_simulator
