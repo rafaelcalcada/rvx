@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
-#include <stdlib.h>
-
+#include <csignal>
 #include <fstream>
 #include <iostream>
-#include <signal.h>
-#include <string.h>
+#include <string>
 
 #include <verilated_fst_c.h>
 
@@ -138,8 +136,8 @@ static uint32_t get_signature(uint32_t addr)
 
 int main(int argc, char *argv[])
 {
-  signal(SIGINT, exit_app);
-  signal(SIGKILL, exit_app);
+  std::signal(SIGINT, exit_app);
+  std::signal(SIGTERM, exit_app);
 
   // Default log level
   Log::set_level(Log::DEBUG);
