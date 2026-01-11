@@ -9,7 +9,7 @@ RVX_SIMULATOR_PATH = /workspaces/rvx/simulator/
 all: simulator
 	@test -d build || ( mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. )
 	@$(MAKE) -C build
-	${RVX_SIMULATOR_PATH}/verilated/rvx_simulator --log-level=QUIET --ram-init-h32=build/rvx_hal_tests.hex --ram-dump-h32=rvx_hal_test_memdump.hex --cycles=1000000 --wr-addr=0x00000000
+	${RVX_SIMULATOR_PATH}/build/rvx_simulator --log-level=QUIET --ram-init-h32=build/rvx_hal_tests.hex --ram-dump-h32=rvx_hal_test_memdump.hex --cycles=1000000 --wr-addr=0x00000000
 
 simulator:
 	$(MAKE) -C ${RVX_SIMULATOR_PATH} -j$(nproc)
