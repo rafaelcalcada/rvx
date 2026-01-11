@@ -36,7 +36,7 @@ verilate(rvx_simulator
   SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/source/rvx_simulator.v
   TOP_MODULE rvx_simulator
   DIRECTORY verilated
-  PREFIX Vrvx_simulator
+  PREFIX rvx_simulator
   TRACE_FST
   INCLUDE_DIRS ${VERILATOR_INCLUDE_DIRS}
   VERILATOR_ARGS

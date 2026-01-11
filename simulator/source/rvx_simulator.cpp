@@ -8,13 +8,13 @@
 
 #include <verilated_fst_c.h>
 
-#include "Vrvx_simulator.h"
-#include "Vrvx_simulator___024root.h"
 #include "argparse.h"
 #include "log.h"
 #include "ram_init.h"
+#include "rvx_simulator.h"
+#include "rvx_simulator___024root.h"
 
-using Dut = Vrvx_simulator;
+using Dut = rvx_simulator;
 using Trace = VerilatedFstC;
 
 vluint64_t trace_time = 0;
