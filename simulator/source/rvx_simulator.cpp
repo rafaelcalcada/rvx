@@ -13,9 +13,9 @@
 #include <verilated_fst_c.h>
 
 // Project includes
-#include "argparse.h"
 #include "log.h"
 #include "ram_init.h"
+#include "rvx_simulator_argparser.h"
 
 // Type aliases
 using Dut = rvx_simulator;
@@ -31,39 +31,14 @@ void exit_app(int sig)
   Log::info("Exit requested, finishing simulation...");
 }
 
-static void ram_init(Dut *dut, const Args &args)
-{
-  if (not args.ram_init_path)
-  {
-    return;
-  }
-
-  uint32_t ram_size = dut->rootp->rvx_simulator__DOT__MEMORY_SIZE_IN_BYTES;
-
-  switch (args.ram_init_variants)
-  {
-  case RamInitVariants::H32:
-    ram_init_h32(
-        args.ram_init_path, ram_size / 4, [&dut](uint32_t i, uint32_t v)
-        { dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
-    break;
-
-  case RamInitVariants::BIN:
-    ram_init_bin(
-        args.ram_init_path, ram_size / 4, [&dut](uint32_t i, uint32_t v)
-        { dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
-    break;
-  }
-}
-
-static void ram_dump_h32(Dut *dut, const Args &args, uint32_t offset, uint32_t size)
+static void ram_dump_h32(Dut *dut, const std::string &dump_path, uint32_t offset, uint32_t size)
 {
   std::ofstream file;
-  file.open(args.ram_dump_h32, std::ios::out | std::ios::trunc);
+  file.open(dump_path, std::ios::out | std::ios::trunc);
 
   if (!file.is_open())
   {
-    Log::error("Error file opening: %s", args.ram_dump_h32);
+    Log::error("Error file opening: %s", dump_path.c_str());
     std::exit(EXIT_FAILURE);
   }
 
@@ -91,10 +66,12 @@ int main(int argc, char *argv[])
   std::signal(SIGINT, exit_app);
   std::signal(SIGTERM, exit_app);
 
+  // Parse command-line arguments
+  RvxSimulatorArgs sim_options(argc, argv);
+
   // Simulation objects
   VerilatedContext *contextp = new VerilatedContext;
   Dut *dut = new Dut(contextp);
-  Args args;
   Trace *trace = new Trace;
 
   // Read from RVX Tightly Coupled Memory at the given address
@@ -142,15 +119,14 @@ int main(int argc, char *argv[])
 
   // Default log level
   Log::set_level(Log::DEBUG);
-  args = parser(argc, argv);
 
-  if (args.out_wave_path)
+  if (!sim_options.trace_path.empty())
   {
     Verilated::traceEverOn(true);
     dut->trace(trace, 99);
     trace->set_time_resolution("1ns");
     trace->set_time_unit("1ns");
-    trace->open(args.out_wave_path);
+    trace->open(sim_options.trace_path.c_str());
   }
 
   // Assert reset
@@ -176,7 +152,10 @@ int main(int argc, char *argv[])
 
   // Load program into RAM
   // Need to be done after reset, as reset would clear memory
-  ram_init(dut, args);
+  ram_init_h32(
+      sim_options.program_path.c_str(), dut->rootp->rvx_simulator__DOT__MEMORY_SIZE_IN_BYTES / 4,
+      [&dut](uint32_t i, uint32_t v)
+      { dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
 
   while (true)
   {
@@ -230,19 +209,13 @@ int main(int argc, char *argv[])
 
       Log::info("Signature size: %u", size);
 
-      if (args.ram_dump_h32 and (size >= 4))
+      if (!sim_options.dump_path.empty() and (size >= 4))
       {
-        ram_dump_h32(dut, args, start_addr, size);
+        ram_dump_h32(dut, sim_options.dump_path, start_addr, size);
       }
 
       close_trace();
       std::exit(EXIT_SUCCESS);
-    }
-
-    // --host-out
-    if (is_host_out(args.host_out))
-    {
-      Log::host_out((char)dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data);
     }
   }
 }
