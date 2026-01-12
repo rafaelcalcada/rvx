@@ -13,9 +13,9 @@
 #include <verilated_fst_c.h>
 
 // Project includes
-#include "log.h"
 #include "ram_init.h"
 #include "rvx_simulator_argparser.h"
+#include "rvx_simulator_logger.h"
 
 // Type aliases
 using Dut = rvx_simulator;
@@ -28,7 +28,6 @@ void exit_app(int sig)
 {
   (void)sig;
   shutdown_requested = true;
-  Log::info("Exit requested, finishing simulation...");
 }
 
 static void ram_dump_h32(Dut *dut, const std::string &dump_path, uint32_t offset, uint32_t size)
@@ -38,7 +37,6 @@ static void ram_dump_h32(Dut *dut, const std::string &dump_path, uint32_t offset
 
   if (!file.is_open())
   {
-    Log::error("Error file opening: %s", dump_path.c_str());
     std::exit(EXIT_FAILURE);
   }
 
@@ -56,7 +54,6 @@ static void ram_dump_h32(Dut *dut, const std::string &dump_path, uint32_t offset
     file << buff << '\n';
   }
 
-  Log::info("Ok dump ram h32");
   file.close();
 }
 
@@ -68,6 +65,25 @@ int main(int argc, char *argv[])
 
   // Parse command-line arguments
   RvxSimulatorArgs sim_options(argc, argv);
+
+  // Initialize Logger
+  RvxSimulatorLogger logger(std::cout,
+                            static_cast<RvxSimulatorLogger::Severity>(sim_options.verbose
+                                                                          ? RvxSimulatorLogger::Severity::VERBOSE
+                                                                          : RvxSimulatorLogger::Severity::INFO),
+                            sim_options.quiet);
+
+  // Print verbose simulation options
+  logger.info("Starting RVX Simulator for program: {}", sim_options.program_path);
+  logger.verbose(sim_options.trace_path.empty()
+                     ? "Tracing is not enabled."
+                     : std::format("Tracing enabled. Output file: {}", sim_options.trace_path));
+  logger.verbose(sim_options.dump_path.empty()
+                     ? "Memory dump is not enabled."
+                     : std::format("Memory dump enabled. Output file: {}", sim_options.dump_path));
+  logger.verbose(sim_options.max_cycles == 0
+                     ? "Simulating until program signals completion."
+                     : std::format("Simulating for a maximum of {} clock cycles", sim_options.max_cycles));
 
   // Simulation objects
   VerilatedContext *contextp = new VerilatedContext;
@@ -117,9 +133,6 @@ int main(int argc, char *argv[])
     }
   };
 
-  // Default log level
-  Log::set_level(Log::DEBUG);
-
   if (!sim_options.trace_path.empty())
   {
     Verilated::traceEverOn(true);
@@ -133,6 +146,7 @@ int main(int argc, char *argv[])
   dut->reset_n = 0;
   dut->clock = 0;
   dut->eval();
+  trace->dump(contextp->time());
 
   // Keep reset high for 5 clock cycles
   for (int i = 0; i < 10; i++)
@@ -157,16 +171,19 @@ int main(int argc, char *argv[])
       [&dut](uint32_t i, uint32_t v)
       { dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
 
+  int cycle_count = 0;
   while (true)
   {
     if (shutdown_requested)
     {
-      Log::info("Shutting down simulation...");
+      logger.info("Finishing simulation due to user request...");
       close_trace();
       break;
     }
 
     dut->clock ^= 1;
+    if (dut->clock == 0)
+      cycle_count++;
     dut->eval();
 
     // uart out
@@ -175,47 +192,42 @@ int main(int argc, char *argv[])
         dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_uart_instance__DOT__tx_bit_counter == 0)
     {
       std::cout << (char)dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data;
-      // std::cout.flush();
-      contextp->timeInc(20 * 5208); // UART baud rate delay simulation
-    }
-    else
-    {
-      contextp->timeInc(20);
     }
 
     contextp->timeInc(10);
     trace->dump(contextp->time());
 
-    // --cycles
-    /*if (args.max_cycles)
+    if (sim_options.max_cycles)
     {
-      if (contextp->time() >= args.max_cycles)
+      if (cycle_count >= sim_options.max_cycles)
       {
-        Log::info("Exit: end cycles");
+        logger.info("Maximum cycle count {} reached, finishing simulation...", sim_options.max_cycles);
         close_trace();
-        std::exit(EXIT_SUCCESS);
+        break;
       }
-    }*/
+    }
 
-    // --wr-addr
     if (program_end())
     {
-      Log::info("Exit: wr-addr");
+      logger.info("Program signaled completion after {} cycles.", cycle_count);
 
       // The beginning and end of signature are stored at
       uint32_t start_addr = read_memory(0x00000004);
       uint32_t stop_addr = read_memory(0x00000008);
       uint32_t size = stop_addr - start_addr;
 
-      Log::info("Signature size: %u", size);
-
       if (!sim_options.dump_path.empty() and (size >= 4))
       {
+        logger.info("Dumping memory signature from 0x{:08x} to 0x{:08x} ({} bytes) to {}", start_addr, stop_addr, size,
+                    sim_options.dump_path);
         ram_dump_h32(dut, sim_options.dump_path, start_addr, size);
       }
 
       close_trace();
-      std::exit(EXIT_SUCCESS);
+      break;
     }
   }
+
+  logger.info("Simulation finished.");
+  exit(EXIT_SUCCESS);
 }

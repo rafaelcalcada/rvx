@@ -93,7 +93,7 @@ RvxSimulatorArgs::RvxSimulatorArgs(int argc, char *argv[])
   optind = 2;
 
   // Parse optional arguments
-  while ((option = getopt_long(argc, argv, "hqv:", rvx_simulator_cli_options, nullptr)) != -1)
+  while ((option = getopt_long(argc, argv, ":hqv", rvx_simulator_cli_options, nullptr)) != -1)
   {
     switch (option)
     {
@@ -117,7 +117,6 @@ RvxSimulatorArgs::RvxSimulatorArgs(int argc, char *argv[])
       try
       {
         max_cycles = static_cast<unsigned int>(std::stoul(optarg));
-        std::cout << "Max cycles: " << max_cycles << std::endl;
       }
       catch (const std::exception &e)
       {
