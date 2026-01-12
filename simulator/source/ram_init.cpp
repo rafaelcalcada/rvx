@@ -3,8 +3,8 @@
 
 #include "ram_init.h"
 
-#include "log.h"
 #include <fstream>
+#include <string.h>
 
 void ram_init_h32(const char *path, uint32_t words, DutRamWrite write)
 {
@@ -14,11 +14,8 @@ void ram_init_h32(const char *path, uint32_t words, DutRamWrite write)
 
   if (!file.is_open())
   {
-    Log::error("Error file opening: %s", path);
     std::exit(EXIT_FAILURE);
   }
-
-  Log::info("Ram words %u", words);
 
   std::string line;
   size_t load_address = 0x00000000;
@@ -47,7 +44,6 @@ void ram_init_h32(const char *path, uint32_t words, DutRamWrite write)
 
         if (load_address > words)
         {
-          Log::error("Out of range load address ram: 0x%x", load_address);
           std::exit(EXIT_FAILURE);
         }
 
@@ -58,7 +54,6 @@ void ram_init_h32(const char *path, uint32_t words, DutRamWrite write)
     }
   }
 
-  Log::info("Ok init ram h32");
   file.close();
 }
 
@@ -70,11 +65,8 @@ void ram_init_bin(const char *path, uint32_t words, DutRamWrite write)
 
   if (!file.is_open())
   {
-    Log::error("Error file opening: %s", path);
     std::exit(EXIT_FAILURE);
   }
-
-  Log::info("Ram words %u", words);
 
   // First initialize the RAM
   for (size_t i = 0; i < words; i++)
@@ -105,13 +97,11 @@ void ram_init_bin(const char *path, uint32_t words, DutRamWrite write)
 
     if (load_address > words)
     {
-      Log::error("Out of range load address ram: 0x%x", load_address);
       std::exit(EXIT_FAILURE);
     }
 
     write(load_address++, data);
   }
 
-  Log::info("Ok init ram bin");
   file.close();
 }
