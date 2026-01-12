@@ -31,9 +31,9 @@ const char *rvx_simulator_description = "RVX Simulator\n"
                                         "                          If omitted, no memory dump is created.\n"
                                         "    --max-cycles <num>    Maximum number of clock cycles to simulate.\n"
                                         "                          Default is 0 (infinite).\n"
-                                        "    -q,--quiet            Suppress all log messages.\n"
-                                        "    -v,--verbose          Enable verbose output.\n"
-                                        "    -h,--help             Show this help message and exit.\n"
+                                        "    -q, --quiet           Suppress all log messages.\n"
+                                        "    -v, --verbose         Enable verbose output.\n"
+                                        "    -h, --help            Show this help message and exit.\n"
                                         "\n";
 
 static struct option rvx_simulator_cli_options[] = {
@@ -55,7 +55,7 @@ RvxSimulatorArgs::RvxSimulatorArgs(int argc, char *argv[])
   // Check presence of required positional argument: <program>
   if (argc < 2)
   {
-    std::cout << "Error: <program> argument is required. Run '" << argv[0] << " --help' for usage.\n";
+    std::cout << argv[0] << ": <program> argument is required.\nRun '" << argv[0] << " --help' for usage.\n";
     std::exit(EXIT_FAILURE);
   }
 
