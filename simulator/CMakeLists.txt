@@ -48,6 +48,7 @@ verilate(rvx_simulator
     --default-language 1364-2001
     --timescale 1ns/1ps
     --timing
+    --quiet
 )
 
 install(TARGETS rvx_simulator)
