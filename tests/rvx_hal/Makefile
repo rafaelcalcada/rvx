@@ -3,22 +3,32 @@
 
 MAKEFLAGS += --no-print-directory
 
+.PHONY: all run clean clean-all simulator
+
 # The path below assumes this Makefile will be run from the RVX development container
 RVX_SIMULATOR_PATH = /workspaces/rvx/simulator/
 
-all: simulator
-	@test -d build || ( mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. )
-	@$(MAKE) -C build
-	${RVX_SIMULATOR_PATH}/build/rvx_simulator build/rvx_hal_tests.hex --quiet --dump=rvx_hal_test_memdump.hex --max-cycles=1000000
+all: simulator tests run
+
+tests:
+	@test -d build || mkdir -p build
+	@cmake -B build --log-level=NOTICE -DCMAKE_BUILD_TYPE=Debug
+	@cmake --build build -j$(nproc)
+
+run:
+	@test -f ${RVX_SIMULATOR_PATH}/build/rvx_simulator || { echo "rvx_simulator not found. Run 'make simulator' first."; exit 1; }
+	@test -f build/rvx_hal_tests.hex || { echo "rvx_hal_tests.hex not found. Run 'make tests' to build the tests first."; exit 1; }
+	@${RVX_SIMULATOR_PATH}/build/rvx_simulator build/rvx_hal_tests.hex
 
 simulator:
-	$(MAKE) -C ${RVX_SIMULATOR_PATH} -j$(nproc)
+	@$(MAKE) -C ${RVX_SIMULATOR_PATH} -j$(nproc)
 
 clean:
-	$(MAKE) -C ${RVX_SIMULATOR_PATH} clean
 	@rm -rf build
-	@echo "Build directory deleted."
+	@echo "RVX HAL tests artifacts deleted."
+
+clean-all: clean
+	@$(MAKE) -C ${RVX_SIMULATOR_PATH} clean
 
 again: clean all
 
-.PHONY: all clean simulator
