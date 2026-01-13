@@ -118,7 +118,7 @@ def run_sim(sim_path: str, prog_dir: str, prog_name: str, dump_dir: str, wave: b
             f'--max-cycles={500000}']
 
     if wave:
-        args.append(f'--out-wave={dump_dir}/{prog_name}.fst')
+        args.append(f'--trace={dump_dir}/{prog_name}.fst')
 
     with open(f'{dump_dir}/{prog_name}.log', 'w') as fd:
       result = subprocess.run(args, stdout=fd)
