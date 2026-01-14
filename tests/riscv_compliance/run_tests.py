@@ -114,7 +114,7 @@ def check_file(path: str):
 def run_sim(sim_path: str, prog_dir: str, prog_name: str, dump_dir: str, wave: bool):
     args = [f'{sim_path}',
             f'{prog_dir}/{prog_name}',
-            f'--dump={dump_dir}/{prog_name}',
+            f'--signature={dump_dir}/{prog_name}',
             f'--max-cycles={500000}']
 
     if wave:
