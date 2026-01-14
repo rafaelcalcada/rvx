@@ -127,25 +127,19 @@ int main(int argc, char *argv[])
 
   // Assert reset
   simulator->reset_n = 0;
-  simulator->clock = 0;
-  simulator->eval();
-  tracer->dump(contextp->time());
+  simulator->clock = 1;
 
   // Keep it high for 5 clock cycles
   for (int i = 0; i < 10; i++)
   {
-    contextp->timeInc(10);
     simulator->clock ^= 1;
     simulator->eval();
     tracer->dump(contextp->time());
+    contextp->timeInc(10);
   }
 
   // Deassert reset
-  contextp->timeInc(10);
   simulator->reset_n = 1;
-  simulator->clock = 1;
-  simulator->eval();
-  tracer->dump(contextp->time());
 
   // Memory initialization
   // ---------------------------------------------------------------------------
@@ -197,8 +191,9 @@ int main(int argc, char *argv[])
     // Toggle clock, update cycle counter and evaluate model
     simulator->clock ^= 1;
     simulator->eval();
-    contextp->timeInc(10);
     tracer->dump(contextp->time());
+    contextp->timeInc(10);
+
     if (simulator->clock == 0) // Increment cycle count on falling edge
       cycle_count++;
 
