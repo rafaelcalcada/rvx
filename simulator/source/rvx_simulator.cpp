@@ -3,77 +3,73 @@
 
 // Standard library includes
 #include <csignal>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 // Verilator includes
-#include "rvx_simulator.h"
-#include "rvx_simulator___024root.h"
+#include "RvxSimulator.h"
+#include "RvxSimulator___024root.h"
 #include <verilated_fst_c.h>
 
 // Project includes
-#include "ram_init.h"
 #include "rvx_simulator_argparser.h"
 #include "rvx_simulator_logger.h"
 
-// Type aliases
-using Dut = rvx_simulator;
-using Trace = VerilatedFstC;
-
-// Global flag to indicate if a shutdown has been requested (Ctrl+C)
+// Global flag to indicate if shutdown has been requested
 static bool shutdown_requested = false;
 
-void exit_app(int sig)
+/// @brief Signal handler for interrupts requesting simulator shutdown
+/// @param signum Signal number
+void request_shutdown(int signum)
 {
-  (void)sig;
-  shutdown_requested = true;
+  if (signum == SIGTERM || signum == SIGINT || signum == SIGQUIT || signum == SIGTSTP)
+    shutdown_requested = true;
 }
 
-static void ram_dump_h32(Dut *dut, const std::string &dump_path, uint32_t offset, uint32_t size)
+/// @brief Entry point of the RVX Simulator program.
+/// @param argc Number of command-line arguments.
+/// @param argv Array of command-line argument strings.
+/// @return EXIT_SUCCESS on successful completion, or EXIT_FAILURE on error.
+int main(int argc, char *argv[])
 {
-  std::ofstream file;
-  file.open(dump_path, std::ios::out | std::ios::trunc);
 
-  if (!file.is_open())
+  // Close the simulation if any of the interrupt signals below is received
+  // ---------------------------------------------------------------------------
+
+  std::signal(SIGINT, request_shutdown);
+  std::signal(SIGTERM, request_shutdown);
+  std::signal(SIGQUIT, request_shutdown);
+  std::signal(SIGTSTP, request_shutdown);
+
+  // Parse command-line arguments
+  // ---------------------------------------------------------------------------
+
+  RvxSimulatorArgs sim_options(argc, argv);
+
+  // Validate program file path
+  // ---------------------------------------------------------------------------
+
+  if (!std::filesystem::exists(sim_options.program_path))
   {
+    std::cerr << argv[0] << ": program '" << sim_options.program_path << "' not found.\n";
+    std::exit(EXIT_FAILURE);
+  }
+  std::fstream program_file(sim_options.program_path, std::ios::in);
+  if (!program_file.is_open())
+  {
+    std::cerr << argv[0] << ": unable to open '" << sim_options.program_path << "'.\n";
     std::exit(EXIT_FAILURE);
   }
 
-  char buff[32];
+  // Initialize logger and log startup information
+  // ---------------------------------------------------------------------------
 
-  // In words
-  offset /= 4;
-  size /= 4;
-
-  for (int i = 0; i < size; i++)
-  {
-    uint32_t data =
-        dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[offset + i];
-    snprintf(buff, sizeof(buff), "%08" PRIx32, (const uint32_t)data);
-    file << buff << '\n';
-  }
-
-  file.close();
-}
-
-int main(int argc, char *argv[])
-{
-  // Register signal handlers
-  std::signal(SIGINT, exit_app);
-  std::signal(SIGTERM, exit_app);
-
-  // Parse command-line arguments
-  RvxSimulatorArgs sim_options(argc, argv);
-
-  // Initialize Logger
-  RvxSimulatorLogger logger(std::cout,
-                            static_cast<RvxSimulatorLogger::Severity>(sim_options.verbose
-                                                                          ? RvxSimulatorLogger::Severity::VERBOSE
-                                                                          : RvxSimulatorLogger::Severity::INFO),
-                            sim_options.quiet);
-
-  // Print verbose simulation options
+  RvxSimulatorLogger::Severity verbosity_level =
+      sim_options.verbose ? RvxSimulatorLogger::Severity::VERBOSE : RvxSimulatorLogger::Severity::INFO;
+  RvxSimulatorLogger logger(std::cout, verbosity_level, sim_options.quiet);
   logger.info("Starting RVX Simulator for program: {}", sim_options.program_path);
   logger.verbose(sim_options.trace_path.empty()
                      ? "Tracing is not enabled."
@@ -85,149 +81,197 @@ int main(int argc, char *argv[])
                      ? "Simulating until program signals completion."
                      : std::format("Simulating for a maximum of {} clock cycles", sim_options.max_cycles));
 
-  // Simulation objects
+  // Allocate simulation objects
+  // ---------------------------------------------------------------------------
+
   VerilatedContext *contextp = new VerilatedContext;
-  Dut *dut = new Dut(contextp);
-  Trace *trace = new Trace;
+  RvxSimulator *simulator = new RvxSimulator(contextp);
+  VerilatedFstC *tracer = new VerilatedFstC;
 
-  // Read from RVX Tightly Coupled Memory at the given address
-  auto read_memory = [&dut](uint32_t memory_address)
-  {
-    return dut->rootp
-        ->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[memory_address >> 2];
-  };
+  // Handful references for long (and confuse!) names generated by Verilator
+  // ---------------------------------------------------------------------------
 
-  /**
-   * @brief Returns true if the running program has finished execution.
-   * @note A program signals its end by writing 1 to address 0x00000000.
-   */
-  auto program_end = [&]()
-  {
-    return (dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address == 0x00000000 &&
-            dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request == 1 &&
-            dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data == 0x00000001);
-  };
+  auto &tcm = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm;
+  auto &rw_address = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address;
+  auto &write_request = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request;
+  auto &write_data = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data;
+  auto &memory_size = simulator->rootp->rvx_simulator__DOT__MEMORY_SIZE_IN_BYTES;
+  auto &uart_tx_bit_counter =
+      simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_uart_instance__DOT__tx_bit_counter;
 
-  auto is_host_out = [&](uint32_t addr)
-  {
-    static bool is_pos_edg = false;
+  // Handful lambdas
+  // ---------------------------------------------------------------------------
 
-    bool is_write = (addr != 0x0) &&
-                    (not is_pos_edg and dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request) &&
-                    (dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address == addr) &&
-                    dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request &&
-                    dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data;
+  /// @brief Reads a 32-bit word from the simulated memory.
+  /// @param memory_address The byte address to read from.
+  auto read_memory = [&tcm](uint32_t memory_address) { return tcm[memory_address >> 2]; };
 
-    is_pos_edg = dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request;
+  /// @brief Returns true if the running program has finished execution.
+  /// @note A program signals its end by writing 1 to address 0x00000000.
+  auto program_end = [&]() { return (rw_address == 0x00000000 && write_request == 1 && write_data == 0x00000001); };
 
-    return is_write;
-  };
-
-  // Closes the simulation trace file if tracing is enabled
-  auto close_trace = [&]()
-  {
-    if (trace->isOpen())
-    {
-      trace->dump(contextp->time());
-      trace->close();
-    }
-  };
+  // Start the tracer (if enabled)
+  // ---------------------------------------------------------------------------
 
   if (!sim_options.trace_path.empty())
   {
     Verilated::traceEverOn(true);
-    dut->trace(trace, 99);
-    trace->set_time_resolution("1ns");
-    trace->set_time_unit("1ns");
-    trace->open(sim_options.trace_path.c_str());
+    simulator->trace(tracer, 99);
+    tracer->set_time_resolution("1ns");
+    tracer->set_time_unit("1ns");
+    tracer->open(sim_options.trace_path.c_str());
   }
 
-  // Assert reset
-  dut->reset_n = 0;
-  dut->clock = 0;
-  dut->eval();
-  trace->dump(contextp->time());
+  // Reset sequence (for 5 clock cycles)
+  // ---------------------------------------------------------------------------
 
-  // Keep reset high for 5 clock cycles
+  // Assert reset
+  simulator->reset_n = 0;
+  simulator->clock = 0;
+  simulator->eval();
+  tracer->dump(contextp->time());
+
+  // Keep it high for 5 clock cycles
   for (int i = 0; i < 10; i++)
   {
     contextp->timeInc(10);
-    dut->clock ^= 1;
-    dut->eval();
-    trace->dump(contextp->time());
+    simulator->clock ^= 1;
+    simulator->eval();
+    tracer->dump(contextp->time());
   }
 
   // Deassert reset
   contextp->timeInc(10);
-  dut->reset_n = 1;
-  dut->clock = 1;
-  dut->eval();
-  trace->dump(contextp->time());
+  simulator->reset_n = 1;
+  simulator->clock = 1;
+  simulator->eval();
+  tracer->dump(contextp->time());
 
-  // Load program into RAM
-  // Need to be done after reset, as reset would clear memory
-  ram_init_h32(
-      sim_options.program_path.c_str(), dut->rootp->rvx_simulator__DOT__MEMORY_SIZE_IN_BYTES / 4,
-      [&dut](uint32_t i, uint32_t v)
-      { dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm[i] = v; });
+  // Memory initialization
+  // ---------------------------------------------------------------------------
+
+  std::string line;
+  size_t load_address = 0;
+  for (unsigned i = 0; i < memory_size; i += 4)
+    tcm[i >> 2] = 0xdeadbeef; // Initialize memory to known pattern first
+  while (std::getline(program_file, line))
+  {
+    std::istringstream iss(line);
+    std::string token_str;
+    while (iss >> token_str)
+    {
+      if (!token_str.empty() && token_str[0] == '@')
+      {
+        load_address = std::stoul(token_str.substr(1), nullptr, 16);
+      }
+      else
+      {
+        if (load_address >= memory_size / 4)
+        {
+          logger.error("Program file '{}' tries to load data beyond memory size at address 0x{:08x}.",
+                       sim_options.program_path, load_address << 2);
+          std::exit(EXIT_FAILURE);
+        }
+        tcm[load_address] = std::stoul(token_str, nullptr, 16);
+        ++load_address;
+      }
+    }
+  }
+
+  // Main simulation loop
+  // ---------------------------------------------------------------------------
 
   int cycle_count = 0;
+  bool successful_completion = false;
   while (true)
   {
+
+    // Close simulation if interrupted by signal
     if (shutdown_requested)
     {
-      logger.info("Finishing simulation due to user request...");
-      close_trace();
+      logger.info("Interrupt signal received, shutting down simulation...");
+      successful_completion = true;
       break;
     }
 
-    dut->clock ^= 1;
-    if (dut->clock == 0)
-      cycle_count++;
-    dut->eval();
-
-    // uart out
-    if (dut->rootp->clock && dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address == 0x80000000 &&
-        dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request &&
-        dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_uart_instance__DOT__tx_bit_counter == 0)
-    {
-      std::cout << (char)dut->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data;
-    }
-
+    // Toggle clock, update cycle counter and evaluate model
+    simulator->clock ^= 1;
+    simulator->eval();
     contextp->timeInc(10);
-    trace->dump(contextp->time());
+    tracer->dump(contextp->time());
+    if (simulator->clock == 0) // Increment cycle count on falling edge
+      cycle_count++;
 
-    if (sim_options.max_cycles)
+    // Output UART TX characters to console
+    if (simulator->clock && rw_address == 0x80000000 && write_request && uart_tx_bit_counter == 0)
     {
-      if (cycle_count >= sim_options.max_cycles)
-      {
-        logger.info("Maximum cycle count {} reached, finishing simulation...", sim_options.max_cycles);
-        close_trace();
-        break;
-      }
+      std::cout << (char)write_data;
     }
 
+    // Check for maximum cycle count reached
+    if (sim_options.max_cycles && cycle_count >= sim_options.max_cycles)
+    {
+      logger.info("Maximum cycle count {} reached, finishing simulation...", sim_options.max_cycles);
+      successful_completion = true;
+      break;
+    }
+
+    // Finish if program signals completion
     if (program_end())
     {
       logger.info("Program signaled completion after {} cycles.", cycle_count);
 
-      // The beginning and end of signature are stored at
-      uint32_t start_addr = read_memory(0x00000004);
-      uint32_t stop_addr = read_memory(0x00000008);
-      uint32_t size = stop_addr - start_addr;
-
-      if (!sim_options.dump_path.empty() and (size >= 4))
+      // Output test signature if requested
+      uint32_t start_address = read_memory(0x001FFFF8);
+      uint32_t stop_address = read_memory(0x001FFFFC);
+      if (!sim_options.signature_path.empty() && start_address < stop_address)
       {
-        logger.info("Dumping memory signature from 0x{:08x} to 0x{:08x} ({} bytes) to {}", start_addr, stop_addr, size,
-                    sim_options.dump_path);
-        ram_dump_h32(dut, sim_options.dump_path, start_addr, size);
+        std::ofstream signature_file(sim_options.signature_path, std::ios::out | std::ios::trunc);
+        if (!signature_file.is_open())
+        {
+          logger.error("Failed to create memory dump file: {}", sim_options.signature_path);
+          successful_completion = false;
+          break;
+        }
+        logger.info("Dumping test signature from 0x{:08x} to 0x{:08x} ({} bytes) to {}", start_address, stop_address,
+                    stop_address - start_address, sim_options.signature_path);
+        while (start_address < stop_address && start_address < memory_size / 4)
+        {
+          signature_file << std::format("{:08x}\n", tcm[start_address >> 2]);
+          start_address += 4;
+        }
       }
 
-      close_trace();
+      // Output memory dump if requested
+      if (!sim_options.dump_path.empty())
+      {
+        std::ofstream dump_file(sim_options.dump_path, std::ios::out | std::ios::trunc);
+        if (!dump_file.is_open())
+        {
+          logger.error("Failed to create memory dump file: {}", sim_options.dump_path);
+          successful_completion = false;
+          break;
+        }
+        logger.info("Dumping memory to {}", sim_options.dump_path);
+        for (uint32_t addr = 0; addr < memory_size; addr += 4)
+        {
+          dump_file << std::format("{:08x}\n", tcm[addr >> 2]);
+        }
+      }
+
+      successful_completion = true;
       break;
     }
   }
 
+  // Cleanup and exit
+  // ---------------------------------------------------------------------------
+
+  if (tracer->isOpen())
+  {
+    tracer->flush();
+    tracer->close();
+  }
   logger.info("Simulation finished.");
-  exit(EXIT_SUCCESS);
+  return successful_completion ? EXIT_SUCCESS : EXIT_FAILURE;
 }

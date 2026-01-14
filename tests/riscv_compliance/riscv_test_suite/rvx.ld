@@ -15,5 +15,7 @@ SECTIONS
   _end = .;
 }
 
-PROVIDE ( begin_signature_pointer = 0x4 );
-PROVIDE ( end_signature_pointer = 0x8 );
+/* The addresses of the begin and the end of the test signature
+ * are saved at these pointers, respectively. */
+PROVIDE ( begin_signature_pointer = 0x1FFFF8 );
+PROVIDE ( end_signature_pointer = 0x1FFFFC );

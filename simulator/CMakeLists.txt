@@ -26,7 +26,6 @@ set(VERILATOR_INCLUDE_DIRS
 set(SIMULATOR_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/source/rvx_simulator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/source/rvx_simulator_argparser.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/source/ram_init.cpp
 )
 
 add_executable(rvx_simulator ${SIMULATOR_SOURCES})
@@ -40,7 +39,7 @@ verilate(rvx_simulator
   SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/source/rvx_simulator.v
   TOP_MODULE rvx_simulator
   DIRECTORY verilated
-  PREFIX rvx_simulator
+  PREFIX RvxSimulator
   TRACE_FST
   INCLUDE_DIRS ${VERILATOR_INCLUDE_DIRS}
   VERILATOR_ARGS
