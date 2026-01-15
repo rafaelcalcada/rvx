@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   auto &rw_address = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_rw_address;
   auto &write_request = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_request;
   auto &write_data = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__manager_write_data;
-  auto &memory_size = simulator->rootp->rvx_simulator__DOT__MEMORY_SIZE_IN_BYTES;
+  auto &memory_size = simulator->rootp->rvx_simulator__DOT__MEMORY_SIZE;
   auto &uart_tx_bit_counter =
       simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_uart_instance__DOT__tx_bit_counter;
 
@@ -146,8 +146,8 @@ int main(int argc, char *argv[])
 
   std::string line;
   size_t load_address = 0;
-  for (unsigned i = 0; i < memory_size; i += 4)
-    tcm[i >> 2] = 0xdeadbeef; // Initialize memory to known pattern first
+  for (unsigned i = 0; i < (memory_size >> 2); i++)
+    tcm[i] = 0xdeadbeef; // Initialize memory to known pattern first
   while (std::getline(program_file, line))
   {
     std::istringstream iss(line);
@@ -160,14 +160,13 @@ int main(int argc, char *argv[])
       }
       else
       {
-        if (load_address >= memory_size / 4)
+        if (load_address >= (memory_size >> 2))
         {
           logger.error("Program file '{}' tries to load data beyond memory size at address 0x{:08x}.",
                        sim_options.program_path, load_address << 2);
           std::exit(EXIT_FAILURE);
         }
-        tcm[load_address] = std::stoul(token_str, nullptr, 16);
-        ++load_address;
+        tcm[load_address++] = std::stoul(token_str, nullptr, 16);
       }
     }
   }
@@ -217,8 +216,8 @@ int main(int argc, char *argv[])
       logger.info("Program signaled completion after {} cycles.", cycle_count);
 
       // Output test signature if requested
-      uint32_t start_address = read_memory(0x001FFFF8);
-      uint32_t stop_address = read_memory(0x001FFFFC);
+      uint32_t start_address = read_memory(0x001FFFF8) >> 2;
+      uint32_t stop_address = read_memory(0x001FFFFC) >> 2;
       if (!sim_options.signature_path.empty() && start_address < stop_address)
       {
         std::ofstream signature_file(sim_options.signature_path, std::ios::out | std::ios::trunc);
@@ -230,10 +229,9 @@ int main(int argc, char *argv[])
         }
         logger.info("Dumping test signature from 0x{:08x} to 0x{:08x} ({} bytes) to {}", start_address, stop_address,
                     stop_address - start_address, sim_options.signature_path);
-        while (start_address < stop_address && start_address < memory_size / 4)
+        while (start_address < stop_address && start_address < (memory_size >> 2))
         {
-          signature_file << std::format("{:08x}\n", tcm[start_address >> 2]);
-          start_address += 4;
+          signature_file << std::format("{:08x}\n", tcm[start_address++]);
         }
       }
 
@@ -248,9 +246,9 @@ int main(int argc, char *argv[])
           break;
         }
         logger.info("Dumping memory to {}", sim_options.dump_path);
-        for (uint32_t addr = 0; addr < memory_size; addr += 4)
+        for (uint32_t addr = 0; addr < (memory_size >> 2); addr++)
         {
-          dump_file << std::format("{:08x}\n", tcm[addr >> 2]);
+          dump_file << std::format("{:08x}\n", tcm[addr]);
         }
       }
 
