@@ -93,6 +93,8 @@ module rvx #(
   assign irq_external = 1'b0;  // unused
   assign irq_software = 1'b0;  // unused
 
+  // Memory-mapped timer
+  wire [63:0] timer;
 
   rvx_core #(
 
@@ -128,7 +130,7 @@ module rvx #(
       .irq_software(irq_software),
 
       // Memory-mapped timer
-      .memory_mapped_timer(64'b0)
+      .memory_mapped_timer(timer)
 
   );
 
@@ -236,7 +238,10 @@ module rvx #(
       .write_response(peripheral_write_response[TIMER_REGION_INDEX]),
 
       // Timer interrupt request
-      .timer_irq(irq_timer)
+      .timer_irq(irq_timer),
+
+      // Timer output
+      .timer(timer)
 
   );
 
