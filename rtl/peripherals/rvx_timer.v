@@ -23,7 +23,7 @@ module rvx_timer (
     output reg timer_irq,
 
     // Timer output
-    output reg [63:0] timer
+    output wire [63:0] timer
 
 );
 
