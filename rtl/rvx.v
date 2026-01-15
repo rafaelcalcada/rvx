@@ -3,11 +3,11 @@
 
 module rvx #(
 
-    parameter MEMORY_SIZE_IN_BYTES  = 8192,
-    parameter MEMORY_INIT_FILE_PATH = "",
-    parameter BOOT_ADDRESS          = 32'h00000000,
-    parameter GPIO_WIDTH            = 1,
-    parameter ENABLE_ZMMUL          = 0
+    parameter MEMORY_SIZE      = 2048,
+    parameter MEMORY_INIT_FILE = "",
+    parameter BOOT_ADDRESS     = 32'h00000000,
+    parameter GPIO_WIDTH       = 1,
+    parameter ENABLE_ZMMUL     = 0
 
 ) (
 
@@ -35,7 +35,7 @@ module rvx #(
   // System bus configuration
 
   localparam NUM_DEVICES = 5;
-  localparam D0_RAM = 0;
+  localparam D0_TCM = 0;
   localparam D1_UART = 1;
   localparam D2_MTIMER = 2;
   localparam D3_GPIO = 3;
@@ -44,8 +44,8 @@ module rvx #(
   wire [NUM_DEVICES*32-1:0] device_start_address;
   wire [NUM_DEVICES*32-1:0] device_region_size;
 
-  assign device_start_address[32*D0_RAM+:32]    = 32'h0000_0000;
-  assign device_region_size[32*D0_RAM+:32]      = MEMORY_SIZE_IN_BYTES;
+  assign device_start_address[32*D0_TCM+:32]    = 32'h0000_0000;
+  assign device_region_size[32*D0_TCM+:32]      = MEMORY_SIZE;
 
   assign device_start_address[32*D1_UART+:32]   = 32'h8000_0000;
   assign device_region_size[32*D1_UART+:32]     = 16;
@@ -172,8 +172,8 @@ module rvx #(
 
   rvx_tightly_coupled_memory #(
 
-      .MEMORY_SIZE_IN_BYTES (MEMORY_SIZE_IN_BYTES),
-      .MEMORY_INIT_FILE_PATH(MEMORY_INIT_FILE_PATH)
+      .MEMORY_SIZE     (MEMORY_SIZE),
+      .MEMORY_INIT_FILE(MEMORY_INIT_FILE)
 
   ) rvx_tightly_coupled_memory_instance (
 
@@ -189,13 +189,13 @@ module rvx #(
 
       // Port 1 (read/write) - Data bus
       .port1_address  (device_rw_address),
-      .port1_rdata    (device_read_data[32*D0_RAM+:32]),
-      .port1_rrequest (device_read_request[D0_RAM]),
-      .port1_rresponse(device_read_response[D0_RAM]),
+      .port1_rdata    (device_read_data[32*D0_TCM+:32]),
+      .port1_rrequest (device_read_request[D0_TCM]),
+      .port1_rresponse(device_read_response[D0_TCM]),
       .port1_wdata    (device_write_data),
       .port1_wstrobe  (device_write_strobe),
-      .port1_wrequest (device_write_request[D0_RAM]),
-      .port1_wresponse(device_write_response[D0_RAM])
+      .port1_wrequest (device_write_request[D0_TCM]),
+      .port1_wresponse(device_write_response[D0_TCM])
 
   );
 
