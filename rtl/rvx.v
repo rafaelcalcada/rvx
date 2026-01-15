@@ -3,7 +3,7 @@
 
 module rvx #(
 
-    parameter MEMORY_SIZE      = 2048,
+    parameter MEMORY_SIZE      = 8192,
     parameter MEMORY_INIT_FILE = "",
     parameter BOOT_ADDRESS     = 32'h00000000,
     parameter GPIO_WIDTH       = 1,
@@ -32,66 +32,64 @@ module rvx #(
   wire        ibus_rrequest;
   wire        ibus_rresponse;
 
-  // System bus configuration
+  // RVX Interconnect configuration
 
-  localparam NUM_DEVICES = 5;
-  localparam D0_TCM = 0;
-  localparam D1_UART = 1;
-  localparam D2_MTIMER = 2;
-  localparam D3_GPIO = 3;
-  localparam D4_SPI = 4;
+  localparam NUM_PERIPHERALS = 5;
 
-  wire [NUM_DEVICES*32-1:0] device_start_address;
-  wire [NUM_DEVICES*32-1:0] device_region_size;
+  localparam TCM_REGION_INDEX = 0;
+  localparam UART_REGION_INDEX = 1;
+  localparam TIMER_REGION_INDEX = 2;
+  localparam GPIO_REGION_INDEX = 3;
+  localparam SPI_REGION_INDEX = 4;
 
-  assign device_start_address[32*D0_TCM+:32]    = 32'h0000_0000;
-  assign device_region_size[32*D0_TCM+:32]      = MEMORY_SIZE;
+  localparam [31:0] TCM_BASE_ADDRESS = 32'h00000000;
+  localparam [31:0] TCM_REGION_SIZE = MEMORY_SIZE;
 
-  assign device_start_address[32*D1_UART+:32]   = 32'h8000_0000;
-  assign device_region_size[32*D1_UART+:32]     = 16;
+  localparam [31:0] UART_BASE_ADDRESS = 32'h80000000;
+  localparam [31:0] UART_REGION_SIZE = 16;
 
-  assign device_start_address[32*D2_MTIMER+:32] = 32'h8001_0000;
-  assign device_region_size[32*D2_MTIMER+:32]   = 32;
+  localparam [31:0] TIMER_BASE_ADDRESS = 32'h80010000;
+  localparam [31:0] TIMER_REGION_SIZE = 32;
 
-  assign device_start_address[32*D3_GPIO+:32]   = 32'h8002_0000;
-  assign device_region_size[32*D3_GPIO+:32]     = 32;
+  localparam [31:0] GPIO_BASE_ADDRESS = 32'h80020000;
+  localparam [31:0] GPIO_REGION_SIZE = 32;
 
-  assign device_start_address[32*D4_SPI+:32]    = 32'h8003_0000;
-  assign device_region_size[32*D4_SPI+:32]      = 32;
+  localparam [31:0] SPI_BASE_ADDRESS = 32'h80030000;
+  localparam [31:0] SPI_REGION_SIZE = 32;
 
-  // RVX 32-bit Processor (Manager Device) <=> System Bus
+  // Connections between the RVX Core and the Interconnect
 
-  wire [              31:0] manager_rw_address;
-  wire [              31:0] manager_read_data;
-  wire                      manager_read_request;
-  wire                      manager_read_response;
-  wire [              31:0] manager_write_data;
-  wire [               3:0] manager_write_strobe;
-  wire                      manager_write_request;
-  wire                      manager_write_response;
+  wire [                  31:0] controller_rw_address;
+  wire [                  31:0] controller_read_data;
+  wire                          controller_read_request;
+  wire                          controller_read_response;
+  wire [                  31:0] controller_write_data;
+  wire [                   3:0] controller_write_strobe;
+  wire                          controller_write_request;
+  wire                          controller_write_response;
 
-  // System Bus <=> Managed Devices
+  // Connections between the Interconnect and Controlled Peripherals
 
-  wire [              31:0] device_rw_address;
-  wire [NUM_DEVICES*32-1:0] device_read_data;
-  wire [   NUM_DEVICES-1:0] device_read_request;
-  wire [   NUM_DEVICES-1:0] device_read_response;
-  wire [              31:0] device_write_data;
-  wire [               3:0] device_write_strobe;
-  wire [   NUM_DEVICES-1:0] device_write_request;
-  wire [   NUM_DEVICES-1:0] device_write_response;
+  wire [                  31:0] peripheral_rw_address;
+  wire [NUM_PERIPHERALS*32-1:0] peripheral_read_data;
+  wire [   NUM_PERIPHERALS-1:0] peripheral_read_request;
+  wire [   NUM_PERIPHERALS-1:0] peripheral_read_response;
+  wire [                  31:0] peripheral_write_data;
+  wire [                   3:0] peripheral_write_strobe;
+  wire [   NUM_PERIPHERALS-1:0] peripheral_write_request;
+  wire [   NUM_PERIPHERALS-1:0] peripheral_write_response;
 
-  // Interrupt signals
+  // Interrupt request signals
 
-  wire [              15:0] irq_fast;
-  wire                      irq_external;
-  wire                      irq_timer;
-  wire                      irq_software;
-  wire                      irq_uart;
+  wire [                  15:0] irq_fast;
+  wire                          irq_external;
+  wire                          irq_timer;
+  wire                          irq_software;
+  wire                          irq_uart;
 
-  // Interrupt signals map
+  // Interrupts configuration
 
-  assign irq_fast     = {15'b0, irq_uart};
+  assign irq_fast     = {15'b0, irq_uart};  // Only Fast IRQ 0 is used for UART
   assign irq_external = 1'b0;  // unused
   assign irq_software = 1'b0;  // unused
 
@@ -114,14 +112,14 @@ module rvx #(
       .ibus_rresponse(ibus_rresponse),
 
       // Data bus
-      .dbus_address  (manager_rw_address),
-      .dbus_rdata    (manager_read_data),
-      .dbus_rrequest (manager_read_request),
-      .dbus_rresponse(manager_read_response),
-      .dbus_wdata    (manager_write_data),
-      .dbus_wstrobe  (manager_write_strobe),
-      .dbus_wrequest (manager_write_request),
-      .dbus_wresponse(manager_write_response),
+      .dbus_address  (controller_rw_address),
+      .dbus_rdata    (controller_read_data),
+      .dbus_rrequest (controller_read_request),
+      .dbus_rresponse(controller_read_response),
+      .dbus_wdata    (controller_write_data),
+      .dbus_wstrobe  (controller_write_strobe),
+      .dbus_wrequest (controller_write_request),
+      .dbus_wresponse(controller_write_response),
 
       // Interrupt requests
       .irq_fast    (irq_fast),
@@ -134,39 +132,37 @@ module rvx #(
 
   );
 
-  rvx_bus #(
+  rvx_interconnect #(
 
-      .NUM_DEVICES(NUM_DEVICES)
+      .NUM_PERIPHERALS(NUM_PERIPHERALS),
+      .BASE_ADDRESSES ({SPI_BASE_ADDRESS, GPIO_BASE_ADDRESS, TIMER_BASE_ADDRESS, UART_BASE_ADDRESS, TCM_BASE_ADDRESS}),
+      .REGION_SIZES   ({SPI_REGION_SIZE, GPIO_REGION_SIZE, TIMER_REGION_SIZE, UART_REGION_SIZE, TCM_REGION_SIZE})
 
-  ) rvx_bus_instance (
+  ) rvx_interconnect_instance (
 
       // Global signals
       .clock  (clock),
       .reset_n(reset_n),
 
-      // Interface with the manager device (Processor Core IP)
-      .manager_rw_address    (manager_rw_address),
-      .manager_read_data     (manager_read_data),
-      .manager_read_request  (manager_read_request),
-      .manager_read_response (manager_read_response),
-      .manager_write_data    (manager_write_data),
-      .manager_write_strobe  (manager_write_strobe),
-      .manager_write_request (manager_write_request),
-      .manager_write_response(manager_write_response),
+      // Connections with the controller device (RVX Core)
+      .controller_rw_address    (controller_rw_address),
+      .controller_read_data     (controller_read_data),
+      .controller_read_request  (controller_read_request),
+      .controller_read_response (controller_read_response),
+      .controller_write_data    (controller_write_data),
+      .controller_write_strobe  (controller_write_strobe),
+      .controller_write_request (controller_write_request),
+      .controller_write_response(controller_write_response),
 
-      // Interface with the managed devices
-      .device_rw_address    (device_rw_address),
-      .device_read_data     (device_read_data),
-      .device_read_request  (device_read_request),
-      .device_read_response (device_read_response),
-      .device_write_data    (device_write_data),
-      .device_write_strobe  (device_write_strobe),
-      .device_write_request (device_write_request),
-      .device_write_response(device_write_response),
-
-      // Base addresses and masks of the managed devices
-      .device_start_address(device_start_address),
-      .device_region_size  (device_region_size)
+      // Connections with the controlled peripheral devices
+      .peripheral_rw_address    (peripheral_rw_address),
+      .peripheral_read_data     (peripheral_read_data),
+      .peripheral_read_request  (peripheral_read_request),
+      .peripheral_read_response (peripheral_read_response),
+      .peripheral_write_data    (peripheral_write_data),
+      .peripheral_write_strobe  (peripheral_write_strobe),
+      .peripheral_write_request (peripheral_write_request),
+      .peripheral_write_response(peripheral_write_response)
 
   );
 
@@ -188,15 +184,14 @@ module rvx #(
       .port0_rresponse(ibus_rresponse),
 
       // Port 1 (read/write) - Data bus
-      .port1_address  (device_rw_address),
-      .port1_rdata    (device_read_data[32*D0_TCM+:32]),
-      .port1_rrequest (device_read_request[D0_TCM]),
-      .port1_rresponse(device_read_response[D0_TCM]),
-      .port1_wdata    (device_write_data),
-      .port1_wstrobe  (device_write_strobe),
-      .port1_wrequest (device_write_request[D0_TCM]),
-      .port1_wresponse(device_write_response[D0_TCM])
-
+      .port1_address  (peripheral_rw_address),
+      .port1_rdata    (peripheral_read_data[32*TCM_REGION_INDEX+:32]),
+      .port1_rrequest (peripheral_read_request[TCM_REGION_INDEX]),
+      .port1_rresponse(peripheral_read_response[TCM_REGION_INDEX]),
+      .port1_wdata    (peripheral_write_data),
+      .port1_wstrobe  (peripheral_write_strobe),
+      .port1_wrequest (peripheral_write_request[TCM_REGION_INDEX]),
+      .port1_wresponse(peripheral_write_response[TCM_REGION_INDEX])
   );
 
   rvx_uart rvx_uart_instance (
@@ -206,20 +201,20 @@ module rvx #(
       .reset_n(reset_n),
 
       // Register read/write
-      .rw_address    (device_rw_address[4:0]),
-      .read_data     (device_read_data[32*D1_UART+:32]),
-      .read_request  (device_read_request[D1_UART]),
-      .read_response (device_read_response[D1_UART]),
-      .write_data    (device_write_data[31:0]),
-      .write_strobe  (device_write_strobe),
-      .write_request (device_write_request[D1_UART]),
-      .write_response(device_write_response[D1_UART]),
+      .rw_address    (peripheral_rw_address[4:0]),
+      .read_data     (peripheral_read_data[32*UART_REGION_INDEX+:32]),
+      .read_request  (peripheral_read_request[UART_REGION_INDEX]),
+      .read_response (peripheral_read_response[UART_REGION_INDEX]),
+      .write_data    (peripheral_write_data[31:0]),
+      .write_strobe  (peripheral_write_strobe),
+      .write_request (peripheral_write_request[UART_REGION_INDEX]),
+      .write_response(peripheral_write_response[UART_REGION_INDEX]),
 
-      // RX/TX signals
+      // UART RX/TX signals
       .uart_tx(uart_tx),
       .uart_rx(uart_rx),
 
-      // Interrupt request
+      // UART interrupt request (connected to Fast IRQ 0)
       .uart_irq(irq_uart)
 
   );
@@ -227,23 +222,20 @@ module rvx #(
   rvx_timer rvx_timer_instance (
 
       // Global signals
-
       .clock  (clock),
       .reset_n(reset_n),
 
-      // IO interface
+      // Register read/write
+      .rw_address    (peripheral_rw_address[4:0]),
+      .read_data     (peripheral_read_data[32*TIMER_REGION_INDEX+:32]),
+      .read_request  (peripheral_read_request[TIMER_REGION_INDEX]),
+      .read_response (peripheral_read_response[TIMER_REGION_INDEX]),
+      .write_data    (peripheral_write_data),
+      .write_strobe  (peripheral_write_strobe),
+      .write_request (peripheral_write_request[TIMER_REGION_INDEX]),
+      .write_response(peripheral_write_response[TIMER_REGION_INDEX]),
 
-      .rw_address    (device_rw_address[4:0]),
-      .read_data     (device_read_data[32*D2_MTIMER+:32]),
-      .read_request  (device_read_request[D2_MTIMER]),
-      .read_response (device_read_response[D2_MTIMER]),
-      .write_data    (device_write_data),
-      .write_strobe  (device_write_strobe),
-      .write_request (device_write_request[D2_MTIMER]),
-      .write_response(device_write_response[D2_MTIMER]),
-
-      // Interrupt signaling
-
+      // Timer interrupt request
       .timer_irq(irq_timer)
 
   );
@@ -255,23 +247,20 @@ module rvx #(
   ) rvx_gpio_instance (
 
       // Global signals
-
       .clock  (clock),
       .reset_n(reset_n),
 
-      // IO interface
+      // Register read/write
+      .rw_address    (peripheral_rw_address[4:0]),
+      .read_data     (peripheral_read_data[32*GPIO_REGION_INDEX+:32]),
+      .read_request  (peripheral_read_request[GPIO_REGION_INDEX]),
+      .read_response (peripheral_read_response[GPIO_REGION_INDEX]),
+      .write_data    (peripheral_write_data),
+      .write_strobe  (peripheral_write_strobe),
+      .write_request (peripheral_write_request[GPIO_REGION_INDEX]),
+      .write_response(peripheral_write_response[GPIO_REGION_INDEX]),
 
-      .rw_address    (device_rw_address[4:0]),
-      .read_data     (device_read_data[32*D3_GPIO+:32]),
-      .read_request  (device_read_request[D3_GPIO]),
-      .read_response (device_read_response[D3_GPIO]),
-      .write_data    (device_write_data),
-      .write_strobe  (device_write_strobe),
-      .write_request (device_write_request[D3_GPIO]),
-      .write_response(device_write_response[D3_GPIO]),
-
-      // I/O signals
-
+      // GPIO signals
       .gpio_input        (gpio_input),
       .gpio_output_enable(gpio_output_enable),
       .gpio_output       (gpio_output)
@@ -285,14 +274,14 @@ module rvx #(
       .reset_n(reset_n),
 
       // Register read/write
-      .rw_address    (device_rw_address[4:0]),
-      .read_data     (device_read_data[32*D4_SPI+:32]),
-      .read_request  (device_read_request[D4_SPI]),
-      .read_response (device_read_response[D4_SPI]),
-      .write_data    (device_write_data),
-      .write_strobe  (device_write_strobe),
-      .write_request (device_write_request[D4_SPI]),
-      .write_response(device_write_response[D4_SPI]),
+      .rw_address    (peripheral_rw_address[4:0]),
+      .read_data     (peripheral_read_data[32*SPI_REGION_INDEX+:32]),
+      .read_request  (peripheral_read_request[SPI_REGION_INDEX]),
+      .read_response (peripheral_read_response[SPI_REGION_INDEX]),
+      .write_data    (peripheral_write_data),
+      .write_strobe  (peripheral_write_strobe),
+      .write_request (peripheral_write_request[SPI_REGION_INDEX]),
+      .write_response(peripheral_write_response[SPI_REGION_INDEX]),
 
       // SPI signals
       .sclk(sclk),
