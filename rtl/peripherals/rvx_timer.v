@@ -20,7 +20,10 @@ module rvx_timer (
     output reg         write_response,
 
     // Timer interrupt request
-    output reg timer_irq
+    output reg timer_irq,
+
+    // Timer output
+    output reg [63:0] timer
 
 );
 
@@ -87,6 +90,7 @@ module rvx_timer (
   // Counter logic
   // ---------------------------------------------------------------------------
 
+  assign timer = counter;
   always @(posedge clock) begin
     if (!reset_n) begin
       counter <= 64'd0;
