@@ -17,8 +17,8 @@ tests:
 
 run:
 	@test -f ${RVX_SIMULATOR_PATH}/build/rvx_simulator || { echo "rvx_simulator not found. Run 'make simulator' first."; exit 1; }
-	@test -f build/rvx_hal_tests.hex || { echo "rvx_hal_tests.hex not found. Run 'make tests' to build the tests first."; exit 1; }
-	@${RVX_SIMULATOR_PATH}/build/rvx_simulator build/rvx_hal_tests.hex
+	@test -f build/rvx_hal_tests.mem || { echo "rvx_hal_tests.mem not found. Run 'make tests' to build the tests first."; exit 1; }
+	@${RVX_SIMULATOR_PATH}/build/rvx_simulator build/rvx_hal_tests.mem
 
 simulator:
 	@$(MAKE) -C ${RVX_SIMULATOR_PATH} -j$(nproc)
