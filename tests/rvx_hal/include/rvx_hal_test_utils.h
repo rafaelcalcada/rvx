@@ -19,12 +19,6 @@
       val1, val2,                                                                                                      \
       "\n(ERROR) Assertion " STRINGIFY(val1) " == " STRINGIFY(val2) " at line " MACRO_STRINGIFY(__LINE__) " failed.");
 
-// Base addresses of peripherals in the simulation environment
-extern RvxUart *rvx_test_uart_address;
-extern RvxTimer *rvx_test_timer_address;
-extern RvxGpio *rvx_test_gpio_address;
-extern RvxSpiManager *rvx_test_spi_manager_address;
-
 // Global variables to track test errors
 extern int rvx_test_error_flag;
 extern int rvx_test_global_error_flag;

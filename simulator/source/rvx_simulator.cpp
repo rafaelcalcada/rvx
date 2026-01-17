@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
       cycle_count++;
 
     // Output UART TX characters to console
-    if (simulator->clock && rw_address == 0x80000000 && write_request && uart_tx_bit_counter == 0)
+    if (simulator->clock && rw_address == 0x40000000 && write_request && uart_tx_bit_counter == 0)
     {
       std::cout << (char)write_data;
     }
