@@ -2,7 +2,7 @@
 # Copyright (c) 2020-2026 RVX Project Contributors
 
 # Minimal CMake version required
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.28)
 
 # Name of the executable to be generated
 set(APP_NAME "gpio_demo")
