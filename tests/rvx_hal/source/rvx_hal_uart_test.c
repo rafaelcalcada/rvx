@@ -33,12 +33,12 @@ void run_rvx_hal_uart_test()
   uint32_t read_reg_reset_value = rvx_test_uart_address->RVX_UART_READ_REG;
   uint32_t status_reg_reset_value = rvx_test_uart_address->RVX_UART_STATUS_REG;
 
-  rvx_uart_init(rvx_test_uart_address, 5208);
+  rvx_uart_init(rvx_test_uart_address, 50);
   rvx_uart_write_string(rvx_test_uart_address,
                         "\nRVX HAL - UART integration tests\n--------------------------------\n");
 
   rvx_test_start("\nTest 1: Initialize UART at 9600 baud. ");
-  RVX_TEST_ASSERT(rvx_test_uart_address->RVX_UART_BAUD_REG == 5208);
+  RVX_TEST_ASSERT(rvx_test_uart_address->RVX_UART_BAUD_REG == 50);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&uart_tests_error_count);
 
