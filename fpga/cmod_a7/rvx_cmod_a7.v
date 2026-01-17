@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
-module hello_world_cmod_a7 (
+module rvx_cmod_a7 (
 
     input  wire clock,
     input  wire reset,
@@ -11,18 +11,13 @@ module hello_world_cmod_a7 (
 
   // Push-button debouncing
   reg reset_debounced;
-  always @(posedge clock) begin
-    reset_debounced <= reset;
-  end
+  always @(posedge clock) reset_debounced <= reset;
 
   rvx #(
 
-      .MEMORY_INIT_FILE_PATH("hello_world.hex")
+      .MEMORY_INIT_FILE("rvx_hello_world.mem")
 
   ) rvx_instance (
-
-      // Note that unused inputs are hardwired to zero,
-      // while unused outputs are left open.
 
       .clock  (clock),
       .reset_n(!reset_debounced),

@@ -1,5 +1,5 @@
 create_clock -period 10.000 -name clock -waveform {0.000 5.000} [get_ports clock]
-create_generated_clock -name clkdiv2 -source [get_pins clock_50mhz_reg/C] -divide_by 2 [get_pins clock_50mhz_reg/Q]
+create_generated_clock -name clkdiv2 -source [get_pins rvx_clock_reg/C] -divide_by 2 [get_pins rvx_clock_reg/Q]
 set_property IOSTANDARD LVCMOS33 [get_ports clock]
 set_property IOSTANDARD LVCMOS33 [get_ports reset]
 set_property IOSTANDARD LVCMOS33 [get_ports uart_tx]
