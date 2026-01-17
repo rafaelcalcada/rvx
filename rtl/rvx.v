@@ -45,16 +45,16 @@ module rvx #(
   localparam [31:0] TCM_BASE_ADDRESS = 32'h00000000;
   localparam [31:0] TCM_REGION_SIZE = MEMORY_SIZE;
 
-  localparam [31:0] UART_BASE_ADDRESS = 32'h80000000;
+  localparam [31:0] UART_BASE_ADDRESS = 32'h40000000;
   localparam [31:0] UART_REGION_SIZE = 16;
 
-  localparam [31:0] TIMER_BASE_ADDRESS = 32'h80010000;
+  localparam [31:0] TIMER_BASE_ADDRESS = 32'h40001000;
   localparam [31:0] TIMER_REGION_SIZE = 32;
 
-  localparam [31:0] GPIO_BASE_ADDRESS = 32'h80020000;
+  localparam [31:0] GPIO_BASE_ADDRESS = 32'h40002000;
   localparam [31:0] GPIO_REGION_SIZE = 32;
 
-  localparam [31:0] SPI_BASE_ADDRESS = 32'h80030000;
+  localparam [31:0] SPI_BASE_ADDRESS = 32'h40003000;
   localparam [31:0] SPI_REGION_SIZE = 32;
 
   // Connections between the RVX Core and the Interconnect
