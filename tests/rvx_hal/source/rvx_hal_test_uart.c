@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-#include "rvx_hal_uart_test.h"
+#include "rvx.h"
+#include "rvx_hal_test_helpers.h"
 
 /// @name Global variables
 /// @{
@@ -26,8 +27,6 @@ RVX_IRQ_HANDLER_M(fast0_irq_handler)
 void run_rvx_hal_uart_test()
 {
   RvxUart *rvx_uart_address = RVX_UART_ADDRESS;
-
-  // Track the number of failed tests locally
   unsigned int uart_tests_error_count = 0;
 
   // Save reset values of UART registers before any modifications
@@ -89,13 +88,14 @@ void run_rvx_hal_uart_test()
   rvx_test_finish("\n  All bytes transferred successfully. (Passed)");
   rvx_test_update_error_count(&uart_tests_error_count);
 
-  if (uart_tests_error_count)
-    rvx_uart_write_string(RVX_UART_ADDRESS,
-                          "\n\n(ERROR) Some RVX HAL UART integration tests failed. Check the output for details.");
-  else
-    rvx_uart_write_string(RVX_UART_ADDRESS, "\n\nPassed RVX HAL UART integration tests.");
+  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the UART module failed. "
+                          "Check the test output for details.\n";
+  const char *success_msg = "\n\nRVX HAL UART tests: All tests passed successfully.\n";
 
-  rvx_uart_write_string(RVX_UART_ADDRESS, "\n");
+  if (uart_tests_error_count)
+    rvx_uart_write_string(RVX_UART_ADDRESS, error_msg);
+  else
+    rvx_uart_write_string(RVX_UART_ADDRESS, success_msg);
 }
 
 /// @brief Transfer a byte via UART using busy-wait and verify reception.

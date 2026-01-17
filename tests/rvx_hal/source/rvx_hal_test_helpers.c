@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
-#include "rvx_hal_test_utils.h"
+#include "rvx_hal_test_helpers.h"
 
 /// @brief Global variables to track test errors
 /// @{

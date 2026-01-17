@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-#include "rvx_hal_timer_test.h"
+#include "rvx.h"
+#include "rvx_hal_test_helpers.h"
 
 /// @brief Set up the timer interrupt handler.
 RVX_IRQ_HANDLER_M(mti_irq_handler)
@@ -13,7 +14,6 @@ RVX_IRQ_HANDLER_M(mti_irq_handler)
 /// @brief Run RVX HAL Timer integration tests.
 void run_rvx_hal_timer_test()
 {
-  // Track the number of failed tests locally
   unsigned int timer_tests_error_count = 0;
 
   rvx_uart_init(RVX_UART_ADDRESS, 50);
@@ -69,11 +69,12 @@ void run_rvx_hal_timer_test()
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&timer_tests_error_count);
 
-  if (timer_tests_error_count)
-    rvx_uart_write_string(RVX_UART_ADDRESS,
-                          "\n\n(ERROR) Some RVX HAL Timer integration tests failed. Check the output for details.");
-  else
-    rvx_uart_write_string(RVX_UART_ADDRESS, "\n\nPassed RVX HAL Timer integration tests.");
+  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the Timer module failed. "
+                          "Check the test output for details.\n";
+  const char *success_msg = "\n\nRVX HAL Timer tests: All tests passed successfully.\n";
 
-  rvx_uart_write_string(RVX_UART_ADDRESS, "\n");
+  if (timer_tests_error_count)
+    rvx_uart_write_string(RVX_UART_ADDRESS, error_msg);
+  else
+    rvx_uart_write_string(RVX_UART_ADDRESS, success_msg);
 }

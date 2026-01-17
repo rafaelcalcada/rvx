@@ -28,12 +28,12 @@ project(${APP_NAME} LANGUAGES C ASM)
 
 # Source files for the application
 set(SOURCE_FILES
-  source/rvx_hal_tests.c
-  source/rvx_hal_test_utils.c
-  source/rvx_hal_uart_test.c
-  source/rvx_hal_gpio_test.c
-  source/rvx_hal_spi_manager_test.c
-  source/rvx_hal_timer_test.c
+  source/rvx_hal_test.c
+  source/rvx_hal_test_helpers.c
+  source/rvx_hal_test_uart.c
+  source/rvx_hal_test_gpio.c
+  source/rvx_hal_test_spi_manager.c
+  source/rvx_hal_test_timer.c
 )
 
 # Create the executable
