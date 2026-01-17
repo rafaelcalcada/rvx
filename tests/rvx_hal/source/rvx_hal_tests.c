@@ -16,12 +16,12 @@ int main()
   run_rvx_hal_timer_test();
 
   if (rvx_test_global_error_flag)
-    rvx_uart_write_string(rvx_test_uart_address,
+    rvx_uart_write_string(RVX_UART_ADDRESS,
                           "\n(ERROR) Some RVX HAL integration tests failed. Check the output for details.");
   else
-    rvx_uart_write_string(rvx_test_uart_address, "\nPassed all RVX HAL integration tests.");
+    rvx_uart_write_string(RVX_UART_ADDRESS, "\nPassed all RVX HAL integration tests.");
 
-  rvx_uart_write_string(rvx_test_uart_address, "\n\n");
+  rvx_uart_write_string(RVX_UART_ADDRESS, "\n\n");
 
   uint32_t *sigstart = (uint32_t *)0x00000004;
   uint32_t *sigend = (uint32_t *)0x00000008;

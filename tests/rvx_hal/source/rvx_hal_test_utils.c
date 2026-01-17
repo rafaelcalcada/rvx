@@ -3,12 +3,6 @@
 
 #include "rvx_hal_test_utils.h"
 
-// Base addresses of peripherals in the simulation environment
-RvxUart *rvx_test_uart_address = (RvxUart *)0x80000000;
-RvxTimer *rvx_test_timer_address = (RvxTimer *)0x80010000;
-RvxGpio *rvx_test_gpio_address = (RvxGpio *)0x80020000;
-RvxSpiManager *rvx_test_spi_manager_address = (RvxSpiManager *)0x80030000;
-
 /// @brief Global variables to track test errors
 /// @{
 int rvx_test_error_flag = 0;        ///< Local error flag for the current test
@@ -28,7 +22,7 @@ void rvx_test_assert(bool condition, const char *message)
 {
   if (!condition)
   {
-    rvx_uart_write_string(rvx_test_uart_address, message);
+    rvx_uart_write_string(RVX_UART_ADDRESS, message);
     rvx_test_error_flag = 1;
     rvx_test_global_error_flag = 1;
   }
@@ -48,12 +42,12 @@ void rvx_test_assert_eq(uint8_t val1, uint8_t val2, const char *message)
 {
   if (val1 != val2)
   {
-    rvx_uart_write_string(rvx_test_uart_address, message);
-    rvx_uart_write_string(rvx_test_uart_address, "\nLeft-hand value: ");
+    rvx_uart_write_string(RVX_UART_ADDRESS, message);
+    rvx_uart_write_string(RVX_UART_ADDRESS, "\nLeft-hand value: ");
     rvx_test_print_byte(val1);
-    rvx_uart_write_string(rvx_test_uart_address, "\nRight-hand value: ");
+    rvx_uart_write_string(RVX_UART_ADDRESS, "\nRight-hand value: ");
     rvx_test_print_byte(val2);
-    rvx_uart_write(rvx_test_uart_address, '\n');
+    rvx_uart_write(RVX_UART_ADDRESS, '\n');
     rvx_test_error_flag = 1;
     rvx_test_global_error_flag = 1;
   }
@@ -74,7 +68,7 @@ void rvx_test_print_byte(const uint8_t read_data)
   str_val[2] = high_nibble < 10 ? high_nibble + '0' : high_nibble - 10 + 'a';
   str_val[3] = low_nibble < 10 ? low_nibble + '0' : low_nibble - 10 + 'a';
   str_val[4] = '\0';
-  rvx_uart_write_string(rvx_test_uart_address, str_val);
+  rvx_uart_write_string(RVX_UART_ADDRESS, str_val);
 }
 
 /**
@@ -93,7 +87,7 @@ void rvx_test_print_double_word_hex(uint64_t value)
     buffer[17 - i] = hex_chars[(value >> (i * 4)) & 0xF];
   }
   buffer[18] = '\0';
-  rvx_uart_write_string(rvx_test_uart_address, buffer);
+  rvx_uart_write_string(RVX_UART_ADDRESS, buffer);
 }
 
 /**
@@ -103,7 +97,7 @@ void rvx_test_print_double_word_hex(uint64_t value)
  */
 void rvx_test_start(const char *test_message)
 {
-  rvx_uart_write_string(rvx_test_uart_address, test_message);
+  rvx_uart_write_string(RVX_UART_ADDRESS, test_message);
   rvx_test_error_flag = 0;
 }
 
@@ -114,7 +108,7 @@ void rvx_test_finish(const char *success_message)
 {
   if (rvx_test_error_flag == 0)
   {
-    rvx_uart_write_string(rvx_test_uart_address, success_message);
+    rvx_uart_write_string(RVX_UART_ADDRESS, success_message);
   }
 }
 

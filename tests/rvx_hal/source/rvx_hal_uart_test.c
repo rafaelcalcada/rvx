@@ -18,27 +18,28 @@ void transfer_byte_interrupt(uint8_t tx_byte);
 // UART interrupt signal is connected to Fast IRQ #0
 RVX_IRQ_HANDLER_M(fast0_irq_handler)
 {
-  uart_received_byte = rvx_uart_read(rvx_test_uart_address);
+  uart_received_byte = rvx_uart_read(RVX_UART_ADDRESS);
   uart_received_byte_flag = true;
 }
 
 /// @brief Run RVX HAL UART integration tests.
 void run_rvx_hal_uart_test()
 {
+  RvxUart *rvx_uart_address = RVX_UART_ADDRESS;
+
   // Track the number of failed tests locally
   unsigned int uart_tests_error_count = 0;
 
   // Save reset values of UART registers before any modifications
-  uint32_t baud_reg_reset_value = rvx_test_uart_address->RVX_UART_BAUD_REG;
-  uint32_t read_reg_reset_value = rvx_test_uart_address->RVX_UART_READ_REG;
-  uint32_t status_reg_reset_value = rvx_test_uart_address->RVX_UART_STATUS_REG;
+  uint32_t baud_reg_reset_value = rvx_uart_address->RVX_UART_BAUD_REG;
+  uint32_t read_reg_reset_value = rvx_uart_address->RVX_UART_READ_REG;
+  uint32_t status_reg_reset_value = rvx_uart_address->RVX_UART_STATUS_REG;
 
-  rvx_uart_init(rvx_test_uart_address, 50);
-  rvx_uart_write_string(rvx_test_uart_address,
-                        "\nRVX HAL - UART integration tests\n--------------------------------\n");
+  rvx_uart_init(RVX_UART_ADDRESS, 50);
+  rvx_uart_write_string(RVX_UART_ADDRESS, "\nRVX HAL - UART integration tests\n--------------------------------\n");
 
   rvx_test_start("\nTest 1: Initialize UART at 9600 baud. ");
-  RVX_TEST_ASSERT(rvx_test_uart_address->RVX_UART_BAUD_REG == 50);
+  RVX_TEST_ASSERT(rvx_uart_address->RVX_UART_BAUD_REG == 50);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&uart_tests_error_count);
 
@@ -59,9 +60,9 @@ void run_rvx_hal_uart_test()
 
   // UART is connected in loopback, the data transmitted above should have been received
   rvx_test_start("\nTest 5: UART STATUS register flags new data is received. ");
-  RVX_TEST_ASSERT(rvx_uart_rx_ready(rvx_test_uart_address) == true);
-  RVX_TEST_ASSERT_EQ(rvx_uart_read(rvx_test_uart_address), '\n');     // This was the first character sent
-  RVX_TEST_ASSERT(rvx_uart_rx_ready(rvx_test_uart_address) == false); // RX ready flag should be cleared after read
+  RVX_TEST_ASSERT(rvx_uart_rx_ready(RVX_UART_ADDRESS) == true);
+  RVX_TEST_ASSERT_EQ(rvx_uart_read(RVX_UART_ADDRESS), '\n');     // This was the first character sent
+  RVX_TEST_ASSERT(rvx_uart_rx_ready(RVX_UART_ADDRESS) == false); // RX ready flag should be cleared after read
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&uart_tests_error_count);
 
@@ -89,46 +90,46 @@ void run_rvx_hal_uart_test()
   rvx_test_update_error_count(&uart_tests_error_count);
 
   if (uart_tests_error_count)
-    rvx_uart_write_string(rvx_test_uart_address,
+    rvx_uart_write_string(RVX_UART_ADDRESS,
                           "\n\n(ERROR) Some RVX HAL UART integration tests failed. Check the output for details.");
   else
-    rvx_uart_write_string(rvx_test_uart_address, "\n\nPassed RVX HAL UART integration tests.");
+    rvx_uart_write_string(RVX_UART_ADDRESS, "\n\nPassed RVX HAL UART integration tests.");
 
-  rvx_uart_write_string(rvx_test_uart_address, "\n");
+  rvx_uart_write_string(RVX_UART_ADDRESS, "\n");
 }
 
 /// @brief Transfer a byte via UART using busy-wait and verify reception.
 /// @param tx_byte The byte to transmit.
 void transfer_byte_busy_wait(uint8_t tx_byte)
 {
-  rvx_uart_write_string(rvx_test_uart_address, "\n  Sending byte: ");
+  rvx_uart_write_string(RVX_UART_ADDRESS, "\n  Sending byte: ");
   rvx_test_print_byte(tx_byte);
-  rvx_uart_write_string(rvx_test_uart_address, " -- ASCII ");
-  rvx_uart_wait_tx_complete(rvx_test_uart_address); // Ensure previous transmission is complete
-  rvx_uart_read(rvx_test_uart_address);             // Clear RX register
-  RVX_TEST_ASSERT(rvx_uart_rx_ready(rvx_test_uart_address) == false);
-  rvx_uart_write(rvx_test_uart_address, tx_byte);   // Send byte
-  rvx_uart_wait_tx_complete(rvx_test_uart_address); // Wait until transmission is complete
-  while (!rvx_uart_rx_ready(rvx_test_uart_address)) // Wait for byte to be received
+  rvx_uart_write_string(RVX_UART_ADDRESS, " -- ASCII ");
+  rvx_uart_wait_tx_complete(RVX_UART_ADDRESS); // Ensure previous transmission is complete
+  rvx_uart_read(RVX_UART_ADDRESS);             // Clear RX register
+  RVX_TEST_ASSERT(rvx_uart_rx_ready(RVX_UART_ADDRESS) == false);
+  rvx_uart_write(RVX_UART_ADDRESS, tx_byte);   // Send byte
+  rvx_uart_wait_tx_complete(RVX_UART_ADDRESS); // Wait until transmission is complete
+  while (!rvx_uart_rx_ready(RVX_UART_ADDRESS)) // Wait for byte to be received
     ;
-  RVX_TEST_ASSERT_EQ(rvx_uart_read(rvx_test_uart_address), tx_byte);
+  RVX_TEST_ASSERT_EQ(rvx_uart_read(RVX_UART_ADDRESS), tx_byte);
 }
 
 /// @brief Transfer a byte via UART using interrupt and verify reception.
 /// @param tx_byte The byte to transmit.
 void transfer_byte_interrupt(uint8_t tx_byte)
 {
-  rvx_uart_write_string(rvx_test_uart_address, "\n  Sending byte: ");
+  rvx_uart_write_string(RVX_UART_ADDRESS, "\n  Sending byte: ");
   rvx_test_print_byte(tx_byte);
-  rvx_uart_write_string(rvx_test_uart_address, " -- ASCII ");
-  rvx_uart_wait_tx_complete(rvx_test_uart_address); // Ensure previous transmission is complete
-  rvx_uart_read(rvx_test_uart_address);             // Clear RX register
-  RVX_TEST_ASSERT(rvx_uart_rx_ready(rvx_test_uart_address) == false);
+  rvx_uart_write_string(RVX_UART_ADDRESS, " -- ASCII ");
+  rvx_uart_wait_tx_complete(RVX_UART_ADDRESS); // Ensure previous transmission is complete
+  rvx_uart_read(RVX_UART_ADDRESS);             // Clear RX register
+  RVX_TEST_ASSERT(rvx_uart_rx_ready(RVX_UART_ADDRESS) == false);
   uart_received_byte_flag = false;
   rvx_irq_enable_global();
-  rvx_uart_write(rvx_test_uart_address, tx_byte);   // Send byte
-  rvx_uart_wait_tx_complete(rvx_test_uart_address); // Wait until transmission is complete
-  while (!uart_received_byte_flag)                  // Wait until UART interrupt handler sets the flag
+  rvx_uart_write(RVX_UART_ADDRESS, tx_byte);   // Send byte
+  rvx_uart_wait_tx_complete(RVX_UART_ADDRESS); // Wait until transmission is complete
+  while (!uart_received_byte_flag)             // Wait until UART interrupt handler sets the flag
     ;
   rvx_irq_disable_global();
   uart_received_byte_flag = false;
