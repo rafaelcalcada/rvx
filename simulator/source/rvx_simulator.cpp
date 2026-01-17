@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
   /// @brief Returns true if the running program has finished execution.
   /// @note A program signals its end by writing 1 to address 0x00000000.
-  auto program_end = [&]() { return (rw_address == 0x00000000 && write_request == 1 && write_data == 0x00000001); };
+  auto program_end = [&]() { return (rw_address == 0x00000000 && write_request == 1); };
 
   // Start the tracer (if enabled)
   // ---------------------------------------------------------------------------
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
         }
       }
 
-      successful_completion = true;
+      successful_completion = write_data == 0x00000000;
       break;
     }
   }
