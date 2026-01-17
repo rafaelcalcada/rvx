@@ -9,7 +9,7 @@ void run_rvx_hal_gpio_test()
   // Track the number of failed tests locally
   unsigned int gpio_tests_error_count = 0;
 
-  rvx_uart_init(rvx_test_uart_address, 5208);
+  rvx_uart_init(rvx_test_uart_address, 50);
   rvx_uart_write_string(rvx_test_uart_address,
                         "\nRVX HAL - GPIO integration tests\n--------------------------------\n");
 
