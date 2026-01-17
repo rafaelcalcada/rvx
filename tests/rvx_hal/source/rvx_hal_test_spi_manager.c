@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2025 RVX Project Contributors
 
-#include "rvx_hal_spi_manager_test.h"
+#include "rvx.h"
+#include "rvx_hal_test_helpers.h"
 
 void transfer_test();
 
 void run_rvx_hal_spi_manager_test()
 {
   RvxSpiManager *rvx_spi_manager_address = RVX_SPI_MANAGER_ADDRESS;
-
-  // Track the number of failed tests locally
   unsigned int spi_manager_tests_error_count = 0;
 
   rvx_uart_init(RVX_UART_ADDRESS, 50);
@@ -46,8 +45,7 @@ void run_rvx_hal_spi_manager_test()
 
   rvx_test_start("\nTest 5: Transfering bytes to SPI Subordinate 0 in MODE 0. ");
   rvx_spi_chip_select_assert(RVX_SPI_MANAGER_ADDRESS);
-  rvx_spi_clock_set_divider(RVX_SPI_MANAGER_ADDRESS,
-                            24); // Set clock divider to 24 (equals 1 MHz if system clock is 50 MHz)
+  rvx_spi_clock_set_divider(RVX_SPI_MANAGER_ADDRESS, 24);
   RVX_TEST_ASSERT(rvx_spi_clock_get_divider(RVX_SPI_MANAGER_ADDRESS) == 24);
   rvx_spi_mode_set(RVX_SPI_MANAGER_ADDRESS, RVX_SPI_MODE_0);
   RVX_TEST_ASSERT(rvx_spi_mode_get(RVX_SPI_MANAGER_ADDRESS) == RVX_SPI_MODE_0);
@@ -60,8 +58,7 @@ void run_rvx_hal_spi_manager_test()
 
   rvx_test_start("\nTest 6: Transfering bytes to SPI Subordinate 1 in MODE 1. ");
   rvx_spi_chip_select_assert(RVX_SPI_MANAGER_ADDRESS);
-  rvx_spi_clock_set_divider(RVX_SPI_MANAGER_ADDRESS,
-                            24); // Set clock divider to 24 (equals 1 MHz if system clock is 50 MHz)
+  rvx_spi_clock_set_divider(RVX_SPI_MANAGER_ADDRESS, 24);
   RVX_TEST_ASSERT(rvx_spi_clock_get_divider(RVX_SPI_MANAGER_ADDRESS) == 24);
   rvx_spi_mode_set(RVX_SPI_MANAGER_ADDRESS, RVX_SPI_MODE_1);
   RVX_TEST_ASSERT(rvx_spi_mode_get(RVX_SPI_MANAGER_ADDRESS) == RVX_SPI_MODE_1);
@@ -75,8 +72,7 @@ void run_rvx_hal_spi_manager_test()
 
   rvx_test_start("\nTest 7: Transfering bytes to SPI Subordinate 1 in MODE 2. ");
   rvx_spi_chip_select_assert(RVX_SPI_MANAGER_ADDRESS);
-  rvx_spi_clock_set_divider(RVX_SPI_MANAGER_ADDRESS,
-                            24); // Set clock divider to 24 (equals 1 MHz if system clock is 50 MHz)
+  rvx_spi_clock_set_divider(RVX_SPI_MANAGER_ADDRESS, 24);
   RVX_TEST_ASSERT(rvx_spi_clock_get_divider(RVX_SPI_MANAGER_ADDRESS) == 24);
   rvx_spi_mode_set(RVX_SPI_MANAGER_ADDRESS, RVX_SPI_MODE_2);
   RVX_TEST_ASSERT(rvx_spi_mode_get(RVX_SPI_MANAGER_ADDRESS) == RVX_SPI_MODE_2);
@@ -90,8 +86,7 @@ void run_rvx_hal_spi_manager_test()
 
   rvx_test_start("\nTest 8: Transfering bytes to SPI Subordinate 0 in MODE 3. ");
   rvx_spi_chip_select_assert(RVX_SPI_MANAGER_ADDRESS);
-  rvx_spi_clock_set_divider(RVX_SPI_MANAGER_ADDRESS,
-                            24); // Set clock divider to 24 (equals 1 MHz if system clock is 50 MHz)
+  rvx_spi_clock_set_divider(RVX_SPI_MANAGER_ADDRESS, 24);
   RVX_TEST_ASSERT(rvx_spi_clock_get_divider(RVX_SPI_MANAGER_ADDRESS) == 24);
   rvx_spi_mode_set(RVX_SPI_MANAGER_ADDRESS, RVX_SPI_MODE_3);
   RVX_TEST_ASSERT(rvx_spi_mode_get(RVX_SPI_MANAGER_ADDRESS) == RVX_SPI_MODE_3);
@@ -102,14 +97,14 @@ void run_rvx_hal_spi_manager_test()
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&spi_manager_tests_error_count);
 
-  if (spi_manager_tests_error_count)
-    rvx_uart_write_string(
-        RVX_UART_ADDRESS,
-        "\n\n(ERROR) Some RVX HAL SPI Manager integration tests failed. Check the output for details.");
-  else
-    rvx_uart_write_string(RVX_UART_ADDRESS, "\n\nPassed RVX HAL SPI Manager integration tests.");
+  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the SPI Manager module failed. "
+                          "Check the test output for details.\n";
+  const char *success_msg = "\n\nRVX HAL SPI Manager tests: All tests passed successfully.\n";
 
-  rvx_uart_write_string(RVX_UART_ADDRESS, "\n");
+  if (spi_manager_tests_error_count)
+    rvx_uart_write_string(RVX_UART_ADDRESS, error_msg);
+  else
+    rvx_uart_write_string(RVX_UART_ADDRESS, success_msg);
 }
 
 void transfer_test()
