@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
-module hello_world_arty_a7 (
+module rvx_arty_a7 (
 
     input  wire clock,
     input  wire reset,
@@ -9,24 +9,22 @@ module hello_world_arty_a7 (
 
 );
 
-  // Divides the 100MHz board block by 2
-  reg clock_50mhz;
-  initial clock_50mhz = 1'b0;
-  always @(posedge clock) clock_50mhz <= !clock_50mhz;
+  // Divide Arty 100MHz board clock by 2
+  reg rvx_clock;
+  initial rvx_clock = 1'b0;
+  always @(posedge clock) rvx_clock <= !rvx_clock;
 
   // Push-button debouncing
   reg reset_debounced;
-  always @(posedge clock_50mhz) begin
-    reset_debounced <= reset;
-  end
+  always @(posedge rvx_clock) reset_debounced <= reset;
 
   rvx #(
 
-      .MEMORY_INIT_FILE_PATH("hello_world.hex")
+      .MEMORY_INIT_FILE("rvx_hello_world.mem")
 
   ) rvx_instance (
 
-      .clock  (clock_50mhz),
+      .clock  (rvx_clock),
       .reset_n(!reset_debounced),
       .uart_tx(uart_tx),
 
