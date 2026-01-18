@@ -37,7 +37,7 @@ add_files -norecurse { ../../rtl/peripherals/rvx_timer.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_spi_manager.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_uart.v }
 
-if { [file exists ../../examples/hello_world/build/rvx_hello_world.mem] } {
-    add_files -norecurse { ../../examples/hello_world/build/rvx_hello_world.mem }
-    set_property file_type {Memory File} [get_files ../../examples/hello_world/build/rvx_hello_world.mem]
+if { [file exists ../../examples/hello_world/build/rvx_hello_world_example.mem] } {
+    add_files -norecurse { ../../examples/hello_world/build/rvx_hello_world_example.mem }
+    set_property file_type {Memory File} [get_files ../../examples/hello_world/build/rvx_hello_world_example.mem]
 }

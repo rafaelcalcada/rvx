@@ -51,7 +51,7 @@ module rvx_arty_a7 (
 
   rvx #(
 
-      .MEMORY_INIT_FILE("rvx_hello_world.mem")
+      .MEMORY_INIT_FILE("rvx_hello_world_example.mem")
 
   ) rvx_instance (
 
