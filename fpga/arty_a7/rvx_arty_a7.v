@@ -10,13 +10,44 @@ module rvx_arty_a7 (
 );
 
   // Divide Arty 100MHz board clock by 2
+  // ---------------------------------------------------------------------------
+
   reg rvx_clock;
   initial rvx_clock = 1'b0;
   always @(posedge clock) rvx_clock <= !rvx_clock;
 
-  // Push-button debouncing
-  reg reset_debounced;
-  always @(posedge rvx_clock) reset_debounced <= reset;
+  // Reset push-button debouncing
+  // ---------------------------------------------------------------------------
+
+  localparam COUNTER_MAX = 1000000;  // Equals to 20ms at 50MHz
+  reg        reset_sync_0;
+  reg        reset_sync_1;
+  reg        reset_debounced;
+  reg [19:0] reset_counter;
+
+  always @(posedge clock) begin
+    if (reset) begin
+      reset_sync_0    <= 1'b1;
+      reset_sync_1    <= 1'b1;
+      reset_debounced <= 1'b1;
+      reset_counter   <= 0;
+    end
+    else begin
+      reset_sync_0 <= reset;
+      reset_sync_1 <= reset_sync_0;
+      if (reset_sync_1 != reset_debounced) begin
+        reset_counter <= reset_counter + 1;
+        if (reset_counter >= COUNTER_MAX) begin
+          reset_debounced <= reset_sync_1;
+          reset_counter   <= 0;
+        end
+      end
+      else reset_counter <= 0;
+    end
+  end
+
+  // RVX Instantiation
+  // ---------------------------------------------------------------------------
 
   rvx #(
 

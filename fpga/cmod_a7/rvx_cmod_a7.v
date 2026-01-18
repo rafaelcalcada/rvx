@@ -9,9 +9,38 @@ module rvx_cmod_a7 (
 
 );
 
-  // Push-button debouncing
-  reg reset_debounced;
-  always @(posedge clock) reset_debounced <= reset;
+  // Reset push-button debouncing
+  // ---------------------------------------------------------------------------
+
+  localparam COUNTER_MAX = 1000000;  // Equals to 20ms at 50MHz
+  reg        reset_sync_0;
+  reg        reset_sync_1;
+  reg        reset_debounced;
+  reg [19:0] reset_counter;
+
+  always @(posedge clock) begin
+    if (reset) begin
+      reset_sync_0    <= 1'b1;
+      reset_sync_1    <= 1'b1;
+      reset_debounced <= 1'b1;
+      reset_counter   <= 0;
+    end
+    else begin
+      reset_sync_0 <= reset;
+      reset_sync_1 <= reset_sync_0;
+      if (reset_sync_1 != reset_debounced) begin
+        reset_counter <= reset_counter + 1;
+        if (reset_counter >= COUNTER_MAX) begin
+          reset_debounced <= reset_sync_1;
+          reset_counter   <= 0;
+        end
+      end
+      else reset_counter <= 0;
+    end
+  end
+
+  // RVX Instantiation
+  // ---------------------------------------------------------------------------
 
   rvx #(
 
