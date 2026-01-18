@@ -5,7 +5,7 @@
 #include "rvx_hal_test_helpers.h"
 
 /// @brief Set up the timer interrupt handler.
-RVX_IRQ_HANDLER_M(mti_irq_handler)
+RVX_TRAP_HANDLER_M(rvx_trap_handler_mti)
 {
   rvx_timer_disable(RVX_TIMER_ADDRESS);
   rvx_uart_write_string(RVX_UART_ADDRESS, "Passed.");
