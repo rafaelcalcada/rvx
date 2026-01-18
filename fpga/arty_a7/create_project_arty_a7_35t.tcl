@@ -46,3 +46,8 @@ if { [file exists ../../examples/uart/build/rvx_uart_example.mem] } {
     add_files -norecurse { ../../examples/uart/build/rvx_uart_example.mem }
     set_property file_type {Memory File} [get_files ../../examples/uart/build/rvx_uart_example.mem]
 }
+
+if { [file exists ../../examples/spi_manager/build/rvx_spi_manager_example.mem] } {
+    add_files -norecurse { ../../examples/spi_manager/build/rvx_spi_manager_example.mem }
+    set_property file_type {Memory File} [get_files ../../examples/spi_manager/build/rvx_spi_manager_example.mem]
+}
