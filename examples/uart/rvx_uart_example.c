@@ -28,7 +28,7 @@ void main(void)
 }
 
 // Interrupt handler for RVX Fast IRQ 0 (connected to UART)
-RVX_IRQ_HANDLER_M(fast0_irq_handler)
+RVX_TRAP_HANDLER_M(rvx_trap_handler_fast0)
 {
   // Read received byte from UART
   char rx_data = rvx_uart_read(RVX_UART_ADDRESS);
