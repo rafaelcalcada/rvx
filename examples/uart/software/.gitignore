@@ -1,9 +1,0 @@
-/[Dd]ump*/
-/[Dd]ebug*/
-/[Rr]elease*/
-/[Bb]uild*/
-/MinSizeRel*/
-/RelWithDebInfo*/
-
-
-!.gitignore
