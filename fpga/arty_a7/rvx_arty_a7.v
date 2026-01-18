@@ -5,6 +5,7 @@ module rvx_arty_a7 (
 
     input  wire clock,
     input  wire reset,
+    input  wire uart_rx,
     output wire uart_tx
 
 );
@@ -58,6 +59,7 @@ module rvx_arty_a7 (
       .clock  (rvx_clock),
       .reset_n(!reset_debounced),
       .uart_tx(uart_tx),
+      .uart_rx(uart_rx),
 
       // These input ports are not used in this example and are hardwired to zero
       .gpio_input(1'b0),
@@ -65,7 +67,6 @@ module rvx_arty_a7 (
 
       // These output ports are not used in this example and can be left unconnected
       // verilator lint_off PINCONNECTEMPTY
-      .uart_rx           (),
       .gpio_output_enable(),
       .gpio_output       (),
       .sclk              (),

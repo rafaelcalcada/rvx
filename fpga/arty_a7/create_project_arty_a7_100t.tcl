@@ -41,3 +41,8 @@ if { [file exists ../../examples/hello_world/build/rvx_hello_world_example.mem] 
     add_files -norecurse { ../../examples/hello_world/build/rvx_hello_world_example.mem }
     set_property file_type {Memory File} [get_files ../../examples/hello_world/build/rvx_hello_world_example.mem]
 }
+
+if { [file exists ../../examples/uart/build/rvx_uart_example.mem] } {
+    add_files -norecurse { ../../examples/uart/build/rvx_uart_example.mem }
+    set_property file_type {Memory File} [get_files ../../examples/uart/build/rvx_uart_example.mem]
+}
