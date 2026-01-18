@@ -101,9 +101,6 @@ module rvx_core #(
   wire [31:0] csr_data_out_s2;
   reg  [ 2:0] csr_operation_s2;
   reg         csr_write_request_s2;
-  // verilator lint_off UNUSEDSIGNAL
-  reg  [ 2:0] funct3_s2;
-  // verilator lint_on UNUSEDSIGNAL
   reg  [31:0] immediate_s2;
   reg         integer_file_write_request_s2;
   wire [31:0] load_data_s2;
@@ -337,7 +334,6 @@ module rvx_core #(
       csr_address_s2                <= 12'h000;
       csr_operation_s2              <= 3'b000;
       csr_write_request_s2          <= 1'b0;
-      funct3_s2                     <= 3'b000;
       immediate_s2                  <= 32'h00000000;
       integer_file_write_request_s2 <= 1'b0;
       load_size_s2                  <= 2'b00;
@@ -355,7 +351,6 @@ module rvx_core #(
       csr_address_s2                <= csr_address_s1;
       csr_operation_s2              <= csr_operation_s1;
       csr_write_request_s2          <= csr_write_request_s1;
-      funct3_s2                     <= funct3_s1;
       immediate_s2                  <= immediate_s1;
       integer_file_write_request_s2 <= integer_file_write_request_s1;
       load_size_s2                  <= load_size_s1;
@@ -417,14 +412,20 @@ module rvx_core #(
 
   generate
     if (ENABLE_ZMMUL) begin : gen_rvx_core_mdu
+      reg [2:0] funct3_s2;
+      always @(posedge clock) begin : funct3_s2_register
+        if (!reset_n | flush_pipeline_s1) begin
+          funct3_s2 <= 3'b000;
+        end
+        else if (clock_enable) begin
+          funct3_s2 <= funct3_s1;
+        end
+      end
       rvx_core_mdu rvx_core_mdu_instance (
-
-          .funct3_s2  (funct3_s2),
-          .rs1_data_s2(rs1_data_s2),
-          .rs2_data_s2(rs2_data_s2),
-
+          .funct3_s2    (funct3_s2),
+          .rs1_data_s2  (rs1_data_s2),
+          .rs2_data_s2  (rs2_data_s2),
           .mdu_output_s2(mdu_output_s2)
-
       );
     end
     else begin : gen_no_mdu

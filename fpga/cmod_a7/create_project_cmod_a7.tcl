@@ -8,6 +8,7 @@ set_msg_config -suppress -id {Synth 8-6841}
 set_msg_config -suppress -id {Netlist 29-101}
 set_msg_config -suppress -id {Device 21-9320}
 set_msg_config -suppress -id {Device 21-2174}
+set_msg_config -suppress -id {filemgmt 56-199}
 
 set_property simulator_language Verilog [current_project]
 

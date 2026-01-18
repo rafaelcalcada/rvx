@@ -14,16 +14,14 @@ module rvx_gpio #(
     input wire reset_n,
 
     // Register read/write
-    input  wire [ 4:0] rw_address,
-    output reg  [31:0] read_data,
-    input  wire        read_request,
-    output reg         read_response,
-    // verilator lint_off UNUSEDSIGNAL
-    input  wire [31:0] write_data,
-    // verilator lint_on UNUSEDSIGNAL
-    input  wire [ 3:0] write_strobe,
-    input  wire        write_request,
-    output reg         write_response,
+    input  wire [           4:0] rw_address,
+    output reg  [          31:0] read_data,
+    input  wire                  read_request,
+    output reg                   read_response,
+    input  wire [GPIO_WIDTH-1:0] write_data,
+    input  wire [           3:0] write_strobe,
+    input  wire                  write_request,
+    output reg                   write_response,
 
     // GPIO signals
     input  wire [GPIO_WIDTH-1:0] gpio_input,
