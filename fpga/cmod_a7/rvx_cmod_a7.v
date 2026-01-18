@@ -5,6 +5,7 @@ module rvx_cmod_a7 (
 
     input  wire clock,
     input  wire reset,
+    input  wire uart_rx,
     output wire uart_tx
 
 );
@@ -12,11 +13,11 @@ module rvx_cmod_a7 (
   // Reset push-button debouncing
   // ---------------------------------------------------------------------------
 
-  localparam COUNTER_MAX = 1000000;  // Equals to 20ms at 50MHz
+  localparam COUNTER_MAX = 240000;  // Equals to 20ms at 12MHz
   reg        reset_sync_0;
   reg        reset_sync_1;
   reg        reset_debounced;
-  reg [19:0] reset_counter;
+  reg [17:0] reset_counter;
 
   always @(posedge clock) begin
     if (reset) begin
@@ -51,6 +52,7 @@ module rvx_cmod_a7 (
       .clock  (clock),
       .reset_n(!reset_debounced),
       .uart_tx(uart_tx),
+      .uart_rx(uart_rx),
 
       // These input ports are not used in this example and are hardwired to zero
       .gpio_input(1'b0),
@@ -58,7 +60,6 @@ module rvx_cmod_a7 (
 
       // These output ports are not used in this example and can be left unconnected
       // verilator lint_off PINCONNECTEMPTY
-      .uart_rx           (),
       .gpio_output_enable(),
       .gpio_output       (),
       .sclk              (),
