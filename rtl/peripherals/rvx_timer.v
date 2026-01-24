@@ -74,7 +74,7 @@ module rvx_timer (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      counter_enable <= 1'b0;
+      counter_enable <= 1'b1;
       compare[63:0]  <= 64'hffffffff_ffffffff;
     end
     else if (valid_write_request == 1'b1) begin

@@ -61,3 +61,8 @@ if { [file exists ../../examples/timer/build/rvx_timer_example.mem] } {
     add_files -norecurse { ../../examples/timer/build/rvx_timer_example.mem }
     set_property file_type {Memory File} [get_files ../../examples/timer/build/rvx_timer_example.mem]
 }
+
+if { [file exists ../../examples/freertos/build/rvx_freertos_example.mem] } {
+    add_files -norecurse { ../../examples/freertos/build/rvx_freertos_example.mem }
+    set_property file_type {Memory File} [get_files ../../examples/freertos/build/rvx_freertos_example.mem]
+}
