@@ -41,7 +41,7 @@ module rvx_cmod_a7 #(
 
   rvx #(
 
-      .MEMORY_INIT_FILE("rvx_gpio_example.mem"),
+      .MEMORY_INIT_FILE("rvx_timer_example.mem"),
       .GPIO_WIDTH      (GPIO_WIDTH)
 
   ) rvx_instance (
