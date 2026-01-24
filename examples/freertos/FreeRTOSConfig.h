@@ -51,7 +51,7 @@
  * The default value is set to 20MHz and matches the QEMU demo settings.  Your
  * application will certainly need a different value so set this correctly.
  * This is very often, but not always, equal to the main system clock frequency. */
-#define configCPU_CLOCK_HZ ((unsigned long)CPU_FREQUENCY)
+#define configCPU_CLOCK_HZ ((unsigned long)12000000)
 
 /* configSYSTICK_CLOCK_HZ is an optional parameter for ARM Cortex-M ports only.
  *
@@ -385,13 +385,13 @@
  * number of the failing assert (for example, "vAssertCalled( __FILE__, __LINE__ )"
  * or it can simple disable interrupts and sit in a loop to halt all execution
  * on the failing line for viewing in a debugger. */
-#define configASSERT(x)                                                                            \
-  if ((x) == 0)                                                                                    \
-  {                                                                                                \
-    taskDISABLE_INTERRUPTS();                                                                      \
-    __asm volatile("ebreak");                                                                      \
-    for (;;)                                                                                       \
-      ;                                                                                            \
+#define configASSERT(x)                                                                                                \
+  if ((x) == 0)                                                                                                        \
+  {                                                                                                                    \
+    taskDISABLE_INTERRUPTS();                                                                                          \
+    __asm volatile("ebreak");                                                                                          \
+    for (;;)                                                                                                           \
+      ;                                                                                                                \
   }
 
 /******************************************************************************/
@@ -429,7 +429,7 @@
 #define INCLUDE_xTaskResumeFromISR 0
 
 /* See https://www.freertos.org/Using-FreeRTOS-on-RISC-V.html */
-#define configMTIME_BASE_ADDRESS (0x80010004U)
-#define configMTIMECMP_BASE_ADDRESS (0x8001000CU)
+#define configMTIME_BASE_ADDRESS (0x40001004U)
+#define configMTIMECMP_BASE_ADDRESS (0x4000100CU)
 
 #endif /* FREERTOS_CONFIG_H */
