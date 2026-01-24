@@ -14,4 +14,4 @@ build:
 
 clean:
 	@rm -rf build
-	@echo "Hello World application build artifacts deleted."
+	@echo "SPI Manager example application build artifacts deleted."

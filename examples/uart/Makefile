@@ -14,4 +14,4 @@ build:
 
 clean:
 	@rm -rf build
-	@echo "Hello World application build artifacts deleted."
+	@echo "UART example application build artifacts deleted."
