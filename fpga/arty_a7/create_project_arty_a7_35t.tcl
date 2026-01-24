@@ -56,3 +56,8 @@ if { [file exists ../../examples/gpio/build/rvx_gpio_example.mem] } {
     add_files -norecurse { ../../examples/gpio/build/rvx_gpio_example.mem }
     set_property file_type {Memory File} [get_files ../../examples/gpio/build/rvx_gpio_example.mem]
 }
+
+if { [file exists ../../examples/timer/build/rvx_timer_example.mem] } {
+    add_files -norecurse { ../../examples/timer/build/rvx_timer_example.mem }
+    set_property file_type {Memory File} [get_files ../../examples/timer/build/rvx_timer_example.mem]
+}
