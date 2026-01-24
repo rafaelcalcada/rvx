@@ -3,7 +3,7 @@
 
 module rvx_arty_a7 #(
 
-    parameter GPIO_WIDTH = 2
+    parameter GPIO_WIDTH = 3
 
 ) (
 
@@ -16,7 +16,8 @@ module rvx_arty_a7 #(
     output wire cs,
     input  wire push_button_0,  // Used for reset
     input  wire push_button_1,  // Used for toggling LED
-    output wire led_4
+    output wire led_4,
+    output wire led_5
 
 );
 
@@ -42,7 +43,8 @@ module rvx_arty_a7 #(
 
   rvx #(
 
-      .MEMORY_INIT_FILE("rvx_timer_example.mem"),
+      .MEMORY_SIZE     (32768),
+      .MEMORY_INIT_FILE("rvx_freertos_example.mem"),
       .GPIO_WIDTH      (GPIO_WIDTH)
 
   ) rvx_instance (
@@ -63,7 +65,9 @@ module rvx_arty_a7 #(
 
   assign gpio_input[0] = gpio_output_enable[0] ? gpio_output[0] : led_4;
   assign gpio_input[1] = gpio_output_enable[1] ? gpio_output[1] : push_button_1_debounced;
+  assign gpio_input[2] = gpio_output_enable[2] ? gpio_output[2] : led_5;
   assign led_4         = gpio_output[0];
+  assign led_5         = gpio_output[2];
 
   // Divide Arty 100MHz board clock by 2
   // ---------------------------------------------------------------------------
