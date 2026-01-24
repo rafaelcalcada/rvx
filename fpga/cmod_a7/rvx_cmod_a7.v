@@ -1,76 +1,105 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
-module rvx_cmod_a7 (
+module rvx_cmod_a7 #(
+
+    parameter GPIO_WIDTH = 2
+
+) (
 
     input  wire clock,
-    input  wire reset,
     input  wire uart_rx,
     output wire uart_tx,
     output wire sclk,
     output wire mosi,
     input  wire miso,
-    output wire cs
+    output wire cs,
+    input  wire push_button_0,  // Used for reset
+    input  wire push_button_1,  // Used for toggling LED
+    output wire led_0
 
 );
 
-  // Reset push-button debouncing
-  // ---------------------------------------------------------------------------
+  wire [GPIO_WIDTH-1:0] gpio_output_enable;
+  wire [GPIO_WIDTH-1:0] gpio_input;
+  wire [GPIO_WIDTH-1:0] gpio_output;
 
-  localparam COUNTER_MAX = 240000;  // Equals to 20ms at 12MHz
-  reg        reset_sync_0;
-  reg        reset_sync_1;
-  reg        reset_debounced;
-  reg [17:0] reset_counter;
+  // Number of clock cycles in 20ms at 12MHz (Cmod A7 board clock frequency)
+  localparam NUM_CYCLES_IN_20_MS = 240000;
 
-  always @(posedge clock) begin
-    if (reset) begin
-      reset_sync_0    <= 1'b1;
-      reset_sync_1    <= 1'b1;
-      reset_debounced <= 1'b1;
-      reset_counter   <= 0;
-    end
-    else begin
-      reset_sync_0 <= reset;
-      reset_sync_1 <= reset_sync_0;
-      if (reset_sync_1 != reset_debounced) begin
-        reset_counter <= reset_counter + 1;
-        if (reset_counter >= COUNTER_MAX) begin
-          reset_debounced <= reset_sync_1;
-          reset_counter   <= 0;
-        end
-      end
-      else reset_counter <= 0;
-    end
-  end
+  reg        push_button_0_sync_0;
+  reg        push_button_1_sync_0;
+  reg        push_button_0_sync_1;
+  reg        push_button_1_sync_1;
+  reg        push_button_0_debounced;
+  reg        push_button_1_debounced;
+  reg [17:0] push_button_0_counter;
+  reg [17:0] push_button_1_counter;
 
   // RVX Instantiation
   // ---------------------------------------------------------------------------
 
   rvx #(
 
-      .MEMORY_INIT_FILE("rvx_spi_manager_example.mem")
+      .MEMORY_INIT_FILE("rvx_gpio_example.mem"),
+      .GPIO_WIDTH      (GPIO_WIDTH)
 
   ) rvx_instance (
 
-      .clock  (clock),
-      .reset_n(!reset_debounced),
-      .uart_tx(uart_tx),
-      .uart_rx(uart_rx),
-      .sclk   (sclk),
-      .mosi   (mosi),
-      .miso   (miso),
-      .cs     (cs),
-
-      // These input ports are not used in this example and are hardwired to zero
-      .gpio_input(1'b0),
-
-      // These output ports are not used in this example and can be left unconnected
-      // verilator lint_off PINCONNECTEMPTY
-      .gpio_output_enable(),
-      .gpio_output       ()
-      // verilator lint_on PINCONNECTEMPTY
+      .clock             (clock),
+      .reset_n           (!push_button_0_debounced),
+      .uart_tx           (uart_tx),
+      .uart_rx           (uart_rx),
+      .sclk              (sclk),
+      .mosi              (mosi),
+      .miso              (miso),
+      .cs                (cs),
+      .gpio_input        (gpio_input),
+      .gpio_output_enable(gpio_output_enable),
+      .gpio_output       (gpio_output)
 
   );
+
+  assign gpio_input[0] = gpio_output_enable[0] ? gpio_output[0] : led_0;
+  assign gpio_input[1] = gpio_output_enable[1] ? gpio_output[1] : push_button_1_debounced;
+  assign led_0         = gpio_output[0];
+
+  // Push-buttons debouncing
+  // ---------------------------------------------------------------------------
+
+  always @(posedge clock) begin
+    if (push_button_0) begin
+      push_button_0_sync_0    <= 1'b1;
+      push_button_0_sync_1    <= 1'b1;
+      push_button_0_debounced <= 1'b1;
+      push_button_0_counter   <= 0;
+      push_button_1_sync_0    <= 1'b1;
+      push_button_1_sync_1    <= 1'b1;
+      push_button_1_debounced <= 1'b1;
+      push_button_1_counter   <= 0;
+    end
+    else begin
+      push_button_0_sync_0 <= push_button_0;
+      push_button_0_sync_1 <= push_button_0_sync_0;
+      push_button_1_sync_0 <= push_button_1;
+      push_button_1_sync_1 <= push_button_1_sync_0;
+      if (push_button_0_sync_1 != push_button_0_debounced) begin
+        push_button_0_counter <= push_button_0_counter + 1;
+        if (push_button_0_counter >= NUM_CYCLES_IN_20_MS) begin
+          push_button_0_debounced <= push_button_0_sync_1;
+          push_button_0_counter   <= 0;
+        end
+      end
+      else push_button_0_counter <= 0;
+      if (push_button_1_sync_1 != push_button_1_debounced) begin
+        push_button_1_counter <= push_button_1_counter + 1;
+        if (push_button_1_counter >= NUM_CYCLES_IN_20_MS) begin
+          push_button_1_debounced <= push_button_1_sync_1;
+          push_button_1_counter   <= 0;
+        end
+      end
+      else push_button_1_counter <= 0;
+    end
+  end
 
 endmodule

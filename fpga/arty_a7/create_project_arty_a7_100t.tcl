@@ -51,3 +51,8 @@ if { [file exists ../../examples/spi_manager/build/rvx_spi_manager_example.mem] 
     add_files -norecurse { ../../examples/spi_manager/build/rvx_spi_manager_example.mem }
     set_property file_type {Memory File} [get_files ../../examples/spi_manager/build/rvx_spi_manager_example.mem]
 }
+
+if { [file exists ../../examples/gpio/build/rvx_gpio_example.mem] } {
+    add_files -norecurse { ../../examples/gpio/build/rvx_gpio_example.mem }
+    set_property file_type {Memory File} [get_files ../../examples/gpio/build/rvx_gpio_example.mem]
+}
