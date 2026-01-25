@@ -14,12 +14,9 @@ jobs:
 
     container:
       image: rafaelcalcada/rvx:latest
+      options: --user root
 
     steps:
-      - name: Fix permissions for runner temp folder
-        run: |
-          sudo chown -R $(id -u):$(id -g) /__w/_temp || true
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
