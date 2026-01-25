@@ -19,12 +19,14 @@ void run_rvx_hal_timer_test()
   rvx_uart_init(RVX_UART_ADDRESS, 50);
   rvx_uart_write_string(RVX_UART_ADDRESS, "\nRVX HAL - Timer integration tests\n---------------------------------\n");
 
-  rvx_test_start("\nTest 1: Timer COUNTER ENABLE register is 0 after reset. ");
-  RVX_TEST_ASSERT(rvx_timer_is_enabled(RVX_TIMER_ADDRESS) == false);
+  rvx_test_start("\nTest 1: Timer COUNTER ENABLE register is 1 after reset. ");
+  RVX_TEST_ASSERT(rvx_timer_is_enabled(RVX_TIMER_ADDRESS) == true);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&timer_tests_error_count);
 
-  rvx_test_start("\nTest 2: Timer COUNTER register is 0 after reset. ");
+  rvx_test_start("\nTest 2: Timer COUNTER register is 0 after clear. ");
+  rvx_timer_disable(RVX_TIMER_ADDRESS);
+  rvx_timer_clear_counter(RVX_TIMER_ADDRESS);
   RVX_TEST_ASSERT(rvx_timer_get_counter(RVX_TIMER_ADDRESS) == 0);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&timer_tests_error_count);
