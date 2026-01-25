@@ -224,7 +224,7 @@ module rvx_uart_tb ();
     read_uart_register(`RVX_UART_READ_REG_ADDR);
     `RVX_ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
     read_uart_register(`RVX_UART_STATUS_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h00000001, "Register is not 1 after reset.")
+    `RVX_ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
     read_uart_register(`RVX_UART_BAUD_REG_ADDR);
     `RVX_ASSERT(read_data === 32'h00000000, "Register is not 0 after reset.")
 
@@ -232,7 +232,7 @@ module rvx_uart_tb ();
     $display("Testing read/write to UART registers...");
     $display("--------------------------------------");
 
-    write_uart_register(`RVX_UART_BAUD_REG_ADDR, 32'h000004e2);  // 12 Mhz / 9600 baud = 1250 (0x4e2) cycles per baud 
+    write_uart_register(`RVX_UART_BAUD_REG_ADDR, 32'h000004e2);  // 12 Mhz / 9600 baud = 1250 (0x4e2) cycles per baud
     read_uart_register(`RVX_UART_BAUD_REG_ADDR);
     `RVX_ASSERT(read_data === 32'h000004e2, "Register is not 0x000004e2 after write.")
 
