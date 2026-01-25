@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
     if (sim_options.max_cycles && cycle_count >= sim_options.max_cycles)
     {
       logger.info("Maximum cycle count {} reached, finishing simulation...", sim_options.max_cycles);
-      successful_completion = true;
+      successful_completion = false;
       break;
     }
 
