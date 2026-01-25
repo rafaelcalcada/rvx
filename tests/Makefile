@@ -11,7 +11,7 @@ all:
 	@$(MAKE) -C ../tb/uart/verilator run
 	@$(MAKE) -C ../tb/timer/verilator run
 	@$(MAKE) -C riscv_compliance
-	@$(MAKE) -C rvx_hal
+	@$(MAKE) -C hal
 
 clean:
 	@$(MAKE) -C ../tb/gpio/verilator clean
@@ -19,4 +19,4 @@ clean:
 	@$(MAKE) -C ../tb/uart/verilator clean
 	@$(MAKE) -C ../tb/timer/verilator clean
 	@$(MAKE) -C riscv_compliance clean-all
-	@$(MAKE) -C rvx_hal clean-all
+	@$(MAKE) -C hal clean-all
