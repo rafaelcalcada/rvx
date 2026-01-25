@@ -7,5 +7,5 @@ run: all
 	./verilated/rvx_gpio_tb
 
 clean:
-	@rm -rf verilated 
-	@echo "Cleaned up generated files."
+	@rm -rf verilated
+	@echo "RVX GPIO testbench build artifacts cleaned."

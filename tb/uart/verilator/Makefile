@@ -7,5 +7,5 @@ run: all
 	./verilated/rvx_uart_tb
 
 clean:
-	@rm -rf verilated 
-	@echo "Cleaned up generated files."
+	@rm -rf verilated
+	@echo "RVX UART testbench build artifacts cleaned."
