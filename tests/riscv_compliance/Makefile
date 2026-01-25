@@ -19,7 +19,7 @@ build:
 
 clean:
 	@-rm -rf test_output
-	@echo "Test results cleaned."
+	@echo "RISC-V Compliance test results cleaned."
 
 clean-all: clean
 	@$(MAKE) -C ${RVX_SIMULATOR_PATH} clean

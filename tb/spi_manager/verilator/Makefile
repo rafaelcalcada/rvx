@@ -8,4 +8,4 @@ run: all
 
 clean:
 	@rm -rf verilated
-	@echo "Cleaned up generated files."
+	@echo "RVX SPI Manager testbench build artifacts cleaned."
