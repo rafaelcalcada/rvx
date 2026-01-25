@@ -15,14 +15,18 @@ You can contribute to RVX in two ways:
     - Make small commits and give them a descriptive message. Avoid making a big commit that changes a lot of files.
 
       Sometimes changing a lot of files is unavoidable. If so, make sure that all the changes are related.
-    
-    - Send one pull request for each improvement, new feature or bug fix.
+
+    - Make one pull request for each improvement, new feature or bug fix.
 
     - Make sure your code conforms to [RVX Coding Standards](CODING_STANDARDS.md).
- 
-    - Include test coverage.
- 
-    - Don't forget to add documentation!
+
+    - Make sure all tests pass before submitting your pull request.
+
+      To run the tests, run `make` from the `tests/` folder (from RVX development container).
+
+    - Don't forget to include test coverage for new features or bug fixes.
+
+    - Update the documentation if necessary.
 
 [docs]: https://rafaelcalcada.github.io/rvx/
 [new issue]: https://github.com/rafaelcalcada/rvx/issues/new
