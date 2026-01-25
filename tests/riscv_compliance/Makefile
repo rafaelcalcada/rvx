@@ -3,8 +3,8 @@
 
 MAKEFLAGS += --no-print-directory
 
-# The path below assumes this Makefile will be run from the RVX development container
-RVX_SIMULATOR_PATH = /workspaces/rvx/simulator/
+# The path below assumes this Makefile will be run from tests/riscv_compliance/
+RVX_SIMULATOR_PATH = ../../simulator/
 
 .PHONY: all build run clean
 
