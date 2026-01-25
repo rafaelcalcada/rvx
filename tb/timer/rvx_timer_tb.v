@@ -43,7 +43,10 @@ module rvx_timer_tb ();
       .write_response(),
 
       // Timer interrupt signal
-      .timer_irq(timer_irq)
+      .timer_irq(timer_irq),
+
+      // Timer output
+      .timer()
 
   );
   // verilator lint_on PINCONNECTEMPTY
@@ -126,11 +129,7 @@ module rvx_timer_tb ();
 
     `RVX_ASSERT(timer_irq === 1'b0, "Timer IRQ signal is not deasserted after reset.")
     read_timer_register(`RVX_TIMER_COUNTER_ENABLE_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h00000000, "CONTROL register is not 0 after reset.")
-    read_timer_register(`RVX_TIMER_COUNTERL_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h00000000, "COUNTERL register is not 0 after reset.")
-    read_timer_register(`RVX_TIMER_COUNTERH_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h00000000, "COUNTERH register is not 0 after reset.")
+    `RVX_ASSERT(read_data === 32'h00000001, "CONTROL register is not 1 after reset.")
     read_timer_register(`RVX_TIMER_COMPAREL_REG_ADDR);
     `RVX_ASSERT(read_data === 32'hffffffff, "COMPAREL register is not 0xffffffff after reset.")
     read_timer_register(`RVX_TIMER_COMPAREH_REG_ADDR);
