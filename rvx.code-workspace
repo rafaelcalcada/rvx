@@ -10,15 +10,15 @@
     },
     {
       "path": "/workspaces/rvx/hal",
-      "name": "RVX HAL"
+      "name": "RVX Hardware Abstraction Layer"
+    },
+    {
+      "path": "/workspaces/rvx/tests/hal",
+      "name": "RVX Hardware Abstraction Layer Tests"
     },
     {
       "path": "/workspaces/rvx/tests/riscv_compliance",
       "name": "RISC-V Compliance Tests"
-    },
-    {
-      "path": "/workspaces/rvx/tests/rvx_hal",
-      "name": "RVX HAL Tests"
     }
   ]
 }
