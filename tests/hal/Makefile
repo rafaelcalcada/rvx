@@ -5,8 +5,8 @@ MAKEFLAGS += --no-print-directory
 
 .PHONY: all run clean clean-all simulator
 
-# The path below assumes this Makefile will be run from the RVX development container
-RVX_SIMULATOR_PATH = /workspaces/rvx/simulator/
+# The path below assumes this Makefile will be run from tests/hal/
+RVX_SIMULATOR_PATH = ../../simulator/
 
 all: simulator tests run
 
