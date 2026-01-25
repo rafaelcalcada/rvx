@@ -1,0 +1,31 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - "**"   # run on every branch
+  pull_request:
+    branches:
+      - "**"   # run on every branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    container:
+      image: rafaelcalcada/rvx:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show environment (debug)
+        run: |
+          uname -a
+          g++ --version || true
+          make --version
+
+      - name: Build and run tests
+        working-directory: tests
+        run: |
+          make
