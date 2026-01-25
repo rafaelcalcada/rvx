@@ -1,4 +1,4 @@
-name: Run Tests
+name: RVX Tests
 
 on:
   push:
@@ -19,12 +19,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Show environment (debug)
-        run: |
-          uname -a
-          g++ --version || true
-          make --version
 
       - name: Build and run tests
         working-directory: tests
