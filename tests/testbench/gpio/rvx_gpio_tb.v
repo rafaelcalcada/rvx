@@ -196,7 +196,6 @@ module rvx_gpio_tb ();
     $display("");
     $display("Checking GPIO module state after reset...");
     $display("-----------------------------------------");
-    $display("");
 
     read_gpio_register(`RVX_GPIO_READ_REG_ADDR);
     `RVX_ASSERT(read_data0 == 32'h00000000, "READ register not zero after reset (instance 0).")
@@ -237,7 +236,6 @@ module rvx_gpio_tb ();
     $display("");
     $display("Writing 0x000000FF to OUTPUT_ENABLE registers to set some pins as outputs...");
     $display("----------------------------------------------------------------------------");
-    $display("");
 
     write_gpio_register(`RVX_GPIO_OUTPUT_ENABLE_REG_ADDR, 32'h000000FF);
     #CLOCK_PERIOD;
@@ -259,7 +257,6 @@ module rvx_gpio_tb ();
     $display("");
     $display("Changing OUTPUT registers to set output pin values...");
     $display("-----------------------------------------------------");
-    $display("");
 
     write_gpio_register(`RVX_GPIO_OUTPUT_REG_ADDR, 32'h000000FF);
     #CLOCK_PERIOD;
@@ -278,7 +275,6 @@ module rvx_gpio_tb ();
     $display("");
     $display("Testing CLEAR register to clear output pin values...");
     $display("----------------------------------------------------");
-    $display("");
 
     write_gpio_register(`RVX_GPIO_CLEAR_REG_ADDR, 32'hA50000A5);
     #CLOCK_PERIOD;
@@ -297,7 +293,6 @@ module rvx_gpio_tb ();
     $display("");
     $display("Testing SET register to set output pin values...");
     $display("------------------------------------------------");
-    $display("");
 
     write_gpio_register(`RVX_GPIO_SET_REG_ADDR, 32'h5A0000A5);
     #CLOCK_PERIOD;

@@ -138,7 +138,6 @@ module rvx_timer_tb ();
     $display("");
     $display("Checking Timer counter enable/disable...");
     $display("-----------------------------------------");
-    $display("");
 
     write_timer_register(`RVX_TIMER_COUNTER_ENABLE_REG_ADDR, 32'h00000001);  // Enable counter
     #(CLOCK_PERIOD * 100);  // Wait for some time to let the counter increment
@@ -163,7 +162,6 @@ module rvx_timer_tb ();
     $display("");
     $display("Checking Timer interrupt...");
     $display("-----------------------------------------");
-    $display("");
 
     write_timer_register(`RVX_TIMER_COUNTERL_REG_ADDR, 32'h00000000);  // Reset COUNTERL
     write_timer_register(`RVX_TIMER_COUNTERH_REG_ADDR, 32'h00000000);  // Reset COUNTERH
