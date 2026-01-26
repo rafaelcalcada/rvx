@@ -1,10 +1,12 @@
 .PHONY: all clean
 
+QUIET = $(if $(findstring s,$(MAKEFLAGS)),--quiet)
+
 all:
 	@echo "Building RVX Timer testbench..."
-	@verilator -f verilator_args.vc --cc --exe --build rvx_timer_tb.c --Mdir verilated -o rvx_timer_tb rvx_timer_tb.v --quiet-build
+	verilator -f verilator_args.vc --cc --exe --build rvx_timer_tb.c --Mdir verilated -o rvx_timer_tb rvx_timer_tb.v $(QUIET)
 	./verilated/rvx_timer_tb
 
 clean:
-	@rm -rf verilated
-	@echo "RVX Timer testbench build artifacts cleaned."
+	rm -rf verilated
+	@echo "RVX Timer testbench build artifacts removed."
