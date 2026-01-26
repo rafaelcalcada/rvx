@@ -2,25 +2,19 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
 {
   "name": "RVX (Ubuntu 24.04)",
-  "build": {
-    // Sets the run context to one level up instead of the .devcontainer folder.
-    "context": "..",
-    // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
-    "dockerfile": "Dockerfile"
-  },
+  "image": "rafaelcalcada/rvx:latest",
   "runArgs": [
     "--hostname",
-    "dev-container"
+    "devcontainer"
   ],
   "customizations": {
-    // Global settings (can be overridden per-folder)
     "vscode": {
       "settings": {
         // Editor settings
         "editor.tabSize": 2,
         "editor.detectIndentation": false,
         "editor.formatOnSave": true,
-        // Verilog extension settings
+        // Verilog settings
         "verilog.ctags.path": "/usr/local/bin/ctags",
         "verilog.linting.linter": "verilator",
         "verilog.linting.verilator.includePath": [
@@ -33,18 +27,16 @@
         ],
         "verilog.linting.verilator.arguments": "-Wall --timing",
         "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
-        "verilog.formatting.veribleVerilogFormatter.arguments": "--flagfile=.config/.verible-format",
-        // C/C++ extension settings
-        "C_Cpp.clang_format_style": "file:/workspaces/rvx/.config/.clang-format",
+        "verilog.formatting.veribleVerilogFormatter.arguments": "--flagfile=.devcontainer/.verible-format",
+        // C/C++ settings
+        "C_Cpp.clang_format_style": "file:/workspaces/rvx/.devcontainer/.clang-format",
         "C_Cpp.default.compilerPath": "/usr/local/bin/riscv32-unknown-elf-gcc",
-        // CMake extension settings
+        // CMake settings
         "cmake.configureOnOpen": false,
         "cmake.ignoreCMakeListsMissing": true,
         "cmake.sourceDirectory": "",
         "cmake.automaticReconfigure": false,
-        "cmake.enableAutomaticKitScan": false,
-        // Python extension settings
-        "python.defaultInterpreterPath": "/opt/venv/bin/python"
+        "cmake.enableAutomaticKitScan": false
       },
       "extensions": [
         "ms-vscode.cpptools-extension-pack",
@@ -54,7 +46,7 @@
         "ms-python.debugpy",
         "ms-python.vscode-pylance",
         "daohong-emilio.yash",
-        "avetis.tokyo-night",
+        "enkia.tokyo-night",
         "ms-dotnettools.vscode-dotnet-runtime",
         "ms-azuretools.vscode-docker",
         "mshr-h.veriloghdl",
