@@ -9,7 +9,7 @@ on:
       - "**"   # run on every branch
 
 jobs:
-  test:
+  run-tests:
     runs-on: ubuntu-latest
 
     container:
@@ -23,4 +23,4 @@ jobs:
       - name: Build and run tests
         working-directory: tests
         run: |
-          make
+          make --quiet
