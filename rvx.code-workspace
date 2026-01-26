@@ -9,7 +9,7 @@
       "name": "RVX Simulator"
     },
     {
-      "path": "/workspaces/rvx/hal",
+      "path": "/workspaces/rvx/toolchain/hal",
       "name": "RVX HAL"
     },
     {
