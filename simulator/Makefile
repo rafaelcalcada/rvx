@@ -4,11 +4,14 @@
 REDIRECT = $(if $(findstring s,$(MAKEFLAGS)),> /dev/null 2>&1, )
 QUIET = $(if $(findstring s,$(MAKEFLAGS)),--log-level=NOTICE, )
 
+SIMULATOR_SOURCES := $(shell find include source -type f 2>/dev/null)
+RTL_SOURCES := $(shell find ../rtl -type f 2>/dev/null)
+
 .PHONY: all install clean
 
 all: build
 
-build: include/rvx_simulator_logger.h include/rvx_simulator_argparser.h source/rvx_simulator.cpp source/rvx_simulator_argparser.cpp source/rvx_simulator.v
+build: $(SIMULATOR_SOURCES) $(RTL_SOURCES)
 	test -d build || mkdir -p build
 	@echo "Building RVX Simulator..."
 	cmake -B build -DCMAKE_BUILD_TYPE=Release ${QUIET} ${REDIRECT}
