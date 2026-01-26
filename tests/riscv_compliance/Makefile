@@ -11,16 +11,16 @@ RVX_SIMULATOR_PATH = ../../simulator/
 all: build run
 
 run:
-	@python3 run_tests.py
+	python3 run_tests.py
 
 build:
-	@$(MAKE) -C ${RVX_SIMULATOR_PATH} -j$(nproc)
-	@$(MAKE) -C riscv_test_suite/ all -j$(nproc)
+	$(MAKE) -C ${RVX_SIMULATOR_PATH} -j$(nproc)
+	$(MAKE) -C riscv_test_suite/ all -j$(nproc)
 
 clean:
-	@-rm -rf test_output
-	@echo "RISC-V Compliance test results cleaned."
+	-rm -rf test_output
+	@echo "RISC-V Compliance test results removed."
 
 clean-all: clean
-	@$(MAKE) -C ${RVX_SIMULATOR_PATH} clean
-	@$(MAKE) -C riscv_test_suite/ clean
+	$(MAKE) -C ${RVX_SIMULATOR_PATH} clean
+	$(MAKE) -C riscv_test_suite/ clean

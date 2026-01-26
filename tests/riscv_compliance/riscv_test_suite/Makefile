@@ -27,22 +27,22 @@ test_programs: $(RV32_ELFS)
 signatures: $(RV32_SIGNATURES)
 
 test_programs/%.elf: rv32/*/%.S
-	@mkdir -p test_programs
+	mkdir -p test_programs
 	$(if $(findstring privilege,$<), \
 		@$(CC) $(CFLAGS) -DTARGET_SIMULATOR_RVX -Drvtest_mtrap_routine=True -Iinclude/ $< -o $@ -T rvx.ld, \
 		@$(CC) $(CFLAGS) -DTARGET_SIMULATOR_RVX -Iinclude/ $< -o $@ -T rvx.ld)
-	@$(OBJCOPY) -O verilog --verilog-data-width=4 $@ $(@:.elf=.mem)
-	@$(OBJDUMP) --source $@ > $(@:.elf=.disasm)
+	$(OBJCOPY) -O verilog --verilog-data-width=4 $@ $(@:.elf=.mem)
+	$(OBJDUMP) --source $@ > $(@:.elf=.disasm)
 
 signatures/%.signature: rv32/*/%.S
-	@mkdir -p signatures
+	mkdir -p signatures
 	$(if $(findstring privilege,$<), \
 		@$(CC) $(CFLAGS) -DTARGET_SIMULATOR_SPIKE -Drvtest_mtrap_routine=True -Iinclude/ $< -o signatures/$*.elf -T spike.ld, \
 		@$(CC) $(CFLAGS) -DTARGET_SIMULATOR_SPIKE -Iinclude/ $< -o signatures/$*.elf -T spike.ld)
-	@$(OBJDUMP) --source signatures/$*.elf > signatures/$*.disasm
-	@spike --isa=rv32imzicsr -m0x2000:0x200000 +signature=$@ +signature-granularity=4 signatures/$*.elf
+	$(OBJDUMP) --source signatures/$*.elf > signatures/$*.disasm
+	spike --isa=rv32imzicsr -m0x2000:0x200000 +signature=$@ +signature-granularity=4 signatures/$*.elf
 
 clean:
-	@-rm -rf test_programs
-	@-rm -rf signatures
-	@echo "RISC-V Test Suite build artifacts cleaned."
+	-rm -rf test_programs
+	-rm -rf signatures
+	@echo "RISC-V Test Suite build artifacts removed."
