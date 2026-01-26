@@ -26,7 +26,7 @@ Following these guidelines helps everyone work more efficiently and supports the
 
 ### Formatting
 
-* All files must be formatted with `verible-verilog-format` using the rules file at `.config/.verible-format`.
+* All files must be formatted with `verible-verilog-format` using the rules file at `.devcontainer/.verible-format`.
 * All files must be linted with `verilator --lint-only -Wall --timing`.
 * Use only ASCII characters, **120** chars per line, **no** tabs, **2** spaces per indent for all paired keywords.
 * Use C style comments: `//`.
@@ -72,7 +72,7 @@ Following these guidelines helps everyone work more efficiently and supports the
 
 ### Formatting
 
-* All files must be formatted with `clang-format` using the rules file at `.config/.clang-format`.
+* All files must be formatted with `clang-format` using the rules file at `.devcontainer/.clang-format`.
 
 **Tip:** The RVX development container applies most formatting rules automatically. It can be created from the `.devcontainer` folder, ensuring a consistently formatted and linted codebase with minimal setup.
 
