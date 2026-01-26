@@ -232,9 +232,9 @@ module rvx_uart_tb ();
     $display("Testing read/write to UART registers...");
     $display("--------------------------------------");
 
-    write_uart_register(`RVX_UART_BAUD_REG_ADDR, 32'h000004e2);  // 12 Mhz / 9600 baud = 1250 (0x4e2) cycles per baud
+    write_uart_register(`RVX_UART_BAUD_REG_ADDR, 32'h00000014);
     read_uart_register(`RVX_UART_BAUD_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h000004e2, "Register is not 0x000004e2 after write.")
+    `RVX_ASSERT(read_data === 32'h00000014, "Register is not 0x00000014 after write.")
 
     $display("");
     $display("Running UART data transfer test...");
@@ -243,7 +243,7 @@ module rvx_uart_tb ();
     // Send: 0xA5 (0x10100101)
     assert_is_ready_to_send();
     write_uart_register(`RVX_UART_WRITE_REG_ADDR, 32'h000000a5);
-    verify_byte_transmission(8'ha5, 1250);
+    verify_byte_transmission(8'ha5, 20);
     #(CLOCK_PERIOD * 4);
 
     // Read back
@@ -253,7 +253,7 @@ module rvx_uart_tb ();
     // Send: 0x5A (0x01011010)
     assert_is_ready_to_send();
     write_uart_register(`RVX_UART_WRITE_REG_ADDR, 32'h0000005a);
-    verify_byte_transmission(8'h5a, 1250);
+    verify_byte_transmission(8'h5a, 20);
     #(CLOCK_PERIOD * 4);
 
     // Read back
@@ -263,7 +263,7 @@ module rvx_uart_tb ();
     // Send: 0xFF (0x11111111)
     assert_is_ready_to_send();
     write_uart_register(`RVX_UART_WRITE_REG_ADDR, 32'h000000ff);
-    verify_byte_transmission(8'hff, 1250);
+    verify_byte_transmission(8'hff, 20);
     #(CLOCK_PERIOD * 4);
 
     // Read back
@@ -273,7 +273,7 @@ module rvx_uart_tb ();
     // Send: 0x00 (0x00000000)
     assert_is_ready_to_send();
     write_uart_register(`RVX_UART_WRITE_REG_ADDR, 32'h00000000);
-    verify_byte_transmission(8'h00, 1250);
+    verify_byte_transmission(8'h00, 20);
     #(CLOCK_PERIOD * 4);
 
     // Read back
@@ -283,7 +283,7 @@ module rvx_uart_tb ();
     // Send: 0x3C (0x00111100)
     assert_is_ready_to_send();
     write_uart_register(`RVX_UART_WRITE_REG_ADDR, 32'h0000003c);
-    verify_byte_transmission(8'h3c, 1250);
+    verify_byte_transmission(8'h3c, 20);
     #(CLOCK_PERIOD * 4);
 
     // Read back
@@ -293,7 +293,7 @@ module rvx_uart_tb ();
     // Send: 0xC3 (0x11000011)
     assert_is_ready_to_send();
     write_uart_register(`RVX_UART_WRITE_REG_ADDR, 32'h000000c3);
-    verify_byte_transmission(8'hc3, 1250);
+    verify_byte_transmission(8'hc3, 20);
     #(CLOCK_PERIOD * 4);
 
     // Read back
