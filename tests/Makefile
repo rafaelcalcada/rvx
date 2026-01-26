@@ -6,17 +6,17 @@ MAKEFLAGS += --no-print-directory
 .PHONY: all clean
 
 all:
-	@$(MAKE) -C testbench/gpio/verilator run
-	@$(MAKE) -C testbench/spi_manager/verilator run
-	@$(MAKE) -C testbench/uart/verilator run
-	@$(MAKE) -C testbench/timer/verilator run
+	@$(MAKE) -C testbench/gpio
+	@$(MAKE) -C testbench/spi_manager
+	@$(MAKE) -C testbench/uart
+	@$(MAKE) -C testbench/timer
 	@$(MAKE) -C riscv_compliance
 	@$(MAKE) -C hal
 
 clean:
-	@$(MAKE) -C testbench/gpio/verilator clean
-	@$(MAKE) -C testbench/spi_manager/verilator clean
-	@$(MAKE) -C testbench/uart/verilator clean
-	@$(MAKE) -C testbench/timer/verilator clean
+	@$(MAKE) -C testbench/gpio clean
+	@$(MAKE) -C testbench/spi_manager clean
+	@$(MAKE) -C testbench/uart clean
+	@$(MAKE) -C testbench/timer clean
 	@$(MAKE) -C riscv_compliance clean-all
 	@$(MAKE) -C hal clean-all
