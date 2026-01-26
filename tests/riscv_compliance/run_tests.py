@@ -1,248 +1,178 @@
-import os
-import sys
-import argparse
-import subprocess
-from pathlib import Path
-import shutil
+import os, sys, argparse, subprocess, shutil, pathlib
+from enum import Enum
 
-
-class scolor:
-    NORMAL  = '\033[0m'
-    PASS    = '\033[32m'
-    SKIP    = '\033[33m'
-    FAIL    = '\033[31m'
-
-
-prg_index = 0
-ref_index = 1
-run_index = 2
-
-
-unit_test = [
-    ["riscv_test_suite/test_programs/add-01.mem",             "riscv_test_suite/signatures/add-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/addi-01.mem",            "riscv_test_suite/signatures/addi-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/and-01.mem",             "riscv_test_suite/signatures/and-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/andi-01.mem",            "riscv_test_suite/signatures/andi-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/auipc-01.mem",           "riscv_test_suite/signatures/auipc-01.signature",            True,   ],
-    ["riscv_test_suite/test_programs/beq-01.mem",             "riscv_test_suite/signatures/beq-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/bge-01.mem",             "riscv_test_suite/signatures/bge-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/bgeu-01.mem",            "riscv_test_suite/signatures/bgeu-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/blt-01.mem",             "riscv_test_suite/signatures/blt-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/bltu-01.mem",            "riscv_test_suite/signatures/bltu-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/bne-01.mem",             "riscv_test_suite/signatures/bne-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/ebreak.mem",             "riscv_test_suite/signatures/ebreak.signature",              True,   ],
-    ["riscv_test_suite/test_programs/ecall.mem",              "riscv_test_suite/signatures/ecall.signature",               True,   ],
-    ["riscv_test_suite/test_programs/fence-01.mem",           "riscv_test_suite/signatures/fence-01.signature",            True,   ],
-    ["riscv_test_suite/test_programs/jal-01.mem",             "riscv_test_suite/signatures/jal-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/jalr-01.mem",            "riscv_test_suite/signatures/jalr-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/lb-align-01.mem",        "riscv_test_suite/signatures/lb-align-01.signature",         True,   ],
-    ["riscv_test_suite/test_programs/lbu-align-01.mem",       "riscv_test_suite/signatures/lbu-align-01.signature",        True,   ],
-    ["riscv_test_suite/test_programs/lh-align-01.mem",        "riscv_test_suite/signatures/lh-align-01.signature",         True,   ],
-    ["riscv_test_suite/test_programs/lhu-align-01.mem",       "riscv_test_suite/signatures/lhu-align-01.signature",        True,   ],
-    ["riscv_test_suite/test_programs/lui-01.mem",             "riscv_test_suite/signatures/lui-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/lw-align-01.mem",        "riscv_test_suite/signatures/lw-align-01.signature",         True,   ],
-    ["riscv_test_suite/test_programs/misalign-beq-01.mem",    "riscv_test_suite/signatures/misalign-beq-01.signature",     True,   ],
-    ["riscv_test_suite/test_programs/misalign-bge-01.mem",    "riscv_test_suite/signatures/misalign-bge-01.signature",     True,   ],
-    ["riscv_test_suite/test_programs/misalign-bgeu-01.mem",   "riscv_test_suite/signatures/misalign-bgeu-01.signature",    True,   ],
-    ["riscv_test_suite/test_programs/misalign-blt-01.mem",    "riscv_test_suite/signatures/misalign-blt-01.signature",     True,   ],
-    ["riscv_test_suite/test_programs/misalign-bltu-01.mem",   "riscv_test_suite/signatures/misalign-bltu-01.signature",    True,   ],
-    ["riscv_test_suite/test_programs/misalign-bne-01.mem",    "riscv_test_suite/signatures/misalign-bne-01.signature",     True,   ],
-    ["riscv_test_suite/test_programs/misalign-jal-01.mem",    "riscv_test_suite/signatures/misalign-jal-01.signature",     True,   ],
-    ["riscv_test_suite/test_programs/misalign-lh-01.mem",     "riscv_test_suite/signatures/misalign-lh-01.signature",      True,   ],
-    ["riscv_test_suite/test_programs/misalign-lhu-01.mem",    "riscv_test_suite/signatures/misalign-lhu-01.signature",     True,   ],
-    ["riscv_test_suite/test_programs/misalign-lw-01.mem",     "riscv_test_suite/signatures/misalign-lw-01.signature",      True,   ],
-    ["riscv_test_suite/test_programs/misalign-sh-01.mem",     "riscv_test_suite/signatures/misalign-sh-01.signature",      True,   ],
-    ["riscv_test_suite/test_programs/misalign-sw-01.mem",     "riscv_test_suite/signatures/misalign-sw-01.signature",      True,   ],
-    ["riscv_test_suite/test_programs/misalign1-jalr-01.mem",  "riscv_test_suite/signatures/misalign1-jalr-01.signature",   True,   ],
-    ["riscv_test_suite/test_programs/misalign2-jalr-01.mem",  "riscv_test_suite/signatures/misalign2-jalr-01.signature",   True,   ],
-    ["riscv_test_suite/test_programs/mul-01.mem",             "riscv_test_suite/signatures/mul-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/mulh-01.mem",            "riscv_test_suite/signatures/mulh-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/mulhu-01.mem",           "riscv_test_suite/signatures/mulhu-01.signature",            True,   ],
-    ["riscv_test_suite/test_programs/mulhsu-01.mem",          "riscv_test_suite/signatures/mulhsu-01.signature",           True,   ],
-    ["riscv_test_suite/test_programs/or-01.mem",              "riscv_test_suite/signatures/or-01.signature",               True,   ],
-    ["riscv_test_suite/test_programs/ori-01.mem",             "riscv_test_suite/signatures/ori-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/sb-align-01.mem",        "riscv_test_suite/signatures/sb-align-01.signature",         True,   ],
-    ["riscv_test_suite/test_programs/sh-align-01.mem",        "riscv_test_suite/signatures/sh-align-01.signature",         True,   ],
-    ["riscv_test_suite/test_programs/sll-01.mem",             "riscv_test_suite/signatures/sll-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/slli-01.mem",            "riscv_test_suite/signatures/slli-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/slt-01.mem",             "riscv_test_suite/signatures/slt-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/slti-01.mem",            "riscv_test_suite/signatures/slti-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/sltiu-01.mem",           "riscv_test_suite/signatures/sltiu-01.signature",            True,   ],
-    ["riscv_test_suite/test_programs/sltu-01.mem",            "riscv_test_suite/signatures/sltu-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/sra-01.mem",             "riscv_test_suite/signatures/sra-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/srai-01.mem",            "riscv_test_suite/signatures/srai-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/srl-01.mem",             "riscv_test_suite/signatures/srl-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/srli-01.mem",            "riscv_test_suite/signatures/srli-01.signature",             True,   ],
-    ["riscv_test_suite/test_programs/sub-01.mem",             "riscv_test_suite/signatures/sub-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/sw-align-01.mem",        "riscv_test_suite/signatures/sw-align-01.signature",         True,   ],
-    ["riscv_test_suite/test_programs/xor-01.mem",             "riscv_test_suite/signatures/xor-01.signature",              True,   ],
-    ["riscv_test_suite/test_programs/xori-01.mem",            "riscv_test_suite/signatures/xori-01.signature",             True,   ],
-]
-
+# These test programs are expected to fail due to misaligned accesses.
+# RVX supports only aligned memory accesses.
 expected_to_fail = [
-    "riscv_test_suite/test_programs/misalign-beq-01.mem"    ,
-    "riscv_test_suite/test_programs/misalign-bge-01.mem"    ,
-    "riscv_test_suite/test_programs/misalign-bgeu-01.mem"   ,
-    "riscv_test_suite/test_programs/misalign-blt-01.mem"    ,
-    "riscv_test_suite/test_programs/misalign-bltu-01.mem"   ,
-    "riscv_test_suite/test_programs/misalign-bne-01.mem"    ,
-    "riscv_test_suite/test_programs/misalign-jal-01.mem"    ,
+    "riscv_test_suite/test_programs/misalign-beq-01.mem",
+    "riscv_test_suite/test_programs/misalign-bge-01.mem",
+    "riscv_test_suite/test_programs/misalign-bgeu-01.mem",
+    "riscv_test_suite/test_programs/misalign-blt-01.mem",
+    "riscv_test_suite/test_programs/misalign-bltu-01.mem",
+    "riscv_test_suite/test_programs/misalign-bne-01.mem",
+    "riscv_test_suite/test_programs/misalign-jal-01.mem",
     "riscv_test_suite/test_programs/misalign2-jalr-01.mem"
 ]
 
-def print_status(clr: scolor, text: str):
-    if clr == scolor.NORMAL:
-        print(f'{clr}{text}')
+# These tests are ignored because RVX only multiplication (Zmmul extension).
+# Division and remainder instructions are not supported.
+ignored_tests = [
+    "riscv_test_suite/test_programs/div-01.mem",
+    "riscv_test_suite/test_programs/divu-01.mem",
+    "riscv_test_suite/test_programs/rem-01.mem",
+    "riscv_test_suite/test_programs/remu-01.mem"
+]
 
-    if clr == scolor.PASS:
-        print(f'{scolor.NORMAL}TEST {clr}PASS {scolor.NORMAL}: {text}')
+def discover_tests():
+    """Discover test programs and their corresponding signatures."""
+    test_programs_dir = pathlib.Path('riscv_test_suite/test_programs')
+    signatures_dir = pathlib.Path('riscv_test_suite/signatures')
 
-    if clr == scolor.SKIP:
-        print(f'{scolor.NORMAL}TEST {clr}SKIP {scolor.NORMAL}: {text}')
+    tests = []
+    for mem_file in sorted(test_programs_dir.glob('**/*.mem')):
+        test_name = mem_file.stem
+        signature_file = signatures_dir / f'{test_name}.signature'
+        tests.append([str(mem_file), str(signature_file)])
 
-    if clr == scolor.FAIL:
-        print(f'{scolor.NORMAL}TEST {clr}FAIL {scolor.NORMAL}: {text}')
+    return tests
 
+def log(text: str):
+    print(f'\033[0m{text}')
 
-def check_file(path: str):
+def log_passed(text: str):
+    print(f'\033[32mPASSED  \033[0m{text}')
+
+def log_failed(text: str):
+    print(f'\033[31mFAILED  \033[0m{text}')
+
+def file_exists(path: str):
+    """Check if a file exists."""
     if not os.path.isfile(path):
-        print_status(scolor.NORMAL, f'No such file or directory: {path}')
+        log(f'No such file or directory: {path}')
         return False
     return True
 
+def run_simulator(simulator_path: str, test_program: str, output_dir: str):
+    """Run the RVX simulator on a given test program. Returns True if execution was successful, False otherwise."""
+    test_name = pathlib.Path(test_program).stem
+    args = [f'{simulator_path}',
+            f'{test_program}',
+            f'--signature={output_dir}/{test_name}.signature',
+            f'--max-cycles={500000}',
+            '--verbose']
+    with open(f'{output_dir}/{test_name}.log', 'w') as fd:
+      return True if subprocess.run(args, stdout=fd).returncode == 0 else False
 
-def run_sim(sim_path: str, prog_dir: str, prog_name: str, dump_dir: str, wave: bool):
-    args = [f'{sim_path}',
-            f'{prog_dir}/{prog_name}',
-            f'--signature={dump_dir}/{prog_name}',
-            f'--max-cycles={500000}']
+def compare_signature(golden_reference: str, output_signature: str):
+    """Compare the output signature with the golden reference signature."""
+    try:
+        with open(golden_reference, mode='r', encoding='utf-8') as gold_file:
+            with open(output_signature, mode='r', encoding='utf-8') as sig_file:
+                gold_lines = gold_file.readlines()
+                sig_lines = sig_file.readlines()
+                for line_num, (gold_line, sig_line) in enumerate(zip(gold_lines, sig_lines), start=1):
+                    if gold_line.strip() != sig_line.strip():
+                        return False, line_num, gold_line.strip(), sig_line.strip()
+        return True, None, None, None
+    except:
+        return False, None, None, None
 
-    if wave:
-        args.append(f'--trace={dump_dir}/{prog_name}.fst')
+def main(argv = None):
+    """Run RISC-V compliance tests on RVX simulator."""
 
-    with open(f'{dump_dir}/{prog_name}.log', 'w') as fd:
-      result = subprocess.run(args, stdout=fd)
-      if result.returncode != 0:
-        return False
-      else:
-        return True
-
-
-def compare_dump(ref: str, dut: str):
-    with open(ref, mode='r', encoding='utf-8') as ref_file:
-        with open(dut, mode='r', encoding='utf-8') as dut_file:
-            line = 0
-            while True:
-                line += 1
-
-                str_ref = ref_file.readline()
-                str_dut = dut_file.readline()
-
-                if not str_ref or not str_dut:
-                    return (True, line, 0, 0)
-
-                int_ref = int(str_ref, 16)
-                int_dut = int(str_dut, 16)
-
-                if int_ref != int_dut:
-                    return (False, line, int_ref, int_dut)
-
-
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv[1:]
-
+    # Argument parsing
+    argv = sys.argv[1:] if argv is None else argv
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
-    parser.add_argument('--sim',
+    parser.add_argument('--simulator',
                         type=str,
-                        default='/workspaces/rvx/simulator/build/rvx_simulator',
-                        help='Path to the simulator')
-
-    parser.add_argument('--dump',
+                        default='../../simulator/build/rvx_simulator',
+                        help='Path to RVX simulator')
+    parser.add_argument('--output-dir',
                         type=str,
                         default='test_output',
-                        help='Dump directory')
-
-    parser.add_argument('--wave',
-                        action='store_true',
-                        help='Enable gen wave *.fst')
-
+                        help='Path to test output directory (will be created if does not exist)')
     args = parser.parse_args(argv)
 
-    if not check_file(args.sim):
-        print_status(scolor.NORMAL, f'Please build file: {args.sim}')
-        return
+    # Check simulator exists
+    if not file_exists(args.simulator):
+        log(f'RVX Simulator not found: {args.simulator}')
+        log('Please build the simulator before running the tests.')
 
-    if not os.path.exists(args.dump):
-        os.makedirs(args.dump)
+    # Discover tests
+    all_tests = discover_tests()
 
-    if os.path.exists(args.dump):
-      print_status(scolor.NORMAL, f'Removing existing test output directory: {args.dump}')
-      shutil.rmtree(args.dump)
+    # Prepare output directory
+    if os.path.exists(args.output_dir):
+        log(f'\nRemoving existing test output directory: {args.output_dir}')
+        shutil.rmtree(args.output_dir)
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
 
-    os.makedirs(args.dump)
+    passed_count = 0
+    skipped_count = 0
+    failed_count = 0
 
-    passed = 0
-    skipped = 0
-    failed = 0
+    # Run tests
+    log(f'\nRunning {len(all_tests) - len(ignored_tests)} RISC-V compliance tests on RVX simulator...\n')
+    for test_program, test_signature in all_tests:
 
-    for item in unit_test:
-        prog_path = item[prg_index]
-        ref_path = item[ref_index]
-        is_run = item[run_index]
-
-        if not check_file(prog_path):
+        if test_program in ignored_tests:
             continue
 
-        if not is_run:
-            skipped += 1
-            print_status(scolor.SKIP, prog_path)
+        if not file_exists(test_program) or not file_exists(test_signature):
+            failed_count += 1
+            log_failed(f'{test_program}')
+            log('-- Test program or signature file not found.')
             continue
 
-        prog_dir = Path(prog_path).parent
-        prog_name = Path(prog_path).name
-        dump_path = f'{args.dump}/{prog_name}'
-        run_status = run_sim(sim_path=args.sim,
-                prog_dir=prog_dir,
-                prog_name=prog_name,
-                dump_dir=args.dump,
-                wave=args.wave)
+        run_status = run_simulator(
+                simulator_path=args.simulator,
+                test_program=test_program,
+                output_dir=args.output_dir)
 
         if not run_status:
-            failed +=1
-            print_status(scolor.FAIL, prog_path)
-            print_status(scolor.NORMAL, f'-- Simulator execution failed.')
+            failed_count +=1
+            log_failed(f'{test_program}')
+            log('-- Simulator returned a non-zero exit code.')
             continue
 
-        if not check_file(ref_path):
+        output_file = os.path.join(args.output_dir, f'{pathlib.Path(test_program).stem}.signature')
+
+        if not file_exists(output_file):
+            failed_count += 1
+            log_failed(f'{test_program}')
             continue
 
-        if not check_file(dump_path):
-            failed +=1
-            print_status(scolor.FAIL, prog_path)
-            print_status(scolor.NORMAL, f'-- Dump file not generated: {dump_path}')
+        if not file_exists(output_file):
+            failed_count += 1
+            log_failed(f'{test_program}')
+            log(f'-- Test output file not found: {output_file}')
             continue
 
-        result, line, ref, dut = compare_dump(ref=ref_path, dut=dump_path)
+        result, diff_line, gold_line, sig_line = compare_signature(golden_reference=test_signature,
+                                                                   output_signature=output_file)
 
-        if not result and prog_path not in expected_to_fail:
-            failed +=1
-            print_status(scolor.FAIL, prog_path)
-            print_status(scolor.NORMAL, f'-- Signature at line {line} differs from golden reference.')
-            print_status(scolor.NORMAL, f'-- Signature: {hex(dut)}. Golden reference: {hex(ref)}')
+        if not result and test_program not in expected_to_fail:
+            failed_count += 1
+            log_failed(f'{test_program}')
+            log(f'-- Signature at line {diff_line} differs from golden reference.')
+            log(f'-- Signature: {hex(sig_line)}. Golden reference: {hex(gold_line)}')
         else:
-            passed += 1
-            print_status(scolor.PASS, prog_path)
+            passed_count += 1
+            log_passed(f'{test_program}')
 
-    print_status(scolor.NORMAL, f'Total: passed {passed}, skipped {skipped}, failed {failed}')
+    log(f'\nTotals:\n\n  Passed: {passed_count}\n  Failed: {failed_count}')
 
-    if passed == len(unit_test):
-      print("------------------------------------------------------------------------------------------")
-      print("RVX Core IP passed ALL unit tests from RISC-V Architectural Test")
-      print("------------------------------------------------------------------------------------------")
-
+    if passed_count == 58: # Yes, hardcoded.
+                           # This is the exact number of tests that should pass.
+                           # discover_tests() may find less or more tests depending on
+                           # the files present in the riscv_test_suite directory,
+                           # so hardcoding the expected number ensures correctness.
+                           # If more tests are added in the future, this number must be updated.
+      print("\nRVX Processor Core passed all RISC-V Test Suite tests.\n")
+    else:
+      print("\n[ERROR] RVX Processor Core failed on RISC-V Test Suite tests.\n")
 
 if __name__ == "__main__":
     main()
