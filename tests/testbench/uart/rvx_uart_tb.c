@@ -1,5 +1,6 @@
 #include "Vrvx_uart_tb.h"
 #include "verilated.h"
+#include <iostream>
 
 int main(int argc, char **argv)
 {
@@ -15,5 +16,6 @@ int main(int argc, char **argv)
 
   delete dut;
   delete contextp;
+  std::cout << std::endl;
   return 0;
 }
