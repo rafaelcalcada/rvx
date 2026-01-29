@@ -10,7 +10,7 @@ void run_rvx_hal_gpio_test()
   RvxGpio *rvx_gpio_address = RVX_GPIO_ADDRESS;
   unsigned int gpio_tests_error_count = 0;
 
-  rvx_uart_init(RVX_UART_ADDRESS, 50);
+  rvx_uart_init(RVX_UART_ADDRESS, 1000000, 50000000);
   rvx_uart_write_string(RVX_UART_ADDRESS, "\nRVX HAL - GPIO integration tests\n--------------------------------\n");
 
   rvx_test_start("\nTest 1: GPIO OUTPUT register is 0 after reset. ");

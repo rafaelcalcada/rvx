@@ -11,7 +11,7 @@ void run_rvx_hal_spi_manager_test()
   RvxSpiManager *rvx_spi_manager_address = RVX_SPI_MANAGER_ADDRESS;
   unsigned int spi_manager_tests_error_count = 0;
 
-  rvx_uart_init(RVX_UART_ADDRESS, 50);
+  rvx_uart_init(RVX_UART_ADDRESS, 1000000, 50000000);
   rvx_uart_write_string(RVX_UART_ADDRESS,
                         "\nRVX HAL - SPI Manager integration tests\n---------------------------------------\n");
 

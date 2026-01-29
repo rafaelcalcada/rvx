@@ -16,7 +16,7 @@ void run_rvx_hal_timer_test()
 {
   unsigned int timer_tests_error_count = 0;
 
-  rvx_uart_init(RVX_UART_ADDRESS, 50);
+  rvx_uart_init(RVX_UART_ADDRESS, 1000000, 50000000);
   rvx_uart_write_string(RVX_UART_ADDRESS, "\nRVX HAL - Timer integration tests\n---------------------------------\n");
 
   rvx_test_start("\nTest 1: Timer COUNTER ENABLE register is 1 after reset. ");
