@@ -8,8 +8,7 @@ void print_byte(const uint8_t read_data);
 void main(void)
 {
   // Initialize UART at 9600 baud (assuming clock frequency is 12 MHz)
-  // Calculation: cycles_per_baud = CLOCK_FREQUENCY / UART_BAUD_RATE = 12000000 / 9600 = 1250
-  rvx_uart_init(RVX_UART_ADDRESS, 5208);
+  rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
 
   // Print welcome message
   rvx_uart_write_string(RVX_UART_ADDRESS, "RVX SPI Manager Example Project\n\n");
