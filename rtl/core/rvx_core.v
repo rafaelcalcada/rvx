@@ -469,6 +469,7 @@ module rvx_core #(
       .core_state_s1                    (core_state_s1),
       .ebreak_s1                        (ebreak_s1),
       .ecall_s1                         (ecall_s1),
+      .instruction_s1                   (instruction_s1),
       .illegal_instruction_s1           (illegal_instruction_s1),
       .irq_external_s1                  (irq_external),
       .irq_fast_s1                      (irq_fast),
