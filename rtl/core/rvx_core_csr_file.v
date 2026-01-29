@@ -14,6 +14,7 @@ module rvx_core_csr_file (
     input wire [ 3:0] core_state_s1,
     input wire        ebreak_s1,
     input wire        ecall_s1,
+    input wire [31:0] instruction_s1,
     input wire        illegal_instruction_s1,
     input wire        irq_external_s1,
     input wire [15:0] irq_fast_s1,
@@ -384,6 +385,7 @@ module rvx_core_csr_file (
       if (take_trap_s1) begin
         if (misaligned_address_exception) csr_mtval <= target_address_s1;
         else if (ebreak_s1) csr_mtval <= program_counter_s1;
+        else if (illegal_instruction_s1) csr_mtval <= instruction_s1;
         else csr_mtval <= 32'h00000000;
       end
       else if (core_state_s1 == `RVX_STATE_OPERATING && csr_address_s2 == `RISCV_CSR_MTVAL_ADDR && csr_write_request_s2)
