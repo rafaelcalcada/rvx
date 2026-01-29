@@ -7,13 +7,10 @@ cmake_minimum_required(VERSION 3.28)
 # Name of the project/executable to be generated
 set(APP_NAME "rvx_freertos_example")
 
-# Define CPU clock frequency (in Hz)
-set(CPU_FREQUENCY 50000000)
-
 # Memory and stack sizes (in bytes)
 set(RVX_MEMORY_SIZE 32768)
 set(RVX_STACK_SIZE 1024)
-set(RVX_HEAP_SIZE 0) # Heap is statically allocated by FreeRTOS, no need to reserve space here
+set(RVX_HEAP_SIZE 8192)
 
 # Fetch RVX HAL
 include(FetchContent)
@@ -40,7 +37,7 @@ target_include_directories(freertos_config INTERFACE ${CMAKE_SOURCE_DIR})
 target_compile_definitions(freertos_config INTERFACE projCOVERAGE_TEST=0)
 
 # Configure FreeRTOS for a RISC-V target
-set(FREERTOS_HEAP "4" CACHE STRING "" FORCE)
+set(FREERTOS_HEAP "5" CACHE STRING "" FORCE)
 set(FREERTOS_PORT "GCC_RISC_V_GENERIC" CACHE STRING "" FORCE)
 set(FREERTOS_RISCV_EXTENSION RISCV_MTIME_CLINT_no_extensions CACHE STRING "" FORCE)
 

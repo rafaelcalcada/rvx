@@ -5,12 +5,12 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
-uint8_t ucHeap[configTOTAL_HEAP_SIZE]; ///< FreeRTOS statically allocated heap
-
 void led_0_task(void *pvParameters); ///< FreeRTOS Task for blinking LED 0
 void led_1_task(void *pvParameters); ///< FreeRTOS Task for blinking LED 1
 
 extern void freertos_risc_v_trap_handler(); ///< FreeRTOS trap handler
+extern uint8_t __heap_start;                ///< Heap start symbol provided by RVX linker script
+extern uint8_t __heap_end;                  ///< Heap end symbol provided by RVX linker script
 
 void main(void)
 {
@@ -27,16 +27,18 @@ void main(void)
   rvx_gpio_pin_configure(RVX_GPIO_ADDRESS, 0, RVX_GPIO_OUTPUT);
   rvx_gpio_pin_configure(RVX_GPIO_ADDRESS, 2, RVX_GPIO_OUTPUT);
 
+  // Configure FreeRTOS heap regions (this example used FreeRTOS heap_5.c)
+  HeapRegion_t xHeapRegions[] = {{&__heap_start, (size_t)(&__heap_end - &__heap_start)}, {NULL, 0}};
+
+  // Initialize heap_5 with the regions
+  vPortDefineHeapRegions(xHeapRegions);
+
   // Create 2 tasks for blinking LEDs
   xTaskCreate(led_0_task, "LED 0 Task", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
   xTaskCreate(led_1_task, "LED 1 Task", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 
   // Start the FreeRTOS scheduler
   vTaskStartScheduler();
-
-  while (1)
-  {
-  }
 }
 
 // FreeRTOS Task for blinking LED 0
@@ -83,8 +85,6 @@ void freertos_risc_v_application_interrupt_handler(uint32_t interrupt_cause)
   // {
   //   // Handle external interrupt
   // }
-
-  return;
 }
 
 // This handler is called by FreeRTOS for all exceptions.
@@ -99,6 +99,4 @@ void freertos_risc_v_application_exception_handler(uint32_t exception_cause)
   // {
   //   // Handle breakpoint exception
   // }
-
-  return;
 }
