@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
-module rvx_tightly_coupled_memory #(
+module rvx_tcm #(
 
     // Size of the memory in bytes
-    parameter MEMORY_SIZE = 8192,
+    parameter SIZE_IN_BYTES = 8192,
 
     // Path to the file with program and data
-    parameter MEMORY_INIT_FILE = ""
+    parameter INIT_FILE_PATH = ""
 
 ) (
 
@@ -33,7 +33,7 @@ module rvx_tightly_coupled_memory #(
 
 );
 
-  reg  [31:0] tcm                     [0:MEMORY_SIZE/4-1];
+  reg  [31:0] tcm                     [0:SIZE_IN_BYTES/4-1];
 
   // verilator lint_off UNUSEDSIGNAL
   wire [31:0] port0_effective_address;
@@ -43,13 +43,13 @@ module rvx_tightly_coupled_memory #(
   wire        port0_invalid_address;
   wire        port1_invalid_address;
 
-  assign port0_invalid_address = $unsigned(port0_address) >= $unsigned(MEMORY_SIZE);
-  assign port1_invalid_address = $unsigned(port1_address) >= $unsigned(MEMORY_SIZE);
+  assign port0_invalid_address = $unsigned(port0_address) >= $unsigned(SIZE_IN_BYTES);
+  assign port1_invalid_address = $unsigned(port1_address) >= $unsigned(SIZE_IN_BYTES);
 
   integer i;
   initial begin
-    for (i = 0; i < MEMORY_SIZE / 4; i = i + 1) tcm[i] = 32'h00000000;
-    if (MEMORY_INIT_FILE != "") $readmemh(MEMORY_INIT_FILE, tcm);
+    for (i = 0; i < SIZE_IN_BYTES / 4; i = i + 1) tcm[i] = 32'h00000000;
+    if (INIT_FILE_PATH != "") $readmemh(INIT_FILE_PATH, tcm);
   end
 
   assign port0_effective_address = $unsigned(port0_address[31:0] >> 2);
