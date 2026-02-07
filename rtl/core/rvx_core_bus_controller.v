@@ -3,11 +3,7 @@
 
 `include "rvx_constants.vh"
 
-module rvx_core_bus_controller #(
-
-    parameter [31:0] BOOT_ADDRESS = 32'h00000000
-
-) (
+module rvx_core_bus_controller (
 
     // Global signals
     input wire clock,
@@ -74,7 +70,7 @@ module rvx_core_bus_controller #(
   // Instruction bus control
   // ---------------------------------------------------------------------------
 
-  assign ibus_address = !reset_n ? BOOT_ADDRESS : (clock_enable ? program_counter_s0 : prev_ibus_address);
+  assign ibus_address = !reset_n ? 32'h00000000 : (clock_enable ? program_counter_s0 : prev_ibus_address);
 
   assign ibus_rrequest = !reset_n ? 1'b0 : (clock_enable ? 1'b1 : prev_ibus_rrequest);
 
@@ -91,7 +87,7 @@ module rvx_core_bus_controller #(
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      prev_ibus_address  <= BOOT_ADDRESS;
+      prev_ibus_address  <= 32'h00000000;
       prev_ibus_rrequest <= 1'b0;
     end
     else if (clock_enable) begin

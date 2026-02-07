@@ -5,8 +5,8 @@
 
 module rvx_core #(
 
-    parameter [31:0] BOOT_ADDRESS = 32'h00000000,
-    parameter        ENABLE_ZMMUL = 0
+    parameter [31:0] SPI_BOOT_IMAGE_ADDRESS = 32'h00000000,
+    parameter        ENABLE_ZMMUL           = 0
 
 ) (
 
@@ -119,11 +119,7 @@ module rvx_core #(
   // Bus controller
   // ---------------------------------------------------------------------------
 
-  rvx_core_bus_controller #(
-
-      .BOOT_ADDRESS(BOOT_ADDRESS)
-
-  ) rvx_core_bus_controller_instance (
+  rvx_core_bus_controller rvx_core_bus_controller_instance (
 
       // Global signals
       .clock  (clock),
@@ -167,11 +163,7 @@ module rvx_core #(
   // Pipeline stage 0
   // ---------------------------------------------------------------------------
 
-  rvx_core_pc_gen #(
-
-      .BOOT_ADDRESS(BOOT_ADDRESS)
-
-  ) rvx_core_pc_gen_instance (
+  rvx_core_pc_gen rvx_core_pc_gen_instance (
 
       // Inputs
       .core_state_s1          (core_state_s1),
@@ -186,7 +178,7 @@ module rvx_core #(
 
   always @(posedge clock) begin : pipeline_s0_to_s1_registers
     if (!reset_n) begin
-      program_counter_s1 <= BOOT_ADDRESS;
+      program_counter_s1 <= 32'h00000000;
     end
     else if (clock_enable) begin
       program_counter_s1 <= program_counter_s0;
@@ -458,7 +450,11 @@ module rvx_core #(
 
   );
 
-  rvx_core_csr_file rvx_core_csr_file_instance (
+  rvx_core_csr_file #(
+
+      .SPI_BOOT_IMAGE_ADDRESS(SPI_BOOT_IMAGE_ADDRESS)
+
+  ) rvx_core_csr_file_instance (
 
       // Global signals
       .clock       (clock),
