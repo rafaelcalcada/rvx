@@ -1,6 +1,6 @@
-site_name: RVX Documentation
+site_name: RVX Docs
 site_author: Rafael Calcada
-site_description: RVX is a microcontroller IP core developed in Verilog that implements the RV32I instruction set of RISC-V.
+site_description: 32-bit RISC-V microcontroller for embedded, FPGA and ASIC applications
 repo_url: https://github.com/rafaelcalcada/rvx
 edit_uri: edit/main/docs/
 markdown_extensions:
@@ -55,8 +55,8 @@ docs_dir: source/
 remote_branch: docs
 copyright: Copyright (c) 2020-2026 RVX Project Contributors
 nav:
-    - Homepage: 'index.md'    
-    - User Guide: 'userguide.md'
+    - Homepage: 'index.md'
+    - RVX User Guide: 'userguide.md'
     - Hardware Docs: 'hardware.md'
     - Examples:
         - Hello World: 'examples/helloworld.md'
