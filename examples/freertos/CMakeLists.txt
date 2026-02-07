@@ -52,5 +52,5 @@ add_executable(${APP_NAME} ${SOURCE_FILES})
 # Link to RVX HAL
 target_link_libraries(${APP_NAME} PRIVATE rvx_hal freertos_kernel freertos_config)
 
-# Generate memory initialization file
-rvx_generate_memory_init_file(${APP_NAME})
+# Generate boot image
+rvx_generate_boot_image(${APP_NAME})

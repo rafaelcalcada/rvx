@@ -45,5 +45,5 @@ target_include_directories(${APP_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 # Link to RVX HAL
 target_link_libraries(${APP_NAME} PRIVATE rvx_hal)
 
-# Generate memory initialization file
-rvx_generate_memory_init_file(${APP_NAME})
+# Generate boot image
+rvx_generate_boot_image(${APP_NAME})
