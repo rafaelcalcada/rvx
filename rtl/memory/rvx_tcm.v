@@ -33,7 +33,9 @@ module rvx_tcm #(
 
 );
 
-  reg  [31:0] tcm                     [0:SIZE_IN_BYTES/4-1];
+  localparam TCM_BASE = 32'h00001000;
+  localparam TCM_WORDS = SIZE_IN_BYTES / 4;
+  reg  [31:0] tcm                     [0:TCM_WORDS-1];
 
   // verilator lint_off UNUSEDSIGNAL
   wire [31:0] port0_effective_address;
@@ -43,8 +45,12 @@ module rvx_tcm #(
   wire        port0_invalid_address;
   wire        port1_invalid_address;
 
-  assign port0_invalid_address = $unsigned(port0_address) >= $unsigned(SIZE_IN_BYTES);
-  assign port1_invalid_address = $unsigned(port1_address) >= $unsigned(SIZE_IN_BYTES);
+  // verilog_format: off
+  assign port0_invalid_address = ($unsigned(port0_address) >= $unsigned(SIZE_IN_BYTES + TCM_BASE)) |
+                                 ($unsigned(port0_address) <  $unsigned(TCM_BASE));
+  assign port1_invalid_address = ($unsigned(port1_address) >= $unsigned(SIZE_IN_BYTES + TCM_BASE)) |
+                                 ($unsigned(port1_address) <  $unsigned(TCM_BASE));
+  // verilog_format: on
 
   integer i;
   initial begin
@@ -52,8 +58,8 @@ module rvx_tcm #(
     if (INIT_FILE_PATH != "") $readmemh(INIT_FILE_PATH, tcm);
   end
 
-  assign port0_effective_address = $unsigned(port0_address[31:0] >> 2);
-  assign port1_effective_address = $unsigned(port1_address[31:0] >> 2);
+  assign port0_effective_address = ($unsigned(port0_address[31:0]) - $unsigned(TCM_BASE)) >> 2;
+  assign port1_effective_address = ($unsigned(port1_address[31:0]) - $unsigned(TCM_BASE)) >> 2;
 
   always @(posedge clock) begin
     if (!reset_n | port0_invalid_address) port0_rdata <= 32'h00000000;

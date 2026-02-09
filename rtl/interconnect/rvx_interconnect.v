@@ -36,9 +36,8 @@ module rvx_interconnect #(
 
 );
 
-  reg [NUM_PERIPHERALS*32-1:0] peripheral_base_address_mask;
-  reg [   NUM_PERIPHERALS-1:0] peripheral_sel;
-  reg [   NUM_PERIPHERALS-1:0] peripheral_sel_reg;
+  reg [NUM_PERIPHERALS-1:0] peripheral_sel;
+  reg [NUM_PERIPHERALS-1:0] peripheral_sel_reg;
 
   // Read/write request signals (forwarded directly)
   // ---------------------------------------------------------------------------
@@ -55,10 +54,9 @@ module rvx_interconnect #(
   integer i;
   always @(*) begin
     for (i = 0; i < NUM_PERIPHERALS; i = i + 1) begin
-      // Creates a mask like 0xFFFF_F000 for a region size of 0x0000_1000 for each peripheral
-      peripheral_base_address_mask[i*32+:32] = ~(REGION_SIZES[i*32+:32] - 1);
-      // Applies the mask and compares with the base address to select the peripheral
-      if ((controller_rw_address & peripheral_base_address_mask[i*32+:32]) == BASE_ADDRESSES[i*32+:32])
+      // Compare addresses per peripheral and set selection signal accordingly
+      if ((controller_rw_address >= BASE_ADDRESSES[i*32+:32]) &&
+          (controller_rw_address < (BASE_ADDRESSES[i*32+:32] + REGION_SIZES[i*32+:32])))
         peripheral_sel[i] = 1'b1;
       else peripheral_sel[i] = 1'b0;
     end

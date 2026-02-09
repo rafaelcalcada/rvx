@@ -4,7 +4,7 @@
 module rvx #(
 
     parameter TCM_SIZE_IN_BYTES      = 8192,
-    parameter FPGA_BOOT_IMAGE_PATH   = "",
+    parameter TCM_INIT_FILE          = "",
     parameter SPI_BOOT_IMAGE_ADDRESS = 32'h00000000,
     parameter GPIO_WIDTH             = 1,
     parameter ENABLE_ZMMUL           = 0
@@ -25,17 +25,26 @@ module rvx #(
 
 );
 
-  // Instruction bus signals
+  // Instruction bus signals and implementation
 
   wire [31:0] ibus_address;
   reg  [31:0] ibus_address_reg;
   wire        ibus_rrequest;
-  wire [31:0] ibus_rdata_tcm;
+  wire        ibus_rrequest_rom;
+  wire        ibus_rrequest_tcm;
+  wire [31:0] ibus_rdata;
   wire [31:0] ibus_rdata_rom;
-  wire        ibus_rresponse_tcm;
+  wire [31:0] ibus_rdata_tcm;
+  wire        ibus_rresponse;
   wire        ibus_rresponse_rom;
+  wire        ibus_rresponse_tcm;
 
   always @(posedge clock) ibus_address_reg <= ibus_address;
+  assign ibus_rrequest_rom = ibus_address < 4096 ? ibus_rrequest : 1'b0;
+  assign ibus_rrequest_tcm = ibus_address >= 4096 ? ibus_rrequest : 1'b0;
+  assign ibus_rdata        = ibus_address_reg < 4096 ? ibus_rdata_rom : ibus_rdata_tcm;
+  assign ibus_rresponse    = ibus_address_reg < 4096 ? ibus_rresponse_rom : ibus_rresponse_tcm;
+
 
   // RVX Interconnect configuration
 
@@ -114,9 +123,9 @@ module rvx #(
 
       // Instruction bus
       .ibus_address  (ibus_address),
-      .ibus_rdata    (ibus_address_reg < 1024 ? ibus_rdata_rom : ibus_rdata_tcm),
+      .ibus_rdata    (ibus_rdata),
       .ibus_rrequest (ibus_rrequest),
-      .ibus_rresponse(ibus_address_reg < 1024 ? ibus_rresponse_rom : ibus_rresponse_tcm),
+      .ibus_rresponse(ibus_rresponse),
 
       // Data bus
       .dbus_address  (controller_rw_address),
@@ -173,12 +182,7 @@ module rvx #(
 
   );
 
-  rvx_bootloader_rom #(
-
-      .SIZE_IN_BYTES (1024),
-      .INIT_FILE_PATH("rvx_bootloader.mem")
-
-  ) rvx_bootloader_rom_instance (
+  rvx_bootloader_rom rvx_bootloader_rom_instance (
 
       // Global signals
       .clock  (clock),
@@ -187,7 +191,7 @@ module rvx #(
       // Read-only port - Instruction bus
       .address  (ibus_address),
       .rdata    (ibus_rdata_rom),
-      .rrequest (ibus_address >= 1024 ? 1'b0 : ibus_rrequest),
+      .rrequest (ibus_rrequest_rom),
       .rresponse(ibus_rresponse_rom)
 
   );
@@ -195,7 +199,7 @@ module rvx #(
   rvx_tcm #(
 
       .SIZE_IN_BYTES (TCM_SIZE_IN_BYTES),
-      .INIT_FILE_PATH(FPGA_BOOT_IMAGE_PATH)
+      .INIT_FILE_PATH(TCM_INIT_FILE)
 
   ) rvx_tightly_coupled_memory_instance (
 
@@ -206,7 +210,7 @@ module rvx #(
       // Port 0 (read-only) - Instruction bus
       .port0_address  (ibus_address),
       .port0_rdata    (ibus_rdata_tcm),
-      .port0_rrequest (ibus_rrequest),
+      .port0_rrequest (ibus_rrequest_tcm),
       .port0_rresponse(ibus_rresponse_tcm),
 
       // Port 1 (read/write) - Data bus
