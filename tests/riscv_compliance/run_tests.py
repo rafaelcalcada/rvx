@@ -157,7 +157,7 @@ def main(argv = None):
             failed_count += 1
             log_failed(f'{test_program}')
             log(f'-- Signature at line {diff_line} differs from golden reference.')
-            log(f'-- Signature: {hex(sig_line)}. Golden reference: {hex(gold_line)}')
+            log(f'-- Signature: {sig_line}. Golden reference: {gold_line}')
         else:
             passed_count += 1
             log_passed(f'{test_program}')
