@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   auto &rw_address = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__controller_rw_address;
   auto &write_request = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__controller_write_request;
   auto &write_data = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__controller_write_data;
-  auto &memory_size = simulator->rootp->rvx_simulator__DOT__MEMORY_SIZE;
+  auto &tcm_size_in_bytes = simulator->rootp->rvx_simulator__DOT__TCM_SIZE_IN_BYTES;
   auto &uart_tx_bit_counter =
       simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_uart_instance__DOT__tx_bit_counter;
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 
   /// @brief Reads a 32-bit word from the simulated memory.
   /// @param memory_address The byte address to read from.
-  auto read_memory = [&tcm](uint32_t memory_address) { return tcm[memory_address >> 2]; };
+  auto read_memory = [&tcm](uint32_t memory_address) { return tcm[(memory_address - 0x00001000) >> 2]; };
 
   /// @brief Returns true if the running program has finished execution.
   /// @note A program signals its end by writing 1 to address 0x00000000.
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 
   std::string line;
   size_t load_address = 0;
-  for (unsigned i = 0; i < (memory_size >> 2); i++)
+  for (unsigned i = 0; i < (tcm_size_in_bytes >> 2); i++)
     tcm[i] = 0xdeadbeef; // Initialize memory to known pattern first
   while (std::getline(program_file, line))
   {
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
       }
       else
       {
-        if (load_address >= (memory_size >> 2))
+        if (load_address >= (tcm_size_in_bytes >> 2))
         {
           logger.error("Program file '{}' tries to load data beyond memory size at address 0x{:08x}.",
                        sim_options.program_path, load_address << 2);
@@ -216,8 +216,8 @@ int main(int argc, char *argv[])
       logger.info("Program signaled completion after {} cycles.", cycle_count);
 
       // Output test signature if requested
-      uint32_t start_address = read_memory(0x001FFFF8) >> 2;
-      uint32_t stop_address = read_memory(0x001FFFFC) >> 2;
+      uint32_t start_address = read_memory(0x001FFFF8);
+      uint32_t stop_address = read_memory(0x001FFFFC);
       if (!sim_options.signature_path.empty() && start_address < stop_address)
       {
         std::ofstream signature_file(sim_options.signature_path, std::ios::out | std::ios::trunc);
@@ -229,9 +229,10 @@ int main(int argc, char *argv[])
         }
         logger.info("Dumping test signature from 0x{:08x} to 0x{:08x} ({} bytes) to {}", start_address, stop_address,
                     stop_address - start_address, sim_options.signature_path);
-        while (start_address < stop_address && start_address < (memory_size >> 2))
+        while (start_address < stop_address && start_address < (tcm_size_in_bytes >> 2))
         {
-          signature_file << std::format("{:08x}\n", tcm[start_address++]);
+          signature_file << std::format("{:08x}\n", read_memory(start_address));
+          start_address += 4;
         }
       }
 
@@ -246,7 +247,7 @@ int main(int argc, char *argv[])
           break;
         }
         logger.info("Dumping memory to {}", sim_options.dump_path);
-        for (uint32_t addr = 0; addr < (memory_size >> 2); addr++)
+        for (uint32_t addr = 0; addr < (tcm_size_in_bytes >> 2); addr++)
         {
           dump_file << std::format("{:08x}\n", tcm[addr]);
         }
