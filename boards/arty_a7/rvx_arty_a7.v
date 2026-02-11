@@ -25,8 +25,8 @@ module rvx_arty_a7 #(
   wire [GPIO_WIDTH-1:0] gpio_input;
   wire [GPIO_WIDTH-1:0] gpio_output;
 
-  // Number of clock cycles in 20ms at 100MHz (Arty A7 board clock frequency)
-  localparam NUM_CYCLES_IN_20_MS = 2000000;
+  // Number of clock cycles in 20ms at 50MHz (Arty A7 board clock frequency)
+  localparam NUM_CYCLES_IN_20_MS = 1000000;
 
   reg        rvx_clock;
   reg        push_button_0_sync_0;
@@ -43,9 +43,9 @@ module rvx_arty_a7 #(
 
   rvx #(
 
-      .MEMORY_SIZE     (32768),
-      .MEMORY_INIT_FILE("rvx_freertos_example.mem"),
-      .GPIO_WIDTH      (GPIO_WIDTH)
+      .TCM_SIZE_IN_BYTES     (32768),
+      .SPI_BOOT_IMAGE_ADDRESS(32'h00400000),
+      .GPIO_WIDTH            (GPIO_WIDTH)
 
   ) rvx_instance (
 
@@ -78,7 +78,7 @@ module rvx_arty_a7 #(
   // Push-buttons debouncing
   // ---------------------------------------------------------------------------
 
-  always @(posedge clock) begin
+  always @(posedge rvx_clock) begin
     if (push_button_0) begin
       push_button_0_sync_0    <= 1'b1;
       push_button_0_sync_1    <= 1'b1;

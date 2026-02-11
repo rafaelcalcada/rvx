@@ -1,4 +1,4 @@
-create_clock -period 83.33 -waveform {0 41.66} -name clock [get_ports clock]
+create_clock -period 83.330 -name clock -waveform {0.000 41.660} [get_ports clock]
 set_property IOSTANDARD LVCMOS33 [get_ports clock]
 set_property IOSTANDARD LVCMOS33 [get_ports uart_tx]
 set_property IOSTANDARD LVCMOS33 [get_ports uart_rx]
@@ -23,3 +23,7 @@ set_property PACKAGE_PIN A18 [get_ports push_button_0]
 set_property PACKAGE_PIN B18 [get_ports push_button_1]
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]
+
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]
+set_property CONFIG_MODE SPIx4 [current_design]

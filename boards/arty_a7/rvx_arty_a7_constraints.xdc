@@ -24,3 +24,7 @@ set_property PACKAGE_PIN D9 [get_ports push_button_0]
 set_property PACKAGE_PIN C9 [get_ports push_button_1]
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]
+
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]
+set_property CONFIG_MODE SPIx4 [current_design]
