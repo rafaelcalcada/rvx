@@ -31,7 +31,8 @@ add_files -norecurse { ../../rtl/core/rvx_core_state.v }
 add_files -norecurse { ../../rtl/core/rvx_core_store_unit.v }
 add_files -norecurse { ../../rtl/core/rvx_core_trap.v }
 add_files -norecurse { ../../rtl/interconnect/rvx_interconnect.v }
-add_files -norecurse { ../../rtl/memory/rvx_tightly_coupled_memory.v }
+add_files -norecurse { ../../rtl/memory/rvx_tcm.v }
+add_files -norecurse { ../../rtl/memory/rvx_bootloader_rom.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_gpio.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_timer.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_spi_manager.v }

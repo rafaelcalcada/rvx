@@ -42,9 +42,9 @@ module rvx_cmod_a7 #(
 
   rvx #(
 
-      .MEMORY_SIZE     (32768),
-      .MEMORY_INIT_FILE("rvx_freertos_example.mem"),
-      .GPIO_WIDTH      (GPIO_WIDTH)
+      .TCM_SIZE_IN_BYTES     (32768),
+      .SPI_BOOT_IMAGE_ADDRESS(32'h00300000),
+      .GPIO_WIDTH            (GPIO_WIDTH)
 
   ) rvx_instance (
 
