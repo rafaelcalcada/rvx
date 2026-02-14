@@ -56,7 +56,7 @@ remote_branch: docs
 copyright: Copyright (c) 2020-2026 RVX Project Contributors
 nav:
     - Homepage: 'index.md'
-    - RVX User Guide: 'userguide.md'
+    - User Guide: 'userguide.md'
     - Hardware Docs: 'hardware.md'
     - Examples:
         - Hello World: 'examples/helloworld.md'
