@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
     {
       if (!token_str.empty() && token_str[0] == '@')
       {
-        load_address = std::stoul(token_str.substr(1), nullptr, 16);
+        load_address = std::stoul(token_str.substr(1), nullptr, 16) - 0x400;
       }
       else
       {
