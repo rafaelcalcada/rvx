@@ -35,7 +35,7 @@ module rvx_tcm #(
 
   localparam TCM_BASE = 32'h00001000;
   localparam TCM_WORDS = SIZE_IN_BYTES / 4;
-  reg  [31:0] tcm                     [0:TCM_WORDS-1];
+  reg  [31:0] tcm                     [TCM_BASE/4 : TCM_BASE/4 + TCM_WORDS - 1];
 
   // verilator lint_off UNUSEDSIGNAL
   wire [31:0] port0_effective_address;
@@ -58,8 +58,8 @@ module rvx_tcm #(
     if (INIT_FILE_PATH != "") $readmemh(INIT_FILE_PATH, tcm);
   end
 
-  assign port0_effective_address = ($unsigned(port0_address[31:0]) - $unsigned(TCM_BASE)) >> 2;
-  assign port1_effective_address = ($unsigned(port1_address[31:0]) - $unsigned(TCM_BASE)) >> 2;
+  assign port0_effective_address = $unsigned(port0_address[31:0]) >> 2;
+  assign port1_effective_address = $unsigned(port1_address[31:0]) >> 2;
 
   always @(posedge clock) begin
     if (!reset_n | port0_invalid_address) port0_rdata <= 32'h00000000;
