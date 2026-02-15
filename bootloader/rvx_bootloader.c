@@ -1,6 +1,6 @@
 #include "rvx.h"
 
-inline static uint32_t read_word_from_spi()
+__attribute__((always_inline)) inline static uint32_t read_word_from_spi()
 {
   uint32_t word = 0;
   for (int i = 0; i < 4; i++)
@@ -11,7 +11,7 @@ inline static uint32_t read_word_from_spi()
   return word;
 }
 
-RVX_NAKED void main(void)
+RVX_NAKED void rvx_bootloader(void)
 {
   // Read CSR 0x7C0 (RVX SPI Boot Image Address)
   uint32_t spi_boot_image_address;
