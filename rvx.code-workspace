@@ -17,8 +17,8 @@
       "name": "RVX HAL Tests"
     },
     {
-      "path": "/workspaces/rvx/tests/riscv_compliance",
-      "name": "RISC-V Compliance Tests"
+      "path": "/workspaces/rvx/tests/compliance",
+      "name": "RISC-V Tests"
     }
   ]
 }
