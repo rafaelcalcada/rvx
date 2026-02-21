@@ -3,7 +3,7 @@
 
 MAKEFLAGS += --no-print-directory
 
-# The path below assumes this Makefile will be run from tests/riscv_compliance/
+# The path below assumes this Makefile will be run from tests/compliance/
 RVX_SIMULATOR_PATH = ../../simulator/
 
 .PHONY: all build run clean
@@ -15,12 +15,12 @@ run:
 
 build:
 	$(MAKE) -C ${RVX_SIMULATOR_PATH} -j$(nproc)
-	$(MAKE) -C riscv_test_suite/ all -j$(nproc)
+	$(MAKE) -C riscv_tests/ all -j$(nproc)
 
 clean:
 	-rm -rf test_output
-	@echo "RISC-V Compliance test results removed."
+	@echo "RISC-V Tests results removed."
 
 clean-all: clean
 	$(MAKE) -C ${RVX_SIMULATOR_PATH} clean
-	$(MAKE) -C riscv_test_suite/ clean
+	$(MAKE) -C riscv_tests/ clean

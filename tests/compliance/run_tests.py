@@ -4,29 +4,29 @@ from enum import Enum
 # These test programs are expected to fail due to misaligned accesses.
 # RVX supports only aligned memory accesses.
 expected_to_fail = [
-    "riscv_test_suite/test_programs/misalign-beq-01.mem",
-    "riscv_test_suite/test_programs/misalign-bge-01.mem",
-    "riscv_test_suite/test_programs/misalign-bgeu-01.mem",
-    "riscv_test_suite/test_programs/misalign-blt-01.mem",
-    "riscv_test_suite/test_programs/misalign-bltu-01.mem",
-    "riscv_test_suite/test_programs/misalign-bne-01.mem",
-    "riscv_test_suite/test_programs/misalign-jal-01.mem",
-    "riscv_test_suite/test_programs/misalign2-jalr-01.mem"
+    "riscv_tests/test_programs/misalign-beq-01.mem",
+    "riscv_tests/test_programs/misalign-bge-01.mem",
+    "riscv_tests/test_programs/misalign-bgeu-01.mem",
+    "riscv_tests/test_programs/misalign-blt-01.mem",
+    "riscv_tests/test_programs/misalign-bltu-01.mem",
+    "riscv_tests/test_programs/misalign-bne-01.mem",
+    "riscv_tests/test_programs/misalign-jal-01.mem",
+    "riscv_tests/test_programs/misalign2-jalr-01.mem"
 ]
 
 # These tests are ignored because RVX only multiplication (Zmmul extension).
 # Division and remainder instructions are not supported.
 ignored_tests = [
-    "riscv_test_suite/test_programs/div-01.mem",
-    "riscv_test_suite/test_programs/divu-01.mem",
-    "riscv_test_suite/test_programs/rem-01.mem",
-    "riscv_test_suite/test_programs/remu-01.mem"
+    "riscv_tests/test_programs/div-01.mem",
+    "riscv_tests/test_programs/divu-01.mem",
+    "riscv_tests/test_programs/rem-01.mem",
+    "riscv_tests/test_programs/remu-01.mem"
 ]
 
 def discover_tests():
     """Discover test programs and their corresponding signatures."""
-    test_programs_dir = pathlib.Path('riscv_test_suite/test_programs')
-    signatures_dir = pathlib.Path('riscv_test_suite/signatures')
+    test_programs_dir = pathlib.Path('riscv_tests/test_programs')
+    signatures_dir = pathlib.Path('riscv_tests/signatures')
 
     tests = []
     for mem_file in sorted(test_programs_dir.glob('**/*.mem')):
@@ -78,7 +78,7 @@ def compare_signature(golden_reference: str, output_signature: str):
         return False, None, None, None
 
 def main(argv = None):
-    """Run RISC-V compliance tests on RVX simulator."""
+    """Run RISC-V Tests on RVX simulator."""
 
     # Argument parsing
     argv = sys.argv[1:] if argv is None else argv
@@ -114,7 +114,7 @@ def main(argv = None):
     failed_count = 0
 
     # Run tests
-    log(f'\nRunning {len(all_tests) - len(ignored_tests)} RISC-V compliance tests on RVX simulator...\n')
+    log(f'\nRunning {len(all_tests) - len(ignored_tests)} RISC-V Tests on RVX simulator...\n')
     for test_program, test_signature in all_tests:
 
         if test_program in ignored_tests:
@@ -167,7 +167,7 @@ def main(argv = None):
     if passed_count == 58: # Yes, hardcoded.
                            # This is the exact number of tests that should pass.
                            # discover_tests() may find less or more tests depending on
-                           # the files present in the riscv_test_suite directory,
+                           # the files present in the riscv_tests directory,
                            # so hardcoding the expected number ensures correctness.
                            # If more tests are added in the future, this number must be updated.
       print("\nRVX Processor Core passed all RISC-V Test Suite tests.\n")

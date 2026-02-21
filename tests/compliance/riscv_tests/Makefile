@@ -20,7 +20,7 @@ CFLAGS := -static -mcmodel=medany -g -fvisibility=hidden -nostdlib \
 all: msg test_programs signatures
 
 msg:
-	@echo "Building RISC-V Compliance Test Suite..."
+	@echo "Building RISC-V Tests..."
 
 test_programs: $(RV32_ELFS)
 
