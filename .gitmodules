@@ -1,3 +1,3 @@
 [submodule "toolchain/hal"]
-	path = toolchain/hal
+	path = hal
 	url = https://github.com/rafaelcalcada/rvx-hal.git
