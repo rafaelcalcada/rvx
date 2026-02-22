@@ -80,7 +80,7 @@ module rvx_spi_manager_tb ();
   // Clock generation
   localparam CLOCK_PERIOD = 20;
   initial clock = 1'b0;
-  always #(CLOCK_PERIOD / 2) clock = !clock;
+  always #(CLOCK_PERIOD / 2) clock <= !clock;
 
   function [8*11-1:0] spi_reg_name;
     input [4:0] address;
