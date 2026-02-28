@@ -53,8 +53,8 @@ The RVX documentation includes:
 
 - [Developer Guide][3] — Guide for developing software applications for RVX.
 - [Design Reference][4] — Documentation for the RTL design of RVX, including architecture, source files, configuration parameters, I/O signals, and memory map.
-- [HAL Reference][2] — Reference for the RVX Hardware Abstraction Layer (HAL), including peripheral drivers and processor register access.
-- [Example Projects][5] — Complete source code and instructions for building and running example applications on RVX.
+- [RVX HAL Reference][2] — Reference for the RVX Hardware Abstraction Layer (HAL), including peripheral drivers and processor register access.
+- [Example Projects][5] — Complete source code and instructions for building and running example applications.
 
 ## License
 
