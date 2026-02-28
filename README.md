@@ -1,52 +1,79 @@
 <p align="center"><img src="docs/source/images/rvx_logo.png" width="100"/></p>
 
-**RVX** is a 32-bit RISC-V microcontroller written in Verilog for embedded, FPGA and ASIC applications. It is designed to be easily integrated into RTL designs, enabling developers to quickly build and deploy RISC-V systems — from rapid FPGA prototypes to full custom silicon.
-
-**RVX Docs:** [https://rafaelcalcada.github.io/rvx][1]
+RVX is a RISC-V microcontroller IP core written in Verilog for embedded, FPGA, and ASIC applications. It offers a rich feature set while remaining easy to integrate, enabling rapid development of RISC-V systems — from FPGA prototypes to custom silicon.
 
 ## Features
 
-- **RV32I** base integer instruction set + **Zicsr** and **Zmmul** extensions
-- **Verified** with RISC-V Test Suite
-- **Software toolchain** with ready-to-run example applications
-- **RTOS-ready** — runs FreeRTOS out of the box as well as bare-metal applications
-- **Integrated peripherals** — SPI, GPIO, and UART plus programmable memory
-- **RTL-friendly** — easy to integrate into FPGA and ASIC flows, with comprehensive [documentation][1]
+- **RISC-V ISA**: Implements the RV32I integer instruction + Zicsr and Zmmul extensions.
+- **Verified**: Validated with the [RISC-V Tests][1] framework.
+- **Software stack**: [RVX HAL][2] makes developing software for RVX fast, easy, and maintainable.
+- **Supports FreeRTOS** — Runs FreeRTOS out of the box, with full bare-metal support as well.
+- **Built-in peripherals** — Includes SPI, GPIO, and UART controllers and drivers.
+- **Easy to integrate** — Integrates cleanly into FPGA and ASIC workflows.
+- **Comprehensive documentation** — Includes [Developer Guide][3], [Design Reference][4], [RVX HAL Reference][2], and several [Example Projects][5].
 
 ## Getting Started
 
-The quickest way to get started with RVX is to implement one of the example projects on your FPGA. Check it out:
+The fastest way to evaluate RVX is to build and run one of the example projects.
 
-- [Hello World Example][2]
-- [FreeRTOS Example][3]
-- [UART Example][4]
-- [SPI Manager Example][5]
-- [GPIO Example][6]
-- [Timer Example][7]
+If you are new to RVX, start with the [Hello World][6] example. It demonstrates how to build and run a simple "Hello, World!" program for RVX, and introduces the RVX toolchain and development workflow.
 
-## Featured FPGA Boards
+Each example contains:
 
-The example projects above have been ported to the following FPGA boards:
+- Step-by-step build and run instructions
+- Complete RTL and software source code
+- Pre-built FPGA bitstreams for supported boards
 
-- [Digilent Arty A7][8] (35T and 100T)
-- [Digilent Cmod A7][9]
+### Example Projects
 
-If you want help porting RVX examples to your FPGA board, please open a [new issue][10]. We will be happy to assist you.
+- [Hello World][6] - Introduces the RVX toolchain and development workflow with a simple "Hello, World!" program.
+- [FreeRTOS][7] - Runs FreeRTOS on RVX, showcasing multitasking and real-time capabilities.
+- [UART][8] - Example of serial communication using the UART peripheral.
+- [SPI Manager][9] - Communicates with external SPI devices using the SPI Manager peripheral.
+- [GPIO][10] - Digital input/output control using the GPIO module.
+- [Timer][11] - Time interval measurement and periodic interrupt generation.
+
+## Software Stack
+
+Software for RVX is developed using the **RISC-V GNU Toolchain** and **CMake**.
+
+The [RVX HAL][2] provides peripheral drivers (SPI, GPIO, UART) and processor register access, and integrates with CMake to configure compiler settings and include startup routines.
+
+For more details on the software stack and development workflow, see the [Developer Guide][3].
+
+## Hardware Design
+
+RVX is written in synthesizable **Verilog-2005** and is designed for compatibility with FPGA and ASIC workflows.
+
+The design avoids vendor-specific constructs to ensure portability across synthesis tools.
+
+## Documentation
+
+The RVX documentation includes:
+
+- [Developer Guide][3] — Guide for developing software applications for RVX.
+- [Design Reference][4] — Documentation for the RTL design of RVX, including architecture, source files, configuration parameters, I/O signals, and memory map.
+- [HAL Reference][2] — Reference for the RVX Hardware Abstraction Layer (HAL), including peripheral drivers and processor register access.
+- [Example Projects][5] — Complete source code and instructions for building and running example applications on RVX.
 
 ## License
 
-RVX is open source and distributed under the [MIT License][11].
+RVX is open source and distributed under the [MIT License][15].
 
-[![RVX Tests](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml)
+[![RVX Tests](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml/badge.svg)](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml)
 
-[1]: https://rafaelcalcada.github.io/rvx
-[2]: https://rafaelcalcada.github.io/rvx/examples/helloworld
-[3]: https://rafaelcalcada.github.io/rvx/examples/freertos
-[4]: https://rafaelcalcada.github.io/rvx/examples/uart
-[5]: https://rafaelcalcada.github.io/rvx/examples/spimanager
-[6]: https://rafaelcalcada.github.io/rvx/examples/gpio
-[7]: https://rafaelcalcada.github.io/rvx/examples/timer
-[8]: https://rafaelcalcada.github.io/rvx/boards/arty_a7
-[9]: https://rafaelcalcada.github.io/rvx/boards/cmod_a7
-[10]: https://github.com/rafaelcalcada/rvx/issues
-[11]: LICENSE
+[1]: https://github.com/riscv-software-src/riscv-tests
+[2]: https://rafaelcalcada.github.io/rvx/hal
+[3]: https://rafaelcalcada.github.io/rvx/devguide
+[4]: https://rafaelcalcada.github.io/rvx/design
+[5]: https://rafaelcalcada.github.io/rvx/examples
+[6]: https://rafaelcalcada.github.io/rvx/examples/helloworld
+[7]: https://rafaelcalcada.github.io/rvx/examples/freertos
+[8]: https://rafaelcalcada.github.io/rvx/examples/uart
+[9]: https://rafaelcalcada.github.io/rvx/examples/spimanager
+[10]: https://rafaelcalcada.github.io/rvx/examples/gpio
+[11]: https://rafaelcalcada.github.io/rvx/examples/timer
+[12]: https://rafaelcalcada.github.io/rvx/boards/arty_a7
+[13]: https://rafaelcalcada.github.io/rvx/boards/cmod_a7
+[14]: https://github.com/rafaelcalcada/rvx/issues
+[15]: LICENSE
