@@ -216,4 +216,23 @@
 `define RVX_GPIO_CLEAR_REG_ADDR 5'h0c
 `define RVX_GPIO_SET_REG_ADDR 5'h10
 
+// I2C register addresses
+`define RVX_I2C_PRESCALE_REG_ADDR 5'h00
+`define RVX_I2C_DATA_REG_ADDR 5'h04
+`define RVX_I2C_COMMAND_REG_ADDR 5'h0c
+`define RVX_I2C_STATUS_REG_ADDR 5'h08
+// I2C register status bits map
+`define RVX_I2C_STATUS_BIT_RUN 0
+`define RVX_I2C_STATUS_BIT_NOACKNOWLEDGE 1
+`define RVX_I2C_STATUS_BIT_IRQ 2
+// I2C register status mask map
+`define RVX_I2C_STATUS_MASK_RUN 16'h1
+`define RVX_I2C_STATUS_MASK_NOACKNOWLEDGE 16'h2
+`define RVX_I2C_STATUS_MASK_IRQ 16'h4
+// I2C register command map
+`define RVX_I2C_COMMAND_NOP 16'h0
+`define RVX_I2C_COMMAND_START 16'h1
+`define RVX_I2C_COMMAND_STOP 16'h2
+`define RVX_I2C_COMMAND_DATA 16'h3
+
 `endif
