@@ -37,11 +37,11 @@ Each example contains:
 
 Software for RVX is developed using the **RISC-V GNU Toolchain** and **CMake**.
 
-The [RVX HAL][2] provides peripheral drivers (SPI, GPIO, UART) and processor register access, and integrates with CMake to configure compiler settings and include startup routines.
+The [RVX Hardware Abstraction Layer][2] provides peripheral drivers and simple access to processor registers for RVX. It integrates with CMake to configure compiler and linker settings, making software development for RVX fast, easy, and maintainable.
 
 For more details on the software stack and development workflow, see the [Developer Guide][3].
 
-## Hardware Design
+## RVX Design
 
 RVX is written in synthesizable **Verilog** and is designed for compatibility with FPGA and ASIC workflows.
 
