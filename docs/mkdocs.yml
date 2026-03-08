@@ -36,8 +36,9 @@ theme:
     favicon: images/rvx_favicon.png
     highlightjs: true
     palette:
-      primary: white
+      primary: indigo
     features:
+        - navigation.top
         - navigation.tabs
         - navigation.expand
         - navigation.instant
@@ -56,8 +57,9 @@ remote_branch: docs
 copyright: Copyright (c) 2020-2026 RVX Project Contributors
 nav:
     - Homepage: 'index.md'
-    - User Guide: 'userguide.md'
-    - Hardware Docs: 'hardware.md'
+    - Developer Guide: 'devguide.md'
+    - Reference Guide: 'refguide.md'
+    - RVX HAL Reference: 'hardware.md'
     - Examples:
         - Hello World: 'examples/helloworld.md'
         - FreeRTOS: 'examples/freertos.md'
