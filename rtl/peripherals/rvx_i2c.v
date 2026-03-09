@@ -3,55 +3,6 @@
 
 `include "rvx_constants.vh"
 
-/*
-
-Clock stretching, synchronization and multimaster is not supported.
-
-
-Register:
-
-RVX_I2C_PRESCALE_REG_ADDR
-
-  Writing to this register sets the clock frequency divider for scl.
-
-RVX_I2C_DATA_REG_ADDR
-
-  Write the data to be encoded on sda to this register.
-  Read this register to get decoded data from sda.
-
-RVX_I2C_COMMAND_REG_ADDR
-  Write the command to this register that needs to be encoded on sda and scl.
-  The following commands are available:
-
-  RVX_I2C_COMMAND_NOP
-    Nothing happens, the sda ​​and scl signals are not encoded.
-
-  RVX_I2C_COMMAND_START
-    START is encoded on sda and scl.
-
-  RVX_I2C_COMMAND_STOP
-    STOP is encoded on sda and scl.
-
-  RVX_I2C_COMMAND_DATA
-    STOP is encoded on sda and scl.
-
-RVX_I2C_STATUS_REG_ADDR
-
-  Setting the RVX_I2C_STATUS_BIT_RUN bit set runs encode the RVX_I2C_COMMAND_REG_ADDR command on sda and scl.
-  Clearing the RVX_I2C_STATUS_BIT_RUN bit nothing happens.
-  Reading the RVX_I2C_STATUS_BIT_RUN bit, if set it means busy.
-
-  Setting the RVX_I2C_STATUS_BIT_NOACKNOWLEDGE bit encode "no acknowledge".
-  Clearing the RVX_I2C_STATUS_BIT_NOACKNOWLEDGE bit encode "acknowledge".
-  Reading the RVX_I2C_STATUS_BIT_NOACKNOWLEDGE bit, if set it means get "no acknowledge".
-  Reading the RVX_I2C_STATUS_BIT_NOACKNOWLEDGE bit, if clear it means get "acknowledge".
-
-  Setting the RVX_I2C_STATUS_BIT_IRQ bit clears the irq request.
-  Clearing the RVX_I2C_STATUS_BIT_IRQ bit nothing happens.
-  Reading the RVX_I2C_STATUS_BIT_IRQ bit, if set it means irq request.
-
-*/
-
 module rvx_i2c (
 
     // Global signals
@@ -87,6 +38,20 @@ module rvx_i2c (
   localparam STATUS_WIDTH = 3;
   localparam ENCODE_WIDTH = 6;
 
+  // Data and encode preparation
+  // ---------------------------------------------------------------------------
+
+  reg  [   DATA_WIDTH-1:0] tx_data;
+  reg                      tx_no_acknowledge;
+  wire [     DATA_WIDTH:0] tx_data_encode = {tx_data, tx_no_acknowledge};
+  reg  [   DATA_WIDTH-1:0] rx_data;
+  reg                      rx_no_acknowledge;
+  wire [     DATA_WIDTH:0] rx_data_encode;
+  reg                      i2c_run;
+  reg                      i2c_run_strobe;
+  reg  [COMMAND_WIDTH-1:0] command;
+  wire [ STATUS_WIDTH-1:0] status = {irq, rx_no_acknowledge, i2c_run | i2c_run_strobe};
+
   // Commands
   // ---------------------------------------------------------------------------
 
@@ -95,32 +60,19 @@ module rvx_i2c (
   localparam COMMAND_STOP = 2'd2;
   localparam COMMAND_DATA = 2'd3;
 
-  wire                     is_command_nop = (command == COMMAND_NOP);
-  wire                     is_command_start = (command == COMMAND_START);
-  wire                     is_command_stop = (command == COMMAND_STOP);
-  wire                     is_command_data = (command == COMMAND_DATA);
+  wire        is_command_nop = (command == COMMAND_NOP);
+  wire        is_command_start = (command == COMMAND_START);
+  wire        is_command_stop = (command == COMMAND_STOP);
+  wire        is_command_data = (command == COMMAND_DATA);
 
-  // Data and encode preparation
-  // ---------------------------------------------------------------------------
-
-  reg                      i2c_run;
-  reg                      i2c_run_strobe;
-  reg  [COMMAND_WIDTH-1:0] command;
-  reg  [   DATA_WIDTH-1:0] tx_data;
-  wire [     DATA_WIDTH:0] tx_data_encode = {tx_data, tx_no_acknowledge};
-  reg                      tx_no_acknowledge;
-  wire [     DATA_WIDTH:0] rx_data_encode;
-  reg  [   DATA_WIDTH-1:0] rx_data;
-  reg                      rx_no_acknowledge;
-
-  reg  [              3:0] sda_start_encode;
-  reg  [              3:0] scl_start_encode;
-  reg  [              3:0] sda_stop_encode;
-  reg  [              3:0] scl_stop_encode;
-  reg  [             35:0] sda_data_encode;
-  reg  [             35:0] scl_data_encode;
-  wire [             35:0] sda_data_encode_value;
-  wire [             35:0] scl_data_encode_value;
+  reg  [ 3:0] sda_start_encode;
+  reg  [ 3:0] scl_start_encode;
+  reg  [ 3:0] sda_stop_encode;
+  reg  [ 3:0] scl_stop_encode;
+  reg  [35:0] sda_data_encode;
+  reg  [35:0] scl_data_encode;
+  wire [35:0] sda_data_encode_value;
+  wire [35:0] scl_data_encode_value;
 
   genvar i;
   generate
@@ -167,7 +119,7 @@ module rvx_i2c (
         `RVX_I2C_PRESCALE_REG_ADDR: read_data <= {{32 - PRESCALE_WIDTH{1'b0}}, prescale};
         `RVX_I2C_DATA_REG_ADDR:     read_data <= {{32 - DATA_WIDTH{1'b0}}, rx_data};
         `RVX_I2C_COMMAND_REG_ADDR:  read_data <= {{32 - COMMAND_WIDTH{1'b0}}, command};
-        `RVX_I2C_STATUS_REG_ADDR:   read_data <= {{32 - STATUS_WIDTH{1'b0}}, irq, rx_no_acknowledge, i2c_run};
+        `RVX_I2C_STATUS_REG_ADDR:   read_data <= {{32 - STATUS_WIDTH{1'b0}}, status};
         default:                    read_data <= 32'h0;
       endcase
     end
