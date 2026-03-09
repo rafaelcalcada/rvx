@@ -49,12 +49,15 @@ module rvx_simulator #(
       .cs         (cs),
       .gpio_output(gpio_output),
 
-      // The GPIO input ports are hardwired to a known value for simulation purposes
-      .gpio_input(32'ha5a5a5a5),
+      // The GPIO and I2C input ports are hardwired to a known value for simulation purposes
+      .gpio_input   (32'ha5a5a5a5),
+      .i2c_sda_input(1'b0),
 
       // The output enable port is not used by the simulator and is left unconnected
       // verilator lint_off PINCONNECTEMPTY
-      .gpio_output_enable()
+      .gpio_output_enable(),
+      .i2c_sda_output    (),
+      .i2c_scl_output    ()
       // verilator lint_on PINCONNECTEMPTY
 
   );
