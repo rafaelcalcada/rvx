@@ -21,7 +21,10 @@ module rvx #(
     output wire                  sclk,
     output wire                  mosi,
     input  wire                  miso,
-    output wire                  cs
+    output wire                  cs,
+    input  wire                  i2c_sda_input,
+    output wire                  i2c_sda_output,
+    output wire                  i2c_scl_output
 
 );
 
@@ -48,13 +51,14 @@ module rvx #(
 
   // RVX Interconnect configuration
 
-  localparam NUM_PERIPHERALS = 5;
+  localparam NUM_PERIPHERALS = 6;
 
   localparam TCM_REGION_INDEX = 0;
   localparam UART_REGION_INDEX = 1;
   localparam TIMER_REGION_INDEX = 2;
   localparam GPIO_REGION_INDEX = 3;
   localparam SPI_REGION_INDEX = 4;
+  localparam I2C_REGION_INDEX = 5;
 
   localparam [31:0] TCM_BASE_ADDRESS = 32'h00001000;
   localparam [31:0] TCM_REGION_SIZE = TCM_SIZE_IN_BYTES;
@@ -70,6 +74,9 @@ module rvx #(
 
   localparam [31:0] SPI_BASE_ADDRESS = 32'h40003000;
   localparam [31:0] SPI_REGION_SIZE = 32;
+
+  localparam [31:0] I2C_BASE_ADDRESS = 32'h40004000;
+  localparam [31:0] I2C_REGION_SIZE = 16;
 
   // Connections between the RVX Core and the Interconnect
 
@@ -100,10 +107,11 @@ module rvx #(
   wire                          irq_timer;
   wire                          irq_software;
   wire                          irq_uart;
+  wire                          irq_i2c;
 
   // Interrupts configuration
 
-  assign irq_fast     = {15'b0, irq_uart};  // Only Fast IRQ 0 is used for UART
+  assign irq_fast     = {14'b0, irq_i2c, irq_uart};  // Only Fast IRQ 0 is used for UART
   assign irq_external = 1'b0;  // unused
   assign irq_software = 1'b0;  // unused
 
@@ -151,8 +159,12 @@ module rvx #(
   rvx_interconnect #(
 
       .NUM_PERIPHERALS(NUM_PERIPHERALS),
-      .BASE_ADDRESSES ({SPI_BASE_ADDRESS, GPIO_BASE_ADDRESS, TIMER_BASE_ADDRESS, UART_BASE_ADDRESS, TCM_BASE_ADDRESS}),
-      .REGION_SIZES   ({SPI_REGION_SIZE, GPIO_REGION_SIZE, TIMER_REGION_SIZE, UART_REGION_SIZE, TCM_REGION_SIZE})
+      .BASE_ADDRESSES({
+        I2C_BASE_ADDRESS, SPI_BASE_ADDRESS, GPIO_BASE_ADDRESS, TIMER_BASE_ADDRESS, UART_BASE_ADDRESS, TCM_BASE_ADDRESS
+      }),
+      .REGION_SIZES({
+        I2C_REGION_SIZE, SPI_REGION_SIZE, GPIO_REGION_SIZE, TIMER_REGION_SIZE, UART_REGION_SIZE, TCM_REGION_SIZE
+      })
 
   ) rvx_interconnect_instance (
 
@@ -322,6 +334,31 @@ module rvx #(
       .miso(miso),
       .cs  (cs)
 
+  );
+
+  rvx_i2c #() rvx_i2c_instance (
+
+      // Global signals
+      .clock  (clock),
+      .reset_n(reset_n),
+
+      // IO interface
+      .rw_address    (peripheral_rw_address[4:0]),
+      .read_data     (peripheral_read_data[32*I2C_REGION_INDEX+:32]),
+      .read_request  (peripheral_read_request[I2C_REGION_INDEX]),
+      .read_response (peripheral_read_response[I2C_REGION_INDEX]),
+      .write_data    (peripheral_write_data[15:0]),
+      .write_strobe  (peripheral_write_strobe),
+      .write_request (peripheral_write_request[I2C_REGION_INDEX]),
+      .write_response(peripheral_write_response[I2C_REGION_INDEX]),
+
+      // I2C signals
+      .sda_input (i2c_sda_input),
+      .sda_output(i2c_sda_output),
+      .scl_output(i2c_scl_output),
+
+      // I2C interrupt request (connected to Fast IRQ 1)
+      .irq(irq_i2c)
   );
 
 endmodule
