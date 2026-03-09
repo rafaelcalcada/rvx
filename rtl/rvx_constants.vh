@@ -219,8 +219,8 @@
 // I2C register addresses
 `define RVX_I2C_PRESCALE_REG_ADDR 5'h00
 `define RVX_I2C_DATA_REG_ADDR 5'h04
-`define RVX_I2C_COMMAND_REG_ADDR 5'h0c
-`define RVX_I2C_STATUS_REG_ADDR 5'h08
+`define RVX_I2C_COMMAND_REG_ADDR 5'h08
+`define RVX_I2C_STATUS_REG_ADDR 5'h0c
 // I2C register status bits map
 `define RVX_I2C_STATUS_BIT_RUN 0
 `define RVX_I2C_STATUS_BIT_NOACKNOWLEDGE 1
