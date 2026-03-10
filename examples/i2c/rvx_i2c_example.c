@@ -12,8 +12,7 @@ void main(void)
 
   // Print welcome message
   rvx_uart_write_string(RVX_UART_ADDRESS, "RVX I2C Example Project\n\n");
-  rvx_uart_write_string(RVX_UART_ADDRESS,
-                        "This example reads the manufacturer ID of the BMP280 - Digital Pressure Sensor\n");
+  rvx_uart_write_string(RVX_UART_ADDRESS, "This example reads the ID from BMP280 - Digital Pressure Sensor\n");
 
   // Set I2C prescale to 10 kHz for 12 MHz
   rvx_i2c_prescale_set(RVX_I2C_ADDRESS, 299u);
@@ -22,15 +21,17 @@ void main(void)
   const uint8_t bmp280_id_reg_addr = 0xD0;
   uint8_t bmp280_id_value = 0u;
 
+  rvx_uart_write_string(RVX_UART_ADDRESS, "\nReading Manufacturer ID from I2C BMP280...\n");
+  // Start condition
   rvx_i2c_run_start(RVX_I2C_ADDRESS);
   // Write ID register address to BMP280
   rvx_i2c_write_to(RVX_I2C_ADDRESS, bmp280_slave_addr, &bmp280_id_reg_addr, 1);
   rvx_i2c_run_start(RVX_I2C_ADDRESS);
   // Read ID register from BMP280
   rvx_i2c_reade_from(RVX_I2C_ADDRESS, bmp280_slave_addr, &bmp280_id_value, 1);
+  // Stop condition
   rvx_i2c_run_stop(RVX_I2C_ADDRESS);
 
-  rvx_uart_write_string(RVX_UART_ADDRESS, "\nReading Manufacturer ID from I2C BMP280...\n");
   // Print Manufacturer ID
   print_byte(bmp280_id_value);
 
