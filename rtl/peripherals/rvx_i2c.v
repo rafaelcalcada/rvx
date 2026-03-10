@@ -171,6 +171,7 @@ module rvx_i2c (
       rx_no_acknowledge <= 1'b0;
       irq               <= 1'b0;
       rx_data           <= {DATA_WIDTH{1'b0}};
+      encode_count_max  <= {ENCODE_WIDTH{1'b0}};
     end
     else begin
       i2c_run_strobe <= 1'b0;
@@ -196,13 +197,13 @@ module rvx_i2c (
       if (i2c_run_strobe) begin
         i2c_run <= 1'b1;
         if (is_command_nop) begin
-          encode_count_max <= 0;
+          encode_count_max <= 6'd0;
         end
         if (is_command_start || is_command_stop) begin
-          encode_count_max <= 3;
+          encode_count_max <= 6'd3;
         end
         if (is_command_data) begin
-          encode_count_max <= 35;
+          encode_count_max <= 6'd35;
         end
       end
     end
@@ -285,6 +286,7 @@ module rvx_i2c (
   always @(posedge clock) begin
     if (!reset_n) begin
       prescale_counter <= {PRESCALE_WIDTH{1'b0}};
+      encode_counter   <= {ENCODE_WIDTH{1'b0}};
     end
     else begin
       prescale_counter <= prescale_counter + 1'h1;
