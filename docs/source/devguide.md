@@ -14,7 +14,9 @@ By following this guide, you will learn how to:
 
 ## RVX HAL Overview
 
-The [RVX HAL][1] is a CMake project providing peripheral drivers and processor register access for RVX. It is designed to be included in application projects for RVX using CMake's FetchContent module. When included, RVX HAL sets up compiler and linker settings for RVX, so that you can focus on writing the application rather than configuring the build system.
+[RVX HAL][1] is the Hardware Abstraction Layer for RVX, designed to make software development fast, easy, and maintainable. It provides drivers for RVX peripherals and simple access to processor registers — so you can focus on your application rather than low-level hardware details.
+
+Built with CMake and the RISC-V GNU Toolchain, RVX HAL is designed to be included in RVX application projects via CMake's FetchContent module, setting up compiler and linker settings for RVX and providing functions for generating boot images.
 
 This guide demonstrates how to use the RVX HAL to write a simple "Hello, World!" application for RVX, including both the application code and the CMake configuration to build it.
 
@@ -125,9 +127,7 @@ void main(void) {
 
 ### CMake configuration
 
-Let's now create a `CMakeLists.txt` file to configure the build for the "Hello, World!" application. It uses CMake’s FetchContent to download RVX HAL, which configures the required compiler and linker settings for RVX.
-
-At the end of the file, `rvx_generate_boot_image()` generates the boot images after the application is built.
+Let's now create a `CMakeLists.txt` file to configure the build for the "Hello, World!" application. This file uses CMake’s FetchContent module to download the RVX HAL and make it configure the required compiler and linker settings for RVX. At the end, it calls the `rvx_generate_boot_image()` function provided by the RVX HAL to generate boot images for the application.
 
 ```bash title="Create a CMakeLists.txt file for the project"
 vim CMakeLists.txt # Or other text editor of your choice
@@ -197,7 +197,7 @@ Boot image (FPGA/TCM):  build/rvx_hello_world.mem
 ELF binary:             build/rvx_hello_world.elf
 Disassembly:            build/rvx_hello_world.disasm
 
-Booting RVX: https://rafaelcalcada.github.io/rvx/userguide/#booting-rvx
+Booting RVX: https://rafaelcalcada.github.io/rvx/devguide/#booting-rvx
 
 [100%] Built target rvx_hello_world
 ```
@@ -222,7 +222,7 @@ When you power on the FPGA, the bootloader will find the boot image in the TCM a
 
 ## Running the application { #running }
 
-To run the application you just built, you need to implement RVX on an FPGA. The [Examples][3] page has detailed instructions on how to write the Verilog code to instantiate RVX for this "Hello, World!" project. It also explains how to synthesize the RTL and generate the bitstream for a generic FPGA, as well as pre-built FPGA bitstreams for supported FPGA boards.
+To run the application you just built, you need to implement RVX on an FPGA. The [Examples][3] page has detailed instructions on how to write the Verilog code to instantiate RVX for the "Hello, World!" project of this guide. It also provides pre-built FPGA bitstreams for supported FPGA boards and explains how to generate the bitstream for a generic FPGA.
 
 For general instructions on how to start a new RTL project for RVX, see the [Reference Guide](refguide.md). There you'll also find information about RVX top module ports and parameters, and how to integrate RVX into an existing RTL design.
 
