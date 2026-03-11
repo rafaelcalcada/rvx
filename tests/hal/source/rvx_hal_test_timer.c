@@ -71,7 +71,7 @@ void run_rvx_hal_timer_test()
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&timer_tests_error_count);
 
-  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the Timer module failed. "
+  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the Timer controller failed. "
                           "Check the test output for details.\n";
   const char *success_msg = "\n\nRVX HAL Timer tests: All tests passed successfully.\n";
 

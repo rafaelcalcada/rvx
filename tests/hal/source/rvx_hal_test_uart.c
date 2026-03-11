@@ -88,7 +88,7 @@ void run_rvx_hal_uart_test()
   rvx_test_finish("\n  All bytes transferred successfully. (Passed)");
   rvx_test_update_error_count(&uart_tests_error_count);
 
-  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the UART module failed. "
+  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the UART controller failed. "
                           "Check the test output for details.\n";
   const char *success_msg = "\n\nRVX HAL UART tests: All tests passed successfully.\n";
 

@@ -4,7 +4,7 @@
 `include "rvx_constants.vh"
 `include "rvx_test_macros.vh"
 
-module rvx_spi_manager_tb ();
+module rvx_spi_tb ();
 
   // Global signals
   reg            clock;
@@ -30,7 +30,7 @@ module rvx_spi_manager_tb ();
   integer        error_count;
 
   // verilator lint_off PINCONNECTEMPTY
-  rvx_spi_manager rvx_spi_manager_instance (
+  rvx_spi rvx_spi_instance (
 
       // Global signals
       .clock  (clock),
@@ -235,7 +235,7 @@ module rvx_spi_manager_tb ();
     reset_all_devices();
 
     $display("");
-    $display("Checking SPI Manager state after reset...");
+    $display("Checking SPI state after reset...");
     $display("-----------------------------------------");
     $display("");
 
@@ -439,8 +439,8 @@ module rvx_spi_manager_tb ();
     $display("Testbench result:");
     $display("-----------------");
     $display("");
-    if (error_count === 0) $display("Passed RTL testbench for the RVX SPI Manager.");
-    else $display("[ERROR] SPI Manager failed one or more unit tests. Please investigate.");
+    if (error_count === 0) $display("Passed RTL testbench for the SPI module of RVX.");
+    else $display("[ERROR] SPI module failed one or more unit tests. Please investigate.");
     $display("");
 
     $finish();

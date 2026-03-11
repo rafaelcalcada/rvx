@@ -304,7 +304,7 @@ module rvx_uart_tb ();
     $display("Testbench result:");
     $display("-----------------");
     $display("");
-    if (error_count === 0) $display("Passed RTL testbench for the RVX UART module.");
+    if (error_count === 0) $display("Passed RTL testbench for the UART module of RVX.");
     else $display("[ERROR] UART module failed one or more unit tests. Please investigate.");
     $display("");
 

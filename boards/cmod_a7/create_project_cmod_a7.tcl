@@ -36,7 +36,7 @@ add_files -norecurse { ../../rtl/memory/rvx_bootloader_rom.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_i2c.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_gpio.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_timer.v }
-add_files -norecurse { ../../rtl/peripherals/rvx_spi_manager.v }
+add_files -norecurse { ../../rtl/peripherals/rvx_spi.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_uart.v }
 
 if { [file exists ../../examples/hello_world/build/rvx_hello_world_example.mem] } {
@@ -49,9 +49,9 @@ if { [file exists ../../examples/uart/build/rvx_uart_example.mem] } {
     set_property file_type {Memory File} [get_files ../../examples/uart/build/rvx_uart_example.mem]
 }
 
-if { [file exists ../../examples/spi_manager/build/rvx_spi_manager_example.mem] } {
-    add_files -norecurse { ../../examples/spi_manager/build/rvx_spi_manager_example.mem }
-    set_property file_type {Memory File} [get_files ../../examples/spi_manager/build/rvx_spi_manager_example.mem]
+if { [file exists ../../examples/spi/build/rvx_spi_example.mem] } {
+    add_files -norecurse { ../../examples/spi/build/rvx_spi_example.mem }
+    set_property file_type {Memory File} [get_files ../../examples/spi/build/rvx_spi_example.mem]
 }
 
 if { [file exists ../../examples/gpio/build/rvx_gpio_example.mem] } {
