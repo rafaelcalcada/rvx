@@ -2,7 +2,6 @@
 --timing
 --default-language 1364-2001
 --timescale 1ns/1ps
---trace
 -I../
 -I../../../rtl/
 -I../../../rtl/peripherals/
