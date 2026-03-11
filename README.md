@@ -4,11 +4,11 @@ RVX is a RISC-V microcontroller IP core written in Verilog for embedded, FPGA, a
 
 ## Features
 
-- **RISC-V ISA**: Implements the RV32I integer instruction + Zicsr and Zmmul extensions.
+- **RISC-V ISA**: Implements the RV32I integer instruction set + Zicsr and Zmmul extensions.
 - **Verified**: Validated with the [RISC-V Tests][1] framework.
 - **Software Stack**: [RVX HAL][2] makes developing software for RVX fast, easy, and maintainable.
 - **Supports FreeRTOS** — Runs FreeRTOS out of the box, with full bare-metal support as well.
-- **Built-in Peripherals** — Includes SPI, GPIO, and UART controllers and drivers.
+- **Built-in Peripherals** — Includes I2C, SPI, GPIO, and UART controllers and drivers.
 - **Easy to Integrate** — Integrates cleanly into FPGA and ASIC workflows.
 - **Comprehensive Documentation** — Includes [Developer Guide][3], [Design Reference][4], [RVX HAL Reference][2], and several [Example Projects][5].
 
@@ -29,9 +29,10 @@ Each example contains:
 - [Hello World][6] - Introduces the RVX toolchain and development workflow with a simple "Hello, World!" program.
 - [FreeRTOS][7] - Runs FreeRTOS on RVX, showcasing multitasking and real-time capabilities.
 - [UART][8] - Example of serial communication using the UART peripheral.
-- [SPI Manager][9] - Communicates with external SPI devices using the SPI Manager peripheral.
-- [GPIO][10] - Digital input/output control using the GPIO module.
-- [Timer][11] - Time interval measurement and periodic interrupt generation.
+- [SPI][9] - Communicates with external SPI devices using the SPI peripheral.
+- [I2C][10] - Example of communication using the I2C controller.
+- [GPIO][11] - Digital input/output control using the GPIO module.
+- [Timer][12] - Time interval measurement and periodic interrupt generation.
 
 ## Software Stack
 
@@ -58,7 +59,7 @@ The RVX documentation includes:
 
 ## License
 
-RVX is open source and distributed under the [MIT License][15].
+RVX is open source and distributed under the [MIT License][13].
 
 [![RVX Tests](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml/badge.svg)](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml)
 
@@ -70,10 +71,8 @@ RVX is open source and distributed under the [MIT License][15].
 [6]: https://rafaelcalcada.github.io/rvx/examples/helloworld
 [7]: https://rafaelcalcada.github.io/rvx/examples/freertos
 [8]: https://rafaelcalcada.github.io/rvx/examples/uart
-[9]: https://rafaelcalcada.github.io/rvx/examples/spimanager
-[10]: https://rafaelcalcada.github.io/rvx/examples/gpio
-[11]: https://rafaelcalcada.github.io/rvx/examples/timer
-[12]: https://rafaelcalcada.github.io/rvx/boards/arty_a7
-[13]: https://rafaelcalcada.github.io/rvx/boards/cmod_a7
-[14]: https://github.com/rafaelcalcada/rvx/issues
-[15]: LICENSE
+[9]: https://rafaelcalcada.github.io/rvx/examples/spi
+[10]: https://rafaelcalcada.github.io/rvx/examples/i2c
+[11]: https://rafaelcalcada.github.io/rvx/examples/gpio
+[12]: https://rafaelcalcada.github.io/rvx/examples/timer
+[13]: LICENSE
