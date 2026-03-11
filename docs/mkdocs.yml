@@ -58,7 +58,7 @@ copyright: Copyright (c) 2020-2026 RVX Project Contributors
 nav:
     - Homepage: 'index.md'
     - Developer Guide: 'devguide.md'
-    - Reference Guide: 'refguide.md'
+    - Design Reference: 'design.md'
     - RVX HAL Reference: 'hardware.md'
     - Examples:
         - Hello World: 'examples/helloworld.md'
