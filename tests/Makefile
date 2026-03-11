@@ -8,6 +8,7 @@ all:
 	$(MAKE) -C testbenches/spi
 	$(MAKE) -C testbenches/uart
 	$(MAKE) -C testbenches/timer
+	$(MAKE) -C testbenches/i2c
 	$(MAKE) -C compliance
 	$(MAKE) -C hal
 
@@ -16,5 +17,6 @@ clean:
 	$(MAKE) -C testbenches/spi clean
 	$(MAKE) -C testbenches/uart clean
 	$(MAKE) -C testbenches/timer clean
+	$(MAKE) -C testbenches/i2c clean
 	$(MAKE) -C compliance clean-all
 	$(MAKE) -C hal clean-all
