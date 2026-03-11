@@ -14,6 +14,9 @@
         "editor.tabSize": 2,
         "editor.detectIndentation": false,
         "editor.formatOnSave": true,
+        // Python settings
+        "python.defaultInterpreterPath": "/home/rvx/.venv/bin/python",
+        "python.terminal.activateEnvironment": false,
         // Verilog settings
         "verilog.ctags.path": "/usr/local/bin/ctags",
         "verilog.linting.linter": "verilator",
