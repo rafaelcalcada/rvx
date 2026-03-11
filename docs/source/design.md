@@ -39,7 +39,8 @@ The main components of RVX are listed in the table below.
 | **Bootloader ROM** | A small read-only memory that contains the bootloader program responsible for initializing the system and loading the application code into the TCM memory. |
 | **UART Module** | Provides a standard UART interface for serial communication, allowing RVX to send and receive data over a serial connection at configurable baud rates. |
 | **GPIO Module** | Provides a configurable number of general-purpose I/O pins that can be used for interfacing with external devices such as sensors, actuators, or other digital components. |
-| **SPI Module** | Provides an SPI interface for communicating with external SPI subordinate devices, such as flash memories and sensors. |
+| **I2C Module** | Provides an I2C interface for communicating with external I2C subordinate devices. |
+| **SPI Module** | Provides an SPI interface for communicating with external SPI subordinate devices. |
 | **Timer Module** | Provides a simple timer peripheral that can be used for generating periodic interrupts or measuring time intervals in software applications. |
 
 The figure below shows a high-level block diagram of the architecture of RVX, illustrating these components and their connections:
@@ -64,7 +65,7 @@ The table below provides an overview of the organization of the `rtl/` folder:
 | **`core/`** | Directory containing the Verilog source files for the RVX Core. |
 | **`interconnect/`** | Directory containing the Verilog source files for the RVX Interconnect. |
 | **`memory/`** | Directory containing the Verilog source files for the TCM memory and the Bootloader ROM. |
-| **`peripherals/`** | Directory containing the Verilog source files for the UART, GPIO, SPI, and Timer modules. |
+| **`peripherals/`** | Directory containing the Verilog source files for the UART, GPIO, SPI, I2C, and Timer modules. |
 
 ## Top Module
 
