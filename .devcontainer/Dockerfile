@@ -66,9 +66,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends libncursesw5-de
 USER rvx
 WORKDIR /home/rvx
 
-# 10. Add bash aliases
+# 10. Create a default Python virtual environment with docs tooling
+RUN python3 -m venv /home/rvx/.venv && \
+  /home/rvx/.venv/bin/pip install --no-cache-dir --upgrade pip && \
+  /home/rvx/.venv/bin/pip install --no-cache-dir mkdocs mkdocs-material
+
+ENV PATH="/home/rvx/.venv/bin:/home/rvx/.local/bin:${PATH}"
+
+# 11. Add bash aliases and docs environment settings
 RUN echo "alias ll='ls -la'" >> /home/rvx/.bash_aliases && \
   echo "alias ..='cd ..'" >> /home/rvx/.bash_aliases && \
-  echo "alias e='exit 0'" >> /home/rvx/.bash_aliases
+  echo "alias e='exit 0'" >> /home/rvx/.bash_aliases && \
+  echo 'export NO_MKDOCS_2_WARNING=1' >> /home/rvx/.bashrc
 
 CMD ["bash"]
