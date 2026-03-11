@@ -32,7 +32,7 @@ set(SOURCE_FILES
   source/rvx_hal_test_helpers.c
   source/rvx_hal_test_uart.c
   source/rvx_hal_test_gpio.c
-  source/rvx_hal_test_spi_manager.c
+  source/rvx_hal_test_spi.c
   source/rvx_hal_test_timer.c
 )
 

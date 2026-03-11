@@ -312,7 +312,7 @@ module rvx_gpio_tb ();
     $display("Testbench result:");
     $display("-----------------");
     $display("");
-    if (error_count === 0) $display("Passed RTL testbench for the RVX GPIO module.");
+    if (error_count === 0) $display("Passed RTL testbench for the GPIO module of RVX.");
     else $display("[ERROR] GPIO module failed one or more unit tests. Please investigate.");
     $display("");
 

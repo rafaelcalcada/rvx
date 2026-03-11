@@ -185,7 +185,7 @@ module rvx_timer_tb ();
     $display("Testbench result:");
     $display("-----------------");
     $display("");
-    if (error_count === 0) $display("Passed RTL testbench for the RVX Timer module.");
+    if (error_count === 0) $display("Passed RTL testbench for the Timer module of RVX.");
     else $display("[ERROR] Timer module failed one or more unit tests. Please investigate.");
     $display("");
 

@@ -11,19 +11,19 @@ void main(void)
   rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
 
   // Print welcome message
-  rvx_uart_write_string(RVX_UART_ADDRESS, "RVX SPI Manager Example Project\n\n");
+  rvx_uart_write_string(RVX_UART_ADDRESS, "RVX SPI Example Project\n\n");
   rvx_uart_write_string(RVX_UART_ADDRESS,
                         "This example reads the manufacturer ID of the FPGA board's SPI flash memory.\n");
 
-  // Set SPI Manager to MODE 0
-  rvx_spi_mode_set(RVX_SPI_MANAGER_ADDRESS, RVX_SPI_MODE_0);
+  // Set SPI to MODE 0
+  rvx_spi_mode_set(RVX_SPI_ADDRESS, RVX_SPI_MODE_0);
 
   // Read Manufacturer ID from SPI Flash
   rvx_uart_write_string(RVX_UART_ADDRESS, "\nReading Manufacturer ID from SPI Flash...\n");
-  rvx_spi_chip_select_assert(RVX_SPI_MANAGER_ADDRESS);
-  rvx_spi_write(RVX_SPI_MANAGER_ADDRESS, 0x9F);                       // 0x9F = Read Manufacturer ID command
-  uint8_t read_val = rvx_spi_transfer(RVX_SPI_MANAGER_ADDRESS, 0x00); // Read Manufacturer ID
-  rvx_spi_chip_select_deassert(RVX_SPI_MANAGER_ADDRESS);
+  rvx_spi_chip_select_assert(RVX_SPI_ADDRESS);
+  rvx_spi_write(RVX_SPI_ADDRESS, 0x9F);                       // 0x9F = Read Manufacturer ID command
+  uint8_t read_val = rvx_spi_transfer(RVX_SPI_ADDRESS, 0x00); // Read Manufacturer ID
+  rvx_spi_chip_select_deassert(RVX_SPI_ADDRESS);
 
   // Print Manufacturer ID
   print_byte(read_val);

@@ -3,7 +3,7 @@
 
 `include "rvx_constants.vh"
 
-module rvx_spi_manager (
+module rvx_spi (
 
     // Global signals
     input wire clock,

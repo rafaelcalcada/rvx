@@ -1,4 +1,4 @@
-#include "Vrvx_spi_manager_tb.h"
+#include "Vrvx_spi_tb.h"
 #include "verilated.h"
 #include <iostream>
 
@@ -6,7 +6,7 @@ int main(int argc, char **argv)
 {
   VerilatedContext *contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
-  Vrvx_spi_manager_tb *dut = new Vrvx_spi_manager_tb{contextp};
+  Vrvx_spi_tb *dut = new Vrvx_spi_tb{contextp};
 
   while (!contextp->gotFinish())
   {

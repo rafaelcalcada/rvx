@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.28)
 
 # Name of the project/executable to be generated
-set(APP_NAME "rvx_spi_manager_example")
+set(APP_NAME "rvx_spi_example")
 
 # Memory and stack sizes (in bytes)
 set(RVX_MEMORY_SIZE 8192)
@@ -27,7 +27,7 @@ FetchContent_MakeAvailable(rvx_hal)
 project(${APP_NAME} LANGUAGES C ASM) # ASM is needed for RVX startup code
 
 # Source files for the application
-set(SOURCE_FILES rvx_spi_manager_example.c)
+set(SOURCE_FILES rvx_spi_example.c)
 
 # Create the executable
 add_executable(${APP_NAME} ${SOURCE_FILES})

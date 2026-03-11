@@ -98,7 +98,7 @@ void run_rvx_hal_gpio_test()
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
-  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the GPIO module failed. "
+  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the GPIO controller failed. "
                           "Check the test output for details.\n";
   const char *success_msg = "\n\nRVX HAL GPIO tests: All tests passed successfully.\n";
 

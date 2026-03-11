@@ -229,8 +229,8 @@ module rvx_i2c_tb ();
     $display("Testbench result:");
     $display("-----------------");
     $display("");
-    if (error_count === 0) $display("Passed RTL testbench for the RVX I2C Manager.");
-    else $display("[ERROR] I2C Manager failed one or more unit tests. Please investigate.");
+    if (error_count === 0) $display("Passed RTL testbench for the I2C module of RVX.");
+    else $display("[ERROR] I2C module failed one or more unit tests. Please investigate.");
     $display("");
 
     $finish();

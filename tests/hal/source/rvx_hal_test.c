@@ -6,14 +6,14 @@
 
 extern void run_rvx_hal_uart_test();
 extern void run_rvx_hal_gpio_test();
-extern void run_rvx_hal_spi_manager_test();
+extern void run_rvx_hal_spi_test();
 extern void run_rvx_hal_timer_test();
 
 int main()
 {
   run_rvx_hal_uart_test();
   run_rvx_hal_gpio_test();
-  run_rvx_hal_spi_manager_test();
+  run_rvx_hal_spi_test();
   run_rvx_hal_timer_test();
 
   const char *error_msg = "\nERROR: Some RVX HAL integration tests failed. Check the test output for details.\n\n";

@@ -312,7 +312,7 @@ module rvx #(
 
   );
 
-  rvx_spi_manager rvx_spi_manager_instance (
+  rvx_spi rvx_spi_instance (
 
       // Global signals
       .clock  (clock),
