@@ -10,7 +10,7 @@ This document provides an overview of the design of RVX, including its architect
 
 ## Overview
 
-RVX is a RISC-V microcontroller IP core written in Verilog for embedded, FPGA, and ASIC applications. It is built to be simple to integrate while offering a rich feature set, enabling rapid development of RISC-V systems — from FPGA prototypes to custom silicon.
+RVX is a RISC-V microcontroller IP core written in Verilog for embedded, FPGA, and ASIC applications. It offers a rich feature set while remaining easy to integrate, enabling rapid development of RISC-V systems — from FPGA prototypes to custom silicon.
 
 ## Standards
 
@@ -77,7 +77,7 @@ The code snippet below shows a template for instantiating the top-level module o
 
 Detailed information about the configuration parameters and I/O signals can be found in the following sections.
 
-```verilog
+```verilog title="Example 1. Instantiation Template for RVX Top Module"
 rvx #(
 
     // Configuration parameters
@@ -101,13 +101,16 @@ rvx #(
     .reset_n                (),
     .uart_tx                (),
     .uart_rx                (),
-    .sclk                   (),
-    .mosi                   (),
-    .miso                   (),
-    .cs                     (),
+    .spi_sclk               (),
+    .spi_mosi               (),
+    .spi_miso               (),
+    .spi_cs                 (),
     .gpio_input             (),
     .gpio_output_enable     (),
-    .gpio_output            ()
+    .gpio_output            (),
+    .i2c_sda_input          (),
+    .i2c_sda_output         (),
+    .i2c_scl                ()
 
 );
 ```
@@ -121,22 +124,14 @@ The table below lists the configuration parameters of the top-level module of RV
 | Parameter name | Description | Default value |
 |---|---|---|
 | `TCM_SIZE_IN_BYTES` | Size of the TCM memory in bytes. Must be a power of 2 and, for FPGA implementations, must not exceed the available memory resources of the FPGA. | `8192` |
-| `TCM_BOOT_IMAGE_PATH` | Path to a boot image (`.mem`) to be loaded into the TCM memory while programming the FPGA. Leave it empty for ASIC implementations. | `""` |
-| `SPI_BOOT_IMAGE_ADDRESS` | Address in the SPI flash where the boot image is located. RVX bootloader will try to boot from an external SPI flash during system startup, and will look for the boot image at this address. | `32'h00000000` |
+| `TCM_BOOT_IMAGE_PATH` | Path to the boot image (`.mem`) to be loaded into the TCM memory while programming the FPGA. Leave it empty for ASIC implementations. | `""` |
+| `SPI_BOOT_IMAGE_ADDRESS` | Address of the boot image in the SPI flash. RVX bootloader will try to boot from an external SPI flash during system startup, and will look for the boot image at this address. | `32'h00000000` |
 | `GPIO_WIDTH` | Number of general-purpose I/O pins provided by the GPIO module. Up to 32 pins are supported. | `1` |
 | `ENABLE_ZMMUL` | Whether to enable or disable the Zmmul extension for integer multiplication. Set to `1` to enable, or `0` to disable. | `0` |
 
-See the [Developer Guide](devguide.md) for more information about the [boot configuration](devguide.md#booting-rvx) parameters (`TCM_BOOT_IMAGE_PATH` and `SPI_BOOT_IMAGE_ADDRESS`) and how to [generate boot images](devguide.md#generating-the-boot-image) for RVX.
-
 ### I/O Signals
 
-The table below lists the I/O signals of the top-level module of RVX. You need to connect these signals to the appropriate signals in your design when instantiating RVX top module. The I/O signals include the main clock and reset signals, as well as the interfaces for UART, SPI, and GPIO.
-
-???+ note "Why are there input, output, and output enable GPIO signals?"
-
-    The GPIO interface is exposed as three separate signals — `gpio_input`, `gpio_output_enable`, and `gpio_output` — rather than a single bidirectional bus. This is intentional: bidirectional (`inout`) ports cannot be used inside synthesizable RTL modules in a portable way. Providing separate input, output, and output enable signals for the GPIO interface allows RVX to be easily integrated into any design and synthesized with any tool, without running into issues related to bidirectional ports.
-
-    Beyond portability, this approach gives you full flexibility over how the GPIO interface is implemented in your design. You can connect the three signals directly to FPGA I/O primitives, implement custom direction-control logic, or multiplex them with other signals in your system — all without any constraints imposed by RVX itself.
+The table below lists the I/O signals of the top module of RVX. The following sections provide detailed information about the GPIO and I2C signals, which have separate input and output signals instead of bidirectional ports for improved portability and flexibility.
 
 <p align="center"><caption><strong>Table 4.</strong> I/O Signals of RVX Top Module</caption></p>
 
@@ -146,10 +141,91 @@ The table below lists the I/O signals of the top-level module of RVX. You need t
 | `reset_n` | Active-low reset. | Input | 1 bit |
 | `uart_tx` | UART transmit. | Output | 1 bit |
 | `uart_rx` | UART receive. | Input | 1 bit |
-| `sclk` | SPI Clock. | Output | 1 bit |
-| `mosi` | SPI Manager Out Subordinate In. | Output | 1 bit |
-| `miso` | SPI Manager In Subordinate Out. | Input | 1 bit |
-| `cs` | SPI Chip Select. | Output | 1 bit |
+| `spi_sclk` | SPI clock. | Output | 1 bit |
+| `spi_mosi` | SPI <u>M</u>anager <u>O</u>ut <u>S</u>ubordinate <u>I</u>n. | Output | 1 bit |
+| `spi_miso` | SPI <u>M</u>anager <u>I</u>n <u>S</u>ubordinate <u>O</u>ut. | Input | 1 bit |
+| `spi_cs` | SPI chip select. | Output | 1 bit |
 | `gpio_input` | GPIO input. | Input | `GPIO_WIDTH` |
 | `gpio_output_enable` | GPIO output enable. | Output | `GPIO_WIDTH` |
 | `gpio_output` | GPIO output. | Output | `GPIO_WIDTH` |
+| `i2c_sda_input` | I2C SDA data input. | Input | 1 bit |
+| `i2c_sda_output` | I2C SDA data output. | Output | 1 bit |
+| `i2c_scl_input` | I2C SCL clock input. | Input | 1 bit |
+| `i2c_scl_output` | I2C SCL clock output. | Output | 1 bit |
+
+<h4>GPIO Interface</h4>
+
+The GPIO interface is exposed as three separate signals — `gpio_input`, `gpio_output_enable`, and `gpio_output` — rather than a single bidirectional bus. This is intentional: bidirectional (`inout`) ports cannot be used inside synthesizable RTL modules in a portable way. Providing separate input, output, and output enable signals for the GPIO interface allows RVX to be easily integrated into any design and synthesized with any tool, without running into issues related to bidirectional ports.
+
+Beyond portability, this approach gives you full flexibility over how the GPIO interface is implemented in your design. You can connect the three signals directly to FPGA I/O primitives, implement custom direction-control logic, or multiplex them with other signals in your system — all without any constraints imposed by RVX itself.
+
+<h4>I2C Interface</h4>
+
+Similar to the GPIO interface, the I2C SDA and SCL lines are exposed as separate input and output signals (`i2c_sda_input`, `i2c_sda_output`, `i2c_scl_input`, and `i2c_scl_output`) rather than single bidirectional signals.
+
+By providing separate input and output signals for the SDA and SCL lines, RVX allows you to implement the necessary open-drain behavior of the I2C bus in your design, without imposing any constraints on how you do it. You can connect these signals to FPGA I/O primitives with built-in open-drain support, implement custom open-drain logic, or multiplex them with other signals — all while ensuring compatibility with any synthesis tool.
+
+<h4>Connecting GPIO and I2C Signals</h4>
+
+Below is an example of how to connect the GPIO and I2C signals of RVX in an FPGA implementation. Most FPGA synthesis tools support bidirectional ports at the top level of the design, so you can declare the GPIO and I2C signals as `inout` and then connect them as shown below.
+
+```verilog title="Example 2. Connecting the GPIO and I2C Signals of RVX"
+module your_module #(
+
+  parameter GPIO_WIDTH = 8
+
+  /// ... other parameters ...
+
+) (
+
+  inout wire [GPIO_WIDTH-1:0] gpio_pins,
+  inout wire                  i2c_sda,
+  inout wire                  i2c_scl,
+
+  // ... other module ports ...
+
+);
+
+wire [GPIO_WIDTH-1:0] gpio_input;
+wire [GPIO_WIDTH-1:0] gpio_output;
+wire [GPIO_WIDTH-1:0] gpio_output_enable;
+wire                  i2c_sda_input;
+wire                  i2c_sda_output;
+wire                  i2c_scl_output;
+
+genvar i;
+generate
+  for (i = 0; i < GPIO_WIDTH; i = i + 1) begin : gpio_bufs
+    assign gpio_pins[i]  = gpio_output_enable[i] ? gpio_output[i] : 1'bz;
+    assign gpio_input[i] = gpio_pins[i];
+  end
+endgenerate
+
+assign i2c_sda       = i2c_sda_output ? 1'bz : 1'b0;
+assign i2c_sda_input = i2c_sda;
+assign i2c_scl       = i2c_scl_output ? 1'bz : 1'b0;
+
+rvx #(
+
+  // ... configuration parameters ...
+
+) my_rvx_instance (
+
+  // ... other connections ...
+
+  .gpio_input         (gpio_input),
+  .gpio_output_enable (gpio_output_enable),
+  .gpio_output        (gpio_output),
+  .i2c_sda_input      (i2c_sda_input),
+  .i2c_sda_output     (i2c_sda_output),
+  .i2c_scl_output     (i2c_scl_output)
+);
+
+// ... your logic ...
+
+endmodule
+```
+
+If your FPGA synthesis tool does not support bidirectional ports at the top level, or if you want to implement custom logic for the GPIO and I2C interfaces, you can connect the signals in a different way that is compatible with your tool and design.
+
+Correct operation requires that the GPIO signals are only driven when the output enable signal is asserted, and that the I2C SDA and SCL lines are only driven low when the corresponding output signal is asserted low, while allowing the lines to be pulled high by external pull-up resistors when not driven.
