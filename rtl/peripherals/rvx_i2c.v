@@ -196,9 +196,6 @@ module rvx_i2c (
 
       if (i2c_run_strobe) begin
         i2c_run <= 1'b1;
-        if (is_command_nop) begin
-          encode_count_max <= 6'd0;
-        end
         if (is_command_start || is_command_stop) begin
           encode_count_max <= 6'd3;
         end
