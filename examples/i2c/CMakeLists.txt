@@ -15,8 +15,13 @@ set(RVX_HEAP_SIZE 1024)
 # Indicate that this is a bare-metal application
 set(RVX_BARE_METAL TRUE)
 
-# RVX HAL
-include(${CMAKE_SOURCE_DIR}/../../hal/CMakeLists.txt)
+# Fetch RVX HAL
+include(FetchContent)
+FetchContent_Declare(rvx_hal
+  GIT_REPOSITORY https://github.com/rafaelcalcada/rvx-hal.git
+  GIT_TAG main
+)
+FetchContent_MakeAvailable(rvx_hal)
 
 # Define the project languages
 project(${APP_NAME} LANGUAGES C ASM) # ASM is needed for RVX startup code
