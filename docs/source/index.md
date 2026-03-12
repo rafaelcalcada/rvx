@@ -58,7 +58,7 @@ The design avoids vendor-specific constructs to ensure portability across synthe
 
 ## Documentation
 
-The RVX documentation includes:
+The documentation for RVX includes:
 
 - [Developer Guide][3] — Guide for developing software applications for RVX.
 - [Design Reference][4] — Documentation for the RTL design of RVX, including architecture, source files, configuration parameters, I/O signals, and memory map.
