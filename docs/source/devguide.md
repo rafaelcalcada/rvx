@@ -22,7 +22,7 @@ This guide demonstrates how to use the RVX HAL to write a simple "Hello, World!"
 
 ## Obtaining the RISC-V GNU Toolchain
 
-The RVX software stack is built on top of the [RISC-V GNU Toolchain][2], which provides the compiler, assembler, linker, and other tools needed to build software for RISC-V targets like RVX. Therefore, to develop software for RVX, you first need to obtain the RISC-V GNU Toolchain. You can either build it from source or use the RVX Development Container, which comes with the RISC-V GNU Toolchain and its dependencies preinstalled. The next sections provide instructions for both options.
+The RVX software stack is built on top of the [RISC-V GNU Toolchain][2], which provides the compiler, assembler, linker, and other tools needed to build software for RISC-V targets like RVX. Therefore, to develop software for RVX, you first need to obtain the RISC-V GNU Toolchain. You can either build it from source or use it from the RVX Development Container. The next sections provide instructions for both options.
 
 ### Using the RVX Development Container
 
@@ -97,7 +97,7 @@ This section will walk you through writing a program that sends a "Hello, World!
 
 ### Source code
 
-An application for RVX typically includes the `rvx.h` header file provided by the RVX HAL, which contains definitions and functions to interact with RVX peripherals and processor registers. In this example, we will use the UART driver provided by the RVX HAL to send a message over the UART interface.
+An application for RVX typically includes the `rvx.h` header file provided by the RVX HAL, which contains definitions and functions to interact with RVX peripherals and processor registers. In this example, we will use the UART functions provided by the RVX HAL to send a message over the UART interface.
 
 For the complete reference of the functions and definitions provided by the RVX HAL, see the [RVX HAL Reference][1].
 
@@ -210,21 +210,21 @@ When you power on RVX, it will first attempt to boot from an external SPI flash 
 
 ### Booting from SPI flash
 
-To boot from SPI flash, you need to write the `.bin` boot image into an SPI flash memory and connect it to the SPI interface of RVX. The boot image must be placed at address `0x00000000`, unless you have changed the default boot address (see [Configuration Parameters](refguide.md#configuration-parameters) in the [Reference Guide](refguide.md)).
+To boot from SPI flash, you need to write the `.bin` boot image into an SPI flash memory and connect it to the SPI interface of RVX. The boot image must be placed at address `0x00000000`, unless you have changed the default boot address (see [Configuration Parameters](design.md#configuration-parameters) in the [Design Reference](design.md)).
 
 The exact method for programming the SPI flash will depend on the specific flash chip you are using, but it typically involves using a programmer device that connects to your computer via USB and can read/write data to the flash chip.
 
 ### Booting from TCM
 
-In FPGA implementations, you can boot RVX without an external SPI flash by loading the `.mem` boot image into RVX tightly coupled memory (TCM) when programming the FPGA. To do this, set the [`TCM_BOOT_IMAGE_PATH`](refguide.md#configuration-parameters) parameter of RVX top module instance to the path of the `.mem` boot image. This will embed the boot image into the FPGA bitstream.
+In FPGA implementations, you can boot RVX without an external SPI flash by loading the `.mem` boot image into RVX tightly coupled memory (TCM) when programming the FPGA. To do this, set the [`TCM_BOOT_IMAGE_PATH`](design.md#configuration-parameters) parameter of RVX top module instance to the path of the `.mem` boot image. This will embed the boot image into the FPGA bitstream.
 
 When you power on the FPGA, the bootloader will find the boot image in the TCM and start executing it. Make sure that RVX is not connected to an external SPI flash (or, if it is, that the flash does not contain a boot image); otherwise, RVX will attempt to boot from SPI flash first.
 
 ## Running the application { #running }
 
-To run the application you just built, you need to implement RVX on an FPGA. The [Examples][3] page has detailed instructions on how to write the Verilog code to instantiate RVX for the "Hello, World!" project of this guide. It also provides pre-built FPGA bitstreams for supported FPGA boards and explains how to generate the bitstream for a generic FPGA.
+To run the application you just built, you need to implement RVX on an FPGA. The [Examples][3] page has detailed instructions on how to write the Verilog code to instantiate RVX for the "Hello, World!" project of this guide. It also provides pre-built FPGA bitstreams for supported FPGA boards and explains how to generate a bitstream for a generic FPGA.
 
-For general instructions on how to start a new RTL project for RVX, see the [Reference Guide](refguide.md). There you'll also find information about RVX top module ports and parameters, and how to integrate RVX into an existing RTL design.
+For general instructions on how to start a new RTL project for RVX, see the [Design Reference](design.md). There you'll also find information about RVX top module ports and parameters, and how to integrate RVX into an existing RTL design.
 
 <br/>
 <br/>
