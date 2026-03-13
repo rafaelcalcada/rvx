@@ -26,7 +26,7 @@ void main(void)
   rvx_i2c_run_start(RVX_I2C_ADDRESS);
   // Write ID register address to BMP280
   rvx_i2c_write_to(RVX_I2C_ADDRESS, bmp280_slave_addr, &bmp280_id_reg_addr, 1);
-  rvx_i2c_run_start(RVX_I2C_ADDRESS);
+  rvx_i2c_run_restart(RVX_I2C_ADDRESS);
   // Read ID register from BMP280
   rvx_i2c_reade_from(RVX_I2C_ADDRESS, bmp280_slave_addr, &bmp280_id_value, 1);
   // Stop condition
