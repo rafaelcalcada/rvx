@@ -55,20 +55,22 @@ module rvx_i2c (
   // Commands
   // ---------------------------------------------------------------------------
 
-  localparam COMMAND_NOP = 2'd0;
-  localparam COMMAND_START = 2'd1;
+  localparam COMMAND_START = 2'd0;
+  localparam COMMAND_RESTART = 2'd1;
   localparam COMMAND_STOP = 2'd2;
   localparam COMMAND_DATA = 2'd3;
 
-  wire        is_command_nop = (command == COMMAND_NOP);
   wire        is_command_start = (command == COMMAND_START);
+  wire        is_command_restart = (command == COMMAND_RESTART);
   wire        is_command_stop = (command == COMMAND_STOP);
   wire        is_command_data = (command == COMMAND_DATA);
 
-  reg  [ 3:0] sda_start_encode;
-  reg  [ 3:0] scl_start_encode;
-  reg  [ 3:0] sda_stop_encode;
-  reg  [ 3:0] scl_stop_encode;
+  reg  [ 7:0] sda_start_encode;
+  reg  [ 7:0] scl_start_encode;
+  reg  [ 7:0] sda_restart_encode;
+  reg  [ 7:0] scl_restart_encode;
+  reg  [ 7:0] sda_stop_encode;
+  reg  [ 7:0] scl_stop_encode;
   reg  [35:0] sda_data_encode;
   reg  [35:0] scl_data_encode;
   wire [35:0] sda_data_encode_value;
@@ -151,7 +153,7 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      command <= COMMAND_NOP;
+      command <= COMMAND_START;
     end
     else if (rw_address == `RVX_I2C_COMMAND_REG_ADDR && valid_write_request == 1'b1) begin
       command <= write_data[0+:COMMAND_WIDTH];
@@ -177,7 +179,7 @@ module rvx_i2c (
       i2c_run_strobe <= 1'b0;
 
       if (write_to_status_reg) begin
-        i2c_run_strobe    <= write_data[`RVX_I2C_STATUS_BIT_RUN] & ~is_command_nop;
+        i2c_run_strobe    <= write_data[`RVX_I2C_STATUS_BIT_RUN];
         tx_no_acknowledge <= write_data[`RVX_I2C_STATUS_BIT_NOACKNOWLEDGE];
       end
 
@@ -196,8 +198,8 @@ module rvx_i2c (
 
       if (i2c_run_strobe) begin
         i2c_run <= 1'b1;
-        if (is_command_start || is_command_stop) begin
-          encode_count_max <= 6'd3;
+        if (is_command_start || is_command_restart || is_command_stop) begin
+          encode_count_max <= 6'd6;
         end
         if (is_command_data) begin
           encode_count_max <= 6'd35;
@@ -211,13 +213,28 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (is_command_start && prescale_count_ok && !encode_count_ok) begin
-      sda_start_encode <= {sda_start_encode[0+:3], sda_start_encode[3]};
-      scl_start_encode <= {scl_start_encode[0+:3], scl_start_encode[3]};
+      sda_start_encode <= {sda_start_encode[0+:7], sda_start_encode[7]};
+      scl_start_encode <= {scl_start_encode[0+:7], scl_start_encode[7]};
     end
 
     if (i2c_run_strobe) begin
-      sda_start_encode <= 4'b1100;
-      scl_start_encode <= 4'b1110;
+      sda_start_encode <= 8'b11110000;
+      scl_start_encode <= 8'b11111100;
+    end
+  end
+
+  // Restart encode logic
+  // ---------------------------------------------------------------------------
+
+  always @(posedge clock) begin
+    if (is_command_restart && prescale_count_ok && !encode_count_ok) begin
+      sda_restart_encode <= {sda_restart_encode[0+:7], sda_restart_encode[7]};
+      scl_restart_encode <= {scl_restart_encode[0+:7], scl_restart_encode[7]};
+    end
+
+    if (i2c_run_strobe) begin
+      sda_restart_encode <= 8'b11110000;
+      scl_restart_encode <= 8'b00111100;
     end
   end
 
@@ -226,13 +243,13 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (is_command_stop && prescale_count_ok && !encode_count_ok) begin
-      sda_stop_encode <= {sda_stop_encode[0+:3], sda_stop_encode[3]};
-      scl_stop_encode <= {scl_stop_encode[0+:3], scl_stop_encode[3]};
+      sda_stop_encode <= {sda_stop_encode[0+:7], sda_stop_encode[7]};
+      scl_stop_encode <= {scl_stop_encode[0+:7], scl_stop_encode[7]};
     end
 
     if (i2c_run_strobe) begin
-      sda_stop_encode <= 4'b0011;
-      scl_stop_encode <= 4'b0111;
+      sda_stop_encode <= 8'b00011111;
+      scl_stop_encode <= 8'b01111111;
     end
   end
 
@@ -261,13 +278,18 @@ module rvx_i2c (
     end
     else begin
       if (is_command_start && i2c_run) begin
-        sda_output <= sda_start_encode[3];
-        scl_output <= scl_start_encode[3];
+        sda_output <= sda_start_encode[7];
+        scl_output <= scl_start_encode[7];
+      end
+
+      if (is_command_restart && i2c_run) begin
+        sda_output <= sda_restart_encode[7];
+        scl_output <= scl_restart_encode[7];
       end
 
       if (is_command_stop && i2c_run) begin
-        sda_output <= sda_stop_encode[3];
-        scl_output <= scl_stop_encode[3];
+        sda_output <= sda_stop_encode[7];
+        scl_output <= scl_stop_encode[7];
       end
 
       if (is_command_data && i2c_run) begin
