@@ -229,3 +229,26 @@ endmodule
 If your FPGA synthesis tool does not support bidirectional ports at the top level, or if you want to implement custom logic for the GPIO and I2C interfaces, you can connect the signals in a different way that is compatible with your tool and design.
 
 Correct operation requires that the GPIO signals are only driven when the output enable signal is asserted, and that the I2C SDA and SCL lines are only driven low when the corresponding output signal is asserted low, while allowing the lines to be pulled high by external pull-up resistors when not driven.
+
+## Memory Map
+
+RVX has a 32-bit address space in which the lower region is reserved for memory, while peripherals are mapped into a separate high-address region. The Bootloader ROM occupies the lowest addresses and connects directly to the instruction bus of the RVX Core, bypassing the RVX Interconnect.
+
+All other devices have their address ranges defined in the instantiation of the RVX Interconnect in the top module (`rvx.v`). The Interconnect routes read and write transactions from the RVX Core to the appropriate device based on the target address.
+
+The following table summarizes the memory map of RVX, showing the address ranges, sizes, and corresponding devices.
+
+<p align="center"><caption><strong>Table 5.</strong> Memory Map of RVX</caption></p>
+
+| From | To | Size | Device |
+|---|---|---|---|
+| `0x00000000` | `0x00000FFF` | 4 KB | Bootloader ROM |
+| `0x00001000` | `0x00001000 + TCM_SIZE_IN_BYTES - 1` | `TCM_SIZE_IN_BYTES` | Tightly Coupled Memory (TCM) |
+| `0x40000000` | `0x4000000F` | 16 B | UART Module |
+| `0x40001000` | `0x4000101F` | 32 B | Timer Module |
+| `0x40002000` | `0x4000201F` | 32 B | GPIO Module |
+| `0x40003000` | `0x4000301F` | 32 B | SPI Module |
+| `0x40004000` | `0x4000400F` | 16 B | I2C Module |
+
+<br/>
+<br/>
