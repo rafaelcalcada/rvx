@@ -39,7 +39,7 @@ void main(void)
 }
 
 // Provides a custom Machine Timer Interrupt Handler
-RVX_TRAP_HANDLER_M(rvx_trap_handler_mti)
+RVX_TRAP_HANDLER_M(rvx_trap_handler_timer_irq)
 {
   // Read LED 0 state and toggle it
   bool led_state = rvx_gpio_pin_read(RVX_GPIO_ADDRESS, 0);

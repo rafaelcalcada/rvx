@@ -17,7 +17,7 @@ void transfer_byte_interrupt(uint8_t tx_byte);
 /// @}
 
 // UART interrupt signal is connected to Fast IRQ #0
-RVX_TRAP_HANDLER_M(rvx_trap_handler_fast0)
+RVX_TRAP_HANDLER_M(rvx_trap_handler_fast_irq_0)
 {
   uart_received_byte = rvx_uart_read(RVX_UART_ADDRESS);
   uart_received_byte_flag = true;
