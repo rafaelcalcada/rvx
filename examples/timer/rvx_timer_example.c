@@ -9,8 +9,8 @@ void main(void)
   rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
 
   // Print welcome message
-  rvx_uart_write_string(RVX_UART_ADDRESS, "RVX Timer Example Project\n\n");
-  rvx_uart_write_string(RVX_UART_ADDRESS, "LED 0 state will be toggled by the timer every second.\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "RVX Timer Example Project\n\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "LED 0 state will be toggled by the timer every second.\n");
 
   // Configure pin 0 as output
   rvx_gpio_pin_configure(RVX_GPIO_ADDRESS, 0, RVX_GPIO_OUTPUT);

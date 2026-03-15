@@ -11,7 +11,7 @@ void run_rvx_hal_gpio_test()
   unsigned int gpio_tests_error_count = 0;
 
   rvx_uart_init(RVX_UART_ADDRESS, 1000000, 50000000);
-  rvx_uart_write_string(RVX_UART_ADDRESS, "\nRVX HAL - GPIO integration tests\n--------------------------------\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "\nRVX HAL - GPIO integration tests\n--------------------------------\n");
 
   rvx_test_start("\nTest 1: GPIO OUTPUT register is 0 after reset. ");
   RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_REG == 0);
@@ -103,7 +103,7 @@ void run_rvx_hal_gpio_test()
   const char *success_msg = "\n\nRVX HAL GPIO tests: All tests passed successfully.\n";
 
   if (gpio_tests_error_count)
-    rvx_uart_write_string(RVX_UART_ADDRESS, error_msg);
+    rvx_uart_send_string(RVX_UART_ADDRESS, error_msg);
   else
-    rvx_uart_write_string(RVX_UART_ADDRESS, success_msg);
+    rvx_uart_send_string(RVX_UART_ADDRESS, success_msg);
 }

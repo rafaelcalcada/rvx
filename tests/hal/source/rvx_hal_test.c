@@ -20,9 +20,9 @@ int main()
   const char *success_msg = "\nPassed all RVX HAL integration tests.\n\n";
 
   if (rvx_test_global_error_flag)
-    rvx_uart_write_string(RVX_UART_ADDRESS, error_msg);
+    rvx_uart_send_string(RVX_UART_ADDRESS, error_msg);
   else
-    rvx_uart_write_string(RVX_UART_ADDRESS, success_msg);
+    rvx_uart_send_string(RVX_UART_ADDRESS, success_msg);
 
   // Signal to simulator that tests are complete and whether they passed or failed
   *((uint32_t *)0x00000000) = rvx_test_global_error_flag;

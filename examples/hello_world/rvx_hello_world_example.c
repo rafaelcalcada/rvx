@@ -9,5 +9,5 @@ void main()
   rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
 
   // Send "Hello World, RVX!" message via RVX UART
-  rvx_uart_write_string(RVX_UART_ADDRESS, "Hello World, RVX!\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "Hello World, RVX!\n");
 }

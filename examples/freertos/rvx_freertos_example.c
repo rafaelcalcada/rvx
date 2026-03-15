@@ -18,8 +18,8 @@ void main(void)
   rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
 
   // Print welcome message
-  rvx_uart_write_string(RVX_UART_ADDRESS, "RVX FreeRTOS Example Project\n\n");
-  rvx_uart_write_string(
+  rvx_uart_send_string(RVX_UART_ADDRESS, "RVX FreeRTOS Example Project\n\n");
+  rvx_uart_send_string(
       RVX_UART_ADDRESS,
       "LEDs 0 and 1 will blink alternately at different rates with the help of FreeRTOS task scheduler.\n");
 
@@ -77,7 +77,7 @@ RVX_NAKED void rvx_trap_handler_default(void)
 void freertos_risc_v_application_interrupt_handler(uint32_t interrupt_cause)
 {
   (void)interrupt_cause;
-  rvx_uart_write_string(RVX_UART_ADDRESS, "Interrupt occurred!\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "Interrupt occurred!\n");
 
   // Example
 
@@ -91,7 +91,7 @@ void freertos_risc_v_application_interrupt_handler(uint32_t interrupt_cause)
 void freertos_risc_v_application_exception_handler(uint32_t exception_cause)
 {
   (void)exception_cause;
-  rvx_uart_write_string(RVX_UART_ADDRESS, "Exception occurred!\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "Exception occurred!\n");
 
   // Example
 

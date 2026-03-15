@@ -13,8 +13,8 @@ void main(void)
   rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
 
   // Print welcome message
-  rvx_uart_write_string(RVX_UART_ADDRESS, "RVX UART Example Project\n\n");
-  rvx_uart_write_string(RVX_UART_ADDRESS, "Type something and press Enter to echo it back.\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "RVX UART Example Project\n\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "Type something and press Enter to echo it back.\n");
 
   // Enable vectored interrupts and UART interrupt
   rvx_irq_enable_vectored_mode();
@@ -29,7 +29,7 @@ void main(void)
 RVX_TRAP_HANDLER_M(rvx_trap_handler_fast_irq_0)
 {
   // Read received byte from UART
-  char rx_data = rvx_uart_read(RVX_UART_ADDRESS);
+  char rx_data = rvx_uart_receive(RVX_UART_ADDRESS);
 
   // Predicate conditions for handling received byte
   bool enter_key_pressed = (rx_data == '\n' || rx_data == '\r');
@@ -42,19 +42,19 @@ RVX_TRAP_HANDLER_M(rvx_trap_handler_fast_irq_0)
   if (backspace_pressed && buffer_not_empty)
   {
     uart_rx_buffer[--uart_rx_buffer_count] = '\0';
-    rvx_uart_write_string(RVX_UART_ADDRESS, "\b \b");
+    rvx_uart_send_string(RVX_UART_ADDRESS, "\b \b");
   }
   else if (printable_char_pressed && !buffer_full)
   {
     uart_rx_buffer[uart_rx_buffer_count++] = rx_data;
     uart_rx_buffer[uart_rx_buffer_count] = '\0';
-    rvx_uart_write(RVX_UART_ADDRESS, rx_data);
+    rvx_uart_send(RVX_UART_ADDRESS, rx_data);
   }
   else if ((enter_key_pressed && buffer_not_empty) || buffer_full)
   {
-    rvx_uart_write_string(RVX_UART_ADDRESS, "\nYou typed: '");
-    rvx_uart_write_string(RVX_UART_ADDRESS, uart_rx_buffer);
-    rvx_uart_write_string(RVX_UART_ADDRESS, "'\n");
+    rvx_uart_send_string(RVX_UART_ADDRESS, "\nYou typed: '");
+    rvx_uart_send_string(RVX_UART_ADDRESS, uart_rx_buffer);
+    rvx_uart_send_string(RVX_UART_ADDRESS, "'\n");
     uart_rx_buffer_count = 0;
     uart_rx_buffer[0] = '\0';
   }
