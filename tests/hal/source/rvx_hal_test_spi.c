@@ -12,8 +12,8 @@ void run_rvx_hal_spi_test()
   unsigned int spi_tests_error_count = 0;
 
   rvx_uart_init(RVX_UART_ADDRESS, 1000000, 50000000);
-  rvx_uart_write_string(RVX_UART_ADDRESS,
-                        "\nRVX HAL - SPI integration tests\n---------------------------------------\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS,
+                       "\nRVX HAL - SPI integration tests\n---------------------------------------\n");
 
   rvx_gpio_pin_configure(RVX_GPIO_ADDRESS, 0, RVX_GPIO_OUTPUT); // Use GPIO pin 0 as CS for subordinate 1
   rvx_gpio_pin_set(RVX_GPIO_ADDRESS, 0);                        // Deassert CS for subordinate 1
@@ -102,9 +102,9 @@ void run_rvx_hal_spi_test()
   const char *success_msg = "\n\nRVX HAL SPI tests: All tests passed successfully.\n";
 
   if (spi_tests_error_count)
-    rvx_uart_write_string(RVX_UART_ADDRESS, error_msg);
+    rvx_uart_send_string(RVX_UART_ADDRESS, error_msg);
   else
-    rvx_uart_write_string(RVX_UART_ADDRESS, success_msg);
+    rvx_uart_send_string(RVX_UART_ADDRESS, success_msg);
 }
 
 void transfer_test()
