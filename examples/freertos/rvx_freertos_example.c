@@ -81,7 +81,7 @@ void freertos_risc_v_application_interrupt_handler(uint32_t interrupt_cause)
 
   // Example
 
-  // if (interrupt_cause == RVX_TRAP_CAUSE_MEI) // Machine External Interrupt
+  // if (interrupt_cause == RVX_TRAP_CAUSE_EXTERNAL_IRQ) // Machine External Interrupt
   // {
   //   // Handle external interrupt
   // }
