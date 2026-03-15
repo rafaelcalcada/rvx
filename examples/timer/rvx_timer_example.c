@@ -26,8 +26,8 @@ void main(void)
 
   // Enable vectored interrupts and timer interrupt
   rvx_irq_enable_vectored_mode();
-  rvx_irq_enable(RVX_IRQ_MTI_BITMASK); // Enable M-mode Timer Interrupt specifically
-  rvx_irq_enable_global();             // Set global interrupt enable bit
+  rvx_irq_enable(RVX_IRQ_TIMER_BITMASK); // Enable M-mode Timer Interrupt specifically
+  rvx_irq_enable_global();               // Set global interrupt enable bit
 
   // Start counting the time
   rvx_timer_enable(RVX_TIMER_ADDRESS);
