@@ -21,7 +21,7 @@ void main(void)
   rvx_gpio_pin_write(RVX_GPIO_ADDRESS, 0, led_state); // Turn LED 0 ON initially
   bool button_last_state = false;                     // Last read state of the push-button
 
-  while (1)
+  while (true)
   {
     // Read the current state of the push-button (pin 1)
     bool button_current_state = rvx_gpio_pin_read(RVX_GPIO_ADDRESS, 1);
