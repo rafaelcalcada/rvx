@@ -35,9 +35,7 @@ void main(void)
   // Print Manufacturer ID
   print_byte(bmp280_id_value);
 
-  while (1)
-  {
-  }
+  rvx_wait_for_interrupt();
 }
 
 void print_byte(const uint8_t read_data)

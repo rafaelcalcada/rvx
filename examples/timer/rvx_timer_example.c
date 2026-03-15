@@ -32,10 +32,8 @@ void main(void)
   // Start counting the time
   rvx_timer_enable(RVX_TIMER_ADDRESS);
 
-  // Wait for a timer interrupt in busy wait loop
-  while (1)
-  {
-  }
+  // Wait for a timer interrupt
+  rvx_wait_for_interrupt();
 }
 
 // Provides a custom Machine Timer Interrupt Handler

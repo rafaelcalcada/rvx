@@ -21,9 +21,8 @@ void main(void)
   rvx_irq_enable(RVX_IRQ_FAST_BITMASK(0)); // UART is connected to RVX Fast IRQ 0
   rvx_irq_enable_global();
 
-  // Wait for interrupts in busy-wait loop
-  while (1)
-    ;
+  // Wait for a UART interrupt
+  rvx_wait_for_interrupt();
 }
 
 // Interrupt handler for RVX Fast IRQ 0 (connected to UART)
