@@ -232,11 +232,7 @@ Correct operation requires that the GPIO signals are only driven when the output
 
 ## Memory Map
 
-RVX has a 32-bit address space in which the lower region is reserved for memory, while peripherals are mapped into a separate high-address region. The Bootloader ROM occupies the lowest addresses and connects directly to the instruction bus of the RVX Core, bypassing the RVX Interconnect.
-
-All other devices have their address ranges defined in the instantiation of the RVX Interconnect in the top module (`rvx.v`). The Interconnect routes read and write transactions from the RVX Core to the appropriate device based on the target address.
-
-The following table summarizes the memory map of RVX, showing the address ranges, sizes, and corresponding devices.
+RVX has a 32-bit address space in which the lower region is reserved for memory, while peripherals are mapped into a separate high-address region. The following table summarizes the memory map of RVX, showing the address ranges, sizes, and corresponding devices.
 
 <p align="center"><caption><strong>Table 5.</strong> Memory Map of RVX</caption></p>
 
