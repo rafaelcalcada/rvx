@@ -13,11 +13,11 @@ void main(void)
   rvx_uart_send_string(RVX_UART_ADDRESS, "LED 0 state will be toggled by the timer every second.\n");
 
   // Configure pin 0 as output
-  rvx_gpio_pin_configure(RVX_GPIO_ADDRESS, 0, RVX_GPIO_OUTPUT);
+  rvx_gpio_set_direction(RVX_GPIO_ADDRESS, 0, RVX_GPIO_OUTPUT);
 
   // LEF initial state
-  bool led_state = true;                              // true = ON, false = OFF
-  rvx_gpio_pin_write(RVX_GPIO_ADDRESS, 0, led_state); // Turn LED 0 ON initially
+  bool led_state = true;                          // true = ON, false = OFF
+  rvx_gpio_write(RVX_GPIO_ADDRESS, 0, led_state); // Turn LED 0 ON initially
 
   // Configure the machine timer to generate an interrupt every second
   rvx_timer_disable(RVX_TIMER_ADDRESS);               // Disable while configuring is in progress
@@ -40,8 +40,8 @@ void main(void)
 RVX_TRAP_HANDLER_M(rvx_trap_handler_timer_irq)
 {
   // Read LED 0 state and toggle it
-  bool led_state = rvx_gpio_pin_read(RVX_GPIO_ADDRESS, 0);
-  rvx_gpio_pin_write(RVX_GPIO_ADDRESS, 0, !led_state);
+  bool led_state = rvx_gpio_read(RVX_GPIO_ADDRESS, 0);
+  rvx_gpio_write(RVX_GPIO_ADDRESS, 0, !led_state);
 
   // Clear the timer counter to restart counting from zero
   rvx_timer_clear_counter(RVX_TIMER_ADDRESS);

@@ -24,8 +24,8 @@ void main(void)
       "LEDs 0 and 1 will blink alternately at different rates with the help of FreeRTOS task scheduler.\n");
 
   // Configure pins 0 and 2 as outputs
-  rvx_gpio_pin_configure(RVX_GPIO_ADDRESS, 0, RVX_GPIO_OUTPUT);
-  rvx_gpio_pin_configure(RVX_GPIO_ADDRESS, 2, RVX_GPIO_OUTPUT);
+  rvx_gpio_set_direction(RVX_GPIO_ADDRESS, 0, RVX_GPIO_OUTPUT);
+  rvx_gpio_set_direction(RVX_GPIO_ADDRESS, 2, RVX_GPIO_OUTPUT);
 
   // Configure FreeRTOS heap regions (this example used FreeRTOS heap_5.c)
   HeapRegion_t xHeapRegions[] = {{&__heap_start, (size_t)(&__heap_end - &__heap_start)}, {NULL, 0}};
@@ -48,9 +48,9 @@ void led_0_task(void *pvParameters)
   for (;;)
   {
     vTaskDelay(pdMS_TO_TICKS(500)); // Delay 500 ms
-    rvx_gpio_pin_set(RVX_GPIO_ADDRESS, 0);
+    rvx_gpio_set_high(RVX_GPIO_ADDRESS, 0);
     vTaskDelay(pdMS_TO_TICKS(500)); // Delay 500 ms
-    rvx_gpio_pin_clear(RVX_GPIO_ADDRESS, 0);
+    rvx_gpio_set_low(RVX_GPIO_ADDRESS, 0);
   }
 }
 
@@ -61,9 +61,9 @@ void led_1_task(void *pvParameters)
   for (;;)
   {
     vTaskDelay(pdMS_TO_TICKS(1000)); // Delay 1000 ms
-    rvx_gpio_pin_set(RVX_GPIO_ADDRESS, 2);
+    rvx_gpio_set_high(RVX_GPIO_ADDRESS, 2);
     vTaskDelay(pdMS_TO_TICKS(1000)); // Delay 1000 ms
-    rvx_gpio_pin_clear(RVX_GPIO_ADDRESS, 2);
+    rvx_gpio_set_low(RVX_GPIO_ADDRESS, 2);
   }
 }
 
