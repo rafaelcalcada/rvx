@@ -111,7 +111,7 @@ module rvx #(
 
   // Interrupts configuration
 
-  assign irq_fast     = {14'b0, irq_i2c, irq_uart};  // Only Fast IRQ 0 is used for UART
+  assign irq_fast     = {14'b0, irq_i2c, irq_uart};
   assign irq_external = 1'b0;  // unused
   assign irq_software = 1'b0;  // unused
 
@@ -256,7 +256,7 @@ module rvx #(
       .uart_tx(uart_tx),
       .uart_rx(uart_rx),
 
-      // UART interrupt request (connected to Fast IRQ 0)
+      // UART interrupt request (connected to Fast Interrupt 0)
       .uart_irq(irq_uart)
 
   );
@@ -357,7 +357,7 @@ module rvx #(
       .sda_output(i2c_sda_output),
       .scl_output(i2c_scl_output),
 
-      // I2C interrupt request (connected to Fast IRQ 1)
+      // I2C interrupt request (connected to Fast Interrupt 1)
       .irq(irq_i2c)
   );
 

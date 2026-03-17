@@ -16,16 +16,17 @@ void main(void)
   rvx_uart_send_string(RVX_UART_ADDRESS, "RVX UART Example Project\n\n");
   rvx_uart_send_string(RVX_UART_ADDRESS, "Type something and press Enter to echo it back.\n");
 
-  // Enable vectored interrupts and UART interrupt
-  rvx_irq_enable_vectored_mode();
-  rvx_irq_enable(RVX_IRQ_FAST_BITMASK(0)); // UART is connected to RVX Fast IRQ 0
-  rvx_irq_enable_global();
+  // Enable vectored interrupt mode and Fast Interrupt 0 in M-mode, then globally enable interrupts in M-mode
+  // The UART interrupt line is connected to Fast Interrupt 0
+  rvx_irq_set_mode(RVX_PRIVILEGE_LEVEL_M, RVX_INTERRUPT_MODE_VECTORED);
+  rvx_irq_enable(RVX_PRIVILEGE_LEVEL_M, RVX_IRQ_FAST_BITMASK(0));
+  rvx_irq_enable_global(RVX_PRIVILEGE_LEVEL_M);
 
   // Wait for a UART interrupt
   rvx_wait_for_interrupt();
 }
 
-// Interrupt handler for RVX Fast IRQ 0 (connected to UART)
+// Interrupt handler for Fast Interrupt 0 (connected to UART interrupt line)
 RVX_TRAP_HANDLER_M(rvx_trap_handler_fast_irq_0)
 {
   // Read received byte from UART
