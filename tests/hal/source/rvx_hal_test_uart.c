@@ -16,7 +16,7 @@ void transfer_byte_busy_wait(uint8_t tx_byte);
 void transfer_byte_interrupt(uint8_t tx_byte);
 /// @}
 
-// UART interrupt signal is connected to Fast IRQ #0
+// UART interrupt signal is connected to Fast Interrupt 0
 RVX_TRAP_HANDLER_M(rvx_trap_handler_fast_irq_0)
 {
   uart_received_byte = rvx_uart_receive(RVX_UART_ADDRESS);
@@ -76,15 +76,15 @@ void run_rvx_hal_uart_test()
   rvx_test_update_error_count(&uart_tests_error_count);
 
   rvx_test_start("\nTest 7: Send bytes and read them back (interrupt). ");
-  rvx_irq_enable_vectored_mode();
-  rvx_irq_enable(RVX_IRQ_FAST_BITMASK(0)); // UART is connected to Fast IRQ #0
+  rvx_irq_set_mode(RVX_PRIVILEGE_LEVEL_M, RVX_INTERRUPT_MODE_VECTORED);
+  rvx_irq_enable(RVX_PRIVILEGE_LEVEL_M, RVX_IRQ_FAST_BITMASK(0));
   transfer_byte_interrupt(0xa5);
   transfer_byte_interrupt(0x5a);
   transfer_byte_interrupt(0xff);
   transfer_byte_interrupt(0x00);
   transfer_byte_interrupt(0xc3);
   transfer_byte_interrupt(0x3c);
-  rvx_irq_disable(RVX_IRQ_FAST_BITMASK(0));
+  rvx_irq_disable(RVX_PRIVILEGE_LEVEL_M, RVX_IRQ_FAST_BITMASK(0));
   rvx_test_finish("\n  All bytes transferred successfully. (Passed)");
   rvx_test_update_error_count(&uart_tests_error_count);
 
@@ -126,12 +126,12 @@ void transfer_byte_interrupt(uint8_t tx_byte)
   rvx_uart_receive(RVX_UART_ADDRESS);      // Clear RX register
   RVX_TEST_ASSERT(rvx_uart_data_available(RVX_UART_ADDRESS) == false);
   uart_received_byte_flag = false;
-  rvx_irq_enable_global();
+  rvx_irq_enable_global(RVX_PRIVILEGE_LEVEL_M);
   rvx_uart_send(RVX_UART_ADDRESS, tx_byte); // Send byte
   rvx_uart_wait_tx_done(RVX_UART_ADDRESS);  // Wait until transmission is complete
   while (!uart_received_byte_flag)          // Wait until UART interrupt handler sets the flag
     ;
-  rvx_irq_disable_global();
+  rvx_irq_disable_global(RVX_PRIVILEGE_LEVEL_M);
   uart_received_byte_flag = false;
   RVX_TEST_ASSERT_EQ(uart_received_byte, tx_byte);
 }

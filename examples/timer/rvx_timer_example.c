@@ -15,19 +15,18 @@ void main(void)
   // Configure pin 0 as output
   rvx_gpio_set_direction(RVX_GPIO_ADDRESS, 0, RVX_GPIO_OUTPUT);
 
-  // LEF initial state
-  bool led_state = true;                          // true = ON, false = OFF
-  rvx_gpio_write(RVX_GPIO_ADDRESS, 0, led_state); // Turn LED 0 ON initially
+  // Light up the LED initially
+  rvx_gpio_set_high(RVX_GPIO_ADDRESS, 0);
 
   // Configure the machine timer to generate an interrupt every second
   rvx_timer_disable(RVX_TIMER_ADDRESS);               // Disable while configuring is in progress
   rvx_timer_set_compare(RVX_TIMER_ADDRESS, 12000000); // Assuming CPU frequency is 12 MHz
   rvx_timer_clear_counter(RVX_TIMER_ADDRESS);
 
-  // Enable vectored interrupts and timer interrupt
-  rvx_irq_enable_vectored_mode();
-  rvx_irq_enable(RVX_IRQ_TIMER_BITMASK); // Enable M-mode Timer Interrupt specifically
-  rvx_irq_enable_global();               // Set global interrupt enable bit
+  // Enable vectored interrupt mode and timer interrupts in M-mode, then globally enable interrupts in M-mode
+  rvx_irq_set_mode(RVX_PRIVILEGE_LEVEL_M, RVX_INTERRUPT_MODE_VECTORED);
+  rvx_irq_enable(RVX_PRIVILEGE_LEVEL_M, RVX_IRQ_TIMER_BITMASK);
+  rvx_irq_enable_global(RVX_PRIVILEGE_LEVEL_M);
 
   // Start counting the time
   rvx_timer_enable(RVX_TIMER_ADDRESS);
@@ -36,8 +35,8 @@ void main(void)
   rvx_wait_for_interrupt();
 }
 
-// Provides a custom Machine Timer Interrupt Handler
-RVX_TRAP_HANDLER_M(rvx_trap_handler_timer_irq)
+// Provides a custom interrupt handler for timer interrupts in M-mode.
+RVX_TRAP_HANDLER_M(rvx_trap_handler_timer_m)
 {
   // Read LED 0 state and toggle it
   bool led_state = rvx_gpio_read(RVX_GPIO_ADDRESS, 0);
