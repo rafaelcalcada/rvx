@@ -19,7 +19,7 @@ void transfer_byte_interrupt(uint8_t tx_byte);
 // UART interrupt signal is connected to Fast Interrupt 0
 RVX_TRAP_HANDLER_M(rvx_trap_handler_fast_irq_0)
 {
-  uart_received_byte = rvx_uart_receive(RVX_UART_ADDRESS);
+  uart_received_byte = rvx_uart_read(RVX_UART_ADDRESS);
   uart_received_byte_flag = true;
 }
 
@@ -60,7 +60,7 @@ void run_rvx_hal_uart_test()
   // UART is connected in loopback, the data transmitted above should have been received
   rvx_test_start("\nTest 5: UART STATUS register flags new data is received. ");
   RVX_TEST_ASSERT(rvx_uart_data_available(RVX_UART_ADDRESS) == true);
-  RVX_TEST_ASSERT_EQ(rvx_uart_receive(RVX_UART_ADDRESS), '\n');        // This was the first character sent
+  RVX_TEST_ASSERT_EQ(rvx_uart_read(RVX_UART_ADDRESS), '\n');           // Why '\n'? This was the first character sent
   RVX_TEST_ASSERT(rvx_uart_data_available(RVX_UART_ADDRESS) == false); // RX ready flag should be cleared after read
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&uart_tests_error_count);
@@ -106,12 +106,10 @@ void transfer_byte_busy_wait(uint8_t tx_byte)
   rvx_test_print_byte(tx_byte);
   rvx_uart_send_string(RVX_UART_ADDRESS, " -- ASCII ");
   rvx_uart_wait_tx_done(RVX_UART_ADDRESS); // Ensure previous transmission is complete
-  rvx_uart_receive(RVX_UART_ADDRESS);      // Clear RX register
+  rvx_uart_read(RVX_UART_ADDRESS);         // Clear RX register
   RVX_TEST_ASSERT(rvx_uart_data_available(RVX_UART_ADDRESS) == false);
-  rvx_uart_send(RVX_UART_ADDRESS, tx_byte);          // Send byte
-  rvx_uart_wait_tx_done(RVX_UART_ADDRESS);           // Wait until transmission is complete
-  while (!rvx_uart_data_available(RVX_UART_ADDRESS)) // Wait for byte to be received
-    ;
+  rvx_uart_send(RVX_UART_ADDRESS, tx_byte); // Send byte
+  rvx_uart_wait_tx_done(RVX_UART_ADDRESS);  // Wait until transmission is complete
   RVX_TEST_ASSERT_EQ(rvx_uart_receive(RVX_UART_ADDRESS), tx_byte);
 }
 
