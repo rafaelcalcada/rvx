@@ -369,16 +369,16 @@ module rvx_core_csr_file #(
         csr_mcause_code           <= 5'd31;
         csr_mcause_interrupt_flag <= 1'b1;
       end
+      else if (csr_mstatus_mie & csr_mie_meie & csr_mip_meip) begin
+        csr_mcause_code           <= 5'd11;
+        csr_mcause_interrupt_flag <= 1'b1;
+      end
       else if (csr_mstatus_mie & csr_mie_msie & csr_mip_msip) begin
         csr_mcause_code           <= 5'd3;
         csr_mcause_interrupt_flag <= 1'b1;
       end
       else if (csr_mstatus_mie & csr_mie_mtie & csr_mip_mtip) begin
         csr_mcause_code           <= 5'd7;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_meie & csr_mip_meip) begin
-        csr_mcause_code           <= 5'd11;
         csr_mcause_interrupt_flag <= 1'b1;
       end
     end
