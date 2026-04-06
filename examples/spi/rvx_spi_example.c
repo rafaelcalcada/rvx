@@ -15,15 +15,17 @@ void main(void)
   rvx_uart_send_string(RVX_UART_ADDRESS,
                        "This example reads the manufacturer ID of the FPGA board's SPI flash memory.\n");
 
-  // Set SPI to MODE 0
-  rvx_spi_mode_set(RVX_SPI_ADDRESS, RVX_SPI_MODE_0);
+  // Initialize the SPI controller:
+  // - Mode 0 (CPOL = 0, CPHA = 0)
+  // - Frequency = sys_freq / [2 * (sclk_config + 1)] = 12 MHz / [2 * (5 + 1)] = 1 MHz
+  rvx_spi_init(RVX_SPI_ADDRESS, RVX_SPI_MODE_0, 5);
 
   // Read Manufacturer ID from SPI Flash
   rvx_uart_send_string(RVX_UART_ADDRESS, "\nReading Manufacturer ID from SPI Flash...\n");
-  rvx_spi_chip_select_assert(RVX_SPI_ADDRESS);
+  rvx_spi_assert_cs(RVX_SPI_ADDRESS);
   rvx_spi_write(RVX_SPI_ADDRESS, 0x9F);                       // 0x9F = Read Manufacturer ID command
   uint8_t read_val = rvx_spi_transfer(RVX_SPI_ADDRESS, 0x00); // Read Manufacturer ID
-  rvx_spi_chip_select_deassert(RVX_SPI_ADDRESS);
+  rvx_spi_deassert_cs(RVX_SPI_ADDRESS);
 
   // Print Manufacturer ID
   print_byte(read_val);
