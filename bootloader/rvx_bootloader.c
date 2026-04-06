@@ -21,7 +21,7 @@ RVX_NAKED void rvx_bootloader(void)
   uint8_t addr_byte_2 = (spi_boot_image_address >> 8) & 0xFF;
   uint8_t addr_byte_3 = spi_boot_image_address & 0xFF;
 
-  rvx_spi_chip_select_assert(RVX_SPI_ADDRESS);
+  rvx_spi_assert_cs(RVX_SPI_ADDRESS);
   rvx_spi_write(RVX_SPI_ADDRESS, 0x03); // Read Data command
   rvx_spi_write(RVX_SPI_ADDRESS, addr_byte_1);
   rvx_spi_write(RVX_SPI_ADDRESS, addr_byte_2);
@@ -37,7 +37,7 @@ RVX_NAKED void rvx_bootloader(void)
   // If not a valid RVX boot image, try booting from TCM instead
   if (rv32_magic_number != 0x52563332 || rvx4_magic_number != 0x52565834)
   {
-    rvx_spi_chip_select_deassert(RVX_SPI_ADDRESS);
+    rvx_spi_deassert_cs(RVX_SPI_ADDRESS);
     rv32_magic_number = *((volatile uint32_t *)(tcm_base_address));
     image_size = *((volatile uint32_t *)(tcm_base_address + 4));
     entry_point = *((volatile uint32_t *)(tcm_base_address + 8));
@@ -60,7 +60,7 @@ RVX_NAKED void rvx_bootloader(void)
     uint32_t word = read_word_from_spi();
     *((volatile uint32_t *)(tcm_base_address + i)) = word;
   }
-  rvx_spi_chip_select_deassert(RVX_SPI_ADDRESS);
+  rvx_spi_deassert_cs(RVX_SPI_ADDRESS);
 
   // Jump to entry point
   asm volatile("jr %0" : : "r"(entry_point));
