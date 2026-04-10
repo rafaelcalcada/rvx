@@ -18,10 +18,10 @@ void main(void)
   // Light up the LED initially
   rvx_gpio_set_high(RVX_GPIO_ADDRESS, 0);
 
-  // Configure the machine timer to generate an interrupt every second
-  rvx_timer_disable(RVX_TIMER_ADDRESS);               // Disable while configuring is in progress
+  // Configure the machine timer to generate an interrupt every 1 second
+  rvx_timer_stop(RVX_TIMER_ADDRESS);                  // Make sure the timer is stopped before configuring
   rvx_timer_set_compare(RVX_TIMER_ADDRESS, 12000000); // Assuming CPU frequency is 12 MHz
-  rvx_timer_clear_counter(RVX_TIMER_ADDRESS);
+  rvx_timer_set_counter(RVX_TIMER_ADDRESS, 0);        // Reset counter to 0 before starting
 
   // Enable vectored interrupt mode and timer interrupts in M-mode, then globally enable interrupts in M-mode
   rvx_irq_set_mode(RVX_PRIVILEGE_LEVEL_M, RVX_INTERRUPT_MODE_VECTORED);
@@ -29,7 +29,7 @@ void main(void)
   rvx_irq_enable_global(RVX_PRIVILEGE_LEVEL_M);
 
   // Start counting the time
-  rvx_timer_enable(RVX_TIMER_ADDRESS);
+  rvx_timer_start(RVX_TIMER_ADDRESS);
 
   // Wait for a timer interrupt
   rvx_wait_for_interrupt();
@@ -42,6 +42,6 @@ RVX_TRAP_HANDLER_M(rvx_trap_handler_timer_m)
   bool led_state = rvx_gpio_read(RVX_GPIO_ADDRESS, 0);
   rvx_gpio_write(RVX_GPIO_ADDRESS, 0, !led_state);
 
-  // Clear the timer counter to restart counting from zero
-  rvx_timer_clear_counter(RVX_TIMER_ADDRESS);
+  // Set the timer counter back to 0 to restart the timer for the next interrupt
+  rvx_timer_set_counter(RVX_TIMER_ADDRESS, 0);
 }

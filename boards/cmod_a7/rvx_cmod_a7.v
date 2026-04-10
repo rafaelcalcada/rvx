@@ -47,7 +47,8 @@ module rvx_cmod_a7 #(
   rvx #(
 
       .TCM_SIZE_IN_BYTES     (32768),
-      .SPI_BOOT_IMAGE_ADDRESS(32'h00300000),
+      .TCM_BOOT_IMAGE_PATH   ("rvx_timer_example.mem"),
+      .SPI_BOOT_IMAGE_ADDRESS(32'h00000000),
       .GPIO_WIDTH            (GPIO_WIDTH)
 
   ) rvx_instance (
