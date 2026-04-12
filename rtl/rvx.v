@@ -358,7 +358,7 @@ module rvx #(
       .scl_output(i2c_scl_output),
 
       // I2C interrupt request (connected to Fast Interrupt 1)
-      .irq(irq_i2c)
+      .i2c_irq(irq_i2c)
   );
 
 endmodule

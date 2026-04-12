@@ -25,7 +25,7 @@ module rvx_i2c (
     output reg  scl_output,
 
     // Interrupt request
-    output reg irq
+    output reg i2c_irq
 
 );
 
@@ -50,7 +50,7 @@ module rvx_i2c (
   reg                      i2c_run;
   reg                      i2c_run_strobe;
   reg  [COMMAND_WIDTH-1:0] command;
-  wire [ STATUS_WIDTH-1:0] status = {irq, rx_no_acknowledge, i2c_run | i2c_run_strobe};
+  wire [ STATUS_WIDTH-1:0] status = {i2c_irq, rx_no_acknowledge, i2c_run | i2c_run_strobe};
 
   // Commands
   // ---------------------------------------------------------------------------
@@ -171,7 +171,7 @@ module rvx_i2c (
       i2c_run           <= 1'b0;
       tx_no_acknowledge <= 1'b0;
       rx_no_acknowledge <= 1'b0;
-      irq               <= 1'b0;
+      i2c_irq           <= 1'b0;
       rx_data           <= {DATA_WIDTH{1'b0}};
       encode_count_max  <= {ENCODE_WIDTH{1'b0}};
     end
@@ -184,12 +184,12 @@ module rvx_i2c (
       end
 
       if (write_to_status_reg && write_data[`RVX_I2C_STATUS_BIT_IRQ]) begin
-        irq <= 1'b0;
+        i2c_irq <= 1'b0;
       end
 
       if (i2c_run && encode_count_ok && prescale_count_ok) begin
         i2c_run <= 1'b0;
-        irq     <= 1'b1;
+        i2c_irq <= 1'b1;
         if (is_command_data) begin
           rx_no_acknowledge <= rx_data_encode[0];
           rx_data           <= rx_data_encode[1+:DATA_WIDTH];

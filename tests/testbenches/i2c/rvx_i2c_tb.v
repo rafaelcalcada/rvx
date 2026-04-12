@@ -25,7 +25,7 @@ module rvx_i2c_tb ();
 
   // I2C signals
   wire           sda_output;
-  wire           irq;
+  wire           i2c_irq;
 
   // Test variables
   integer        error_count;
@@ -33,11 +33,10 @@ module rvx_i2c_tb ();
   // Clock generation
   localparam CLOCK_PERIOD = 20;
   initial clock = 1'b0;
-  initial reset_n = 1'b0;
   always #(CLOCK_PERIOD / 2) clock <= !clock;
 
   // verilator lint_off PINCONNECTEMPTY
-  rvx_i2c #() rvx_i2c_instance0 (
+  rvx_i2c rvx_i2c_instance (
 
       // Global signals
       .clock  (clock),
@@ -59,10 +58,10 @@ module rvx_i2c_tb ();
       .scl_output(),
 
       // Interrupt request
-      .irq(irq)
+      .i2c_irq(i2c_irq)
   );
 
-  rvx_i2c #() rvx_i2c_instance1 (
+  rvx_i2c rvx_i2c_instance1 (
 
       // Global signals
       .clock  (clock),
@@ -84,7 +83,7 @@ module rvx_i2c_tb ();
       .scl_output(),
 
       // Interrupt request
-      .irq()
+      .i2c_irq(i2c_irq)
   );
   // verilator lint_on PINCONNECTEMPTY
 
@@ -123,6 +122,7 @@ module rvx_i2c_tb ();
       #(CLOCK_PERIOD);
       read_request = 1'b0;
       rw_address   = 5'h00;
+      $display("");
       $display("Reading I2C register: %s", reg_name(address));
       $display("Read value: 0x%08h", read_data);
     end
@@ -132,6 +132,7 @@ module rvx_i2c_tb ();
     input [4:0] address;
     input [15:0] data;
     begin
+      $display("");
       $display("Writing I2C register: %s", reg_name(address));
       $display("Write value: 0x%08h", data);
       rw_address    = address;
@@ -167,7 +168,7 @@ module rvx_i2c_tb ();
     read_register(`RVX_I2C_STATUS_REG_ADDR);
     `RVX_ASSERT(read_data === 32'h0, "Register RVX_I2C_STATUS_REG_ADDR is not 0 after reset.")
 
-    `RVX_ASSERT(irq === 1'b0, "Irq is not clear after reset.")
+    `RVX_ASSERT(i2c_irq === 1'b0, "Irq is not clear after reset.")
 
     `RVX_TITLE("Test prescale");
     write_register(`RVX_I2C_PRESCALE_REG_ADDR, 16'h4);
@@ -197,7 +198,7 @@ module rvx_i2c_tb ();
     `RVX_ASSERT(read_data === 32'h4, "Register RVX_I2C_STATUS_REG_ADDR is not 0x00000004 after write.")
 
     `RVX_TITLE("Test set irq after run");
-    `RVX_ASSERT(irq === 1'b1, "Irq is not set")
+    `RVX_ASSERT(i2c_irq === 1'b1, "Irq is not set")
 
     `RVX_TITLE("Test restart");
     write_register(`RVX_I2C_COMMAND_REG_ADDR, `RVX_I2C_COMMAND_RESTART);
@@ -210,7 +211,7 @@ module rvx_i2c_tb ();
     #(CLOCK_PERIOD * 50);
 
     `RVX_TITLE("Test set irq after run");
-    `RVX_ASSERT(irq === 1'b1, "Irq is not set")
+    `RVX_ASSERT(i2c_irq === 1'b1, "Irq is not set")
 
     `RVX_TITLE("Test data");
     write_register(`RVX_I2C_DATA_REG_ADDR, 'h3);
@@ -224,7 +225,7 @@ module rvx_i2c_tb ();
     `RVX_ASSERT(read_data === 32'h6, "Register RVX_I2C_STATUS_REG_ADDR is not 0x00000006 after write.")
 
     `RVX_TITLE("Test set irq after run");
-    `RVX_ASSERT(irq === 1'b1, "Irq is not set")
+    `RVX_ASSERT(i2c_irq === 1'b1, "Irq is not set")
 
     `RVX_TITLE("Test stop");
     write_register(`RVX_I2C_DATA_REG_ADDR, 'h0);
@@ -235,7 +236,7 @@ module rvx_i2c_tb ();
     #(CLOCK_PERIOD);
 
     `RVX_TITLE("Test clear irq");
-    `RVX_ASSERT(irq === 1'b0, "Irq is not clear")
+    `RVX_ASSERT(i2c_irq === 1'b0, "Irq is not clear")
 
     #(CLOCK_PERIOD * 50);
 
