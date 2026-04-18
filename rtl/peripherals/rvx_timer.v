@@ -32,28 +32,16 @@ module rvx_timer (
   reg [63:0] counter;
   reg [63:0] compare;
 
-  // Write and read responses
-  // ---------------------------------------------------------------------------
-
-  always @(posedge clock) begin
-    if (!reset_n) begin
-      read_response  <= 1'b0;
-      write_response <= 1'b0;
-    end
-    else begin
-      read_response  <= read_request;
-      write_response <= write_request;
-    end
-  end
-
   // Register read logic
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (!reset_n) begin
-      read_data <= 32'h00000000;
+    if (!reset_n || !read_request) begin
+      read_response <= 1'b0;
+      read_data     <= 32'h00000000;
     end
     else if (read_request == 1'b1) begin
+      read_response <= 1'b1;
       case (rw_address[4:0])
         `RVX_TIMER_COUNTER_ENABLE_REG_ADDR: read_data <= {31'b0, counter_enable};
         `RVX_TIMER_COUNTERL_REG_ADDR:       read_data <= counter[31:0];
@@ -74,10 +62,12 @@ module rvx_timer (
 
   always @(posedge clock) begin
     if (!reset_n) begin
+      write_response <= 1'b0;
       counter_enable <= 1'b1;
       compare[63:0]  <= 64'hffffffff_ffffffff;
     end
     else if (valid_write_request == 1'b1) begin
+      write_response <= 1'b1;
       case (rw_address[4:0])
         `RVX_TIMER_COUNTER_ENABLE_REG_ADDR: counter_enable <= write_data[0];
         `RVX_TIMER_COMPAREL_REG_ADDR:       compare[31:0] <= write_data;
@@ -85,6 +75,7 @@ module rvx_timer (
         default:                            ;
       endcase
     end
+    else write_response <= 1'b0;
   end
 
   // Counter logic

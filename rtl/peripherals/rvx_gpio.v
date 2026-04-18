@@ -30,28 +30,16 @@ module rvx_gpio #(
 
 );
 
-  // Write and read responses
-  // ---------------------------------------------------------------------------
-
-  always @(posedge clock) begin
-    if (!reset_n) begin
-      read_response  <= 1'b0;
-      write_response <= 1'b0;
-    end
-    else begin
-      read_response  <= read_request;
-      write_response <= write_request;
-    end
-  end
-
   // Register read logic
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (!reset_n) begin
-      read_data <= 32'h00000000;
+    if (!reset_n || !read_request) begin
+      read_response <= 1'b0;
+      read_data     <= 32'h00000000;
     end
     else if (read_request == 1'b1) begin
+      read_response <= 1'b1;
       case (rw_address[4:0])
         `RVX_GPIO_READ_REG_ADDR: begin
           read_data <= {
@@ -73,21 +61,21 @@ module rvx_gpio #(
 
   always @(posedge clock) begin
     if (!reset_n) begin
+      write_response     <= 1'b0;
       gpio_output_enable <= {GPIO_WIDTH{1'b0}};
       gpio_output        <= {GPIO_WIDTH{1'b0}};
     end
     else if (valid_write_request == 1'b1) begin
+      write_response <= 1'b1;
       case (rw_address[4:0])
         `RVX_GPIO_OUTPUT_ENABLE_REG_ADDR: gpio_output_enable <= write_data[0+:GPIO_WIDTH];
         `RVX_GPIO_OUTPUT_REG_ADDR:        gpio_output <= write_data[0+:GPIO_WIDTH];
         `RVX_GPIO_CLEAR_REG_ADDR:         gpio_output <= gpio_output & ~write_data[0+:GPIO_WIDTH];
         `RVX_GPIO_SET_REG_ADDR:           gpio_output <= gpio_output | write_data[0+:GPIO_WIDTH];
-        default: begin
-          gpio_output_enable <= gpio_output_enable;
-          gpio_output        <= gpio_output;
-        end
+        default:                          ;
       endcase
     end
+    else write_response <= 1'b0;
   end
 
 endmodule

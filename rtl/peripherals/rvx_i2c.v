@@ -95,28 +95,16 @@ module rvx_i2c (
   reg  [  ENCODE_WIDTH-1:0] encode_count_max;
   wire                      encode_count_ok = (encode_counter == encode_count_max);
 
-  // Write and read responses
-  // ---------------------------------------------------------------------------
-
-  always @(posedge clock) begin
-    if (!reset_n) begin
-      read_response  <= 1'b0;
-      write_response <= 1'b0;
-    end
-    else begin
-      read_response  <= read_request;
-      write_response <= write_request;
-    end
-  end
-
   // Register read logic
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (!reset_n) begin
-      read_data <= 32'h0;
+    if (!reset_n || !read_request) begin
+      read_response <= 1'b0;
+      read_data     <= 32'h0;
     end
     else if (read_request == 1'b1) begin
+      read_response <= 1'b1;
       case (rw_address)
         `RVX_I2C_PRESCALE_REG_ADDR: read_data <= {{32 - PRESCALE_WIDTH{1'b0}}, prescale};
         `RVX_I2C_DATA_REG_ADDR:     read_data <= {{32 - DATA_WIDTH{1'b0}}, rx_data};
@@ -135,29 +123,21 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      prescale <= {PRESCALE_WIDTH{1'b0}};
+      prescale       <= {PRESCALE_WIDTH{1'b0}};
+      tx_data        <= {DATA_WIDTH{1'b0}};
+      command        <= {COMMAND_WIDTH{1'b0}};
+      write_response <= 1'b0;
     end
-    else if (rw_address == `RVX_I2C_PRESCALE_REG_ADDR && valid_write_request == 1'b1) begin
-      prescale <= write_data[0+:PRESCALE_WIDTH];
+    else if (valid_write_request == 1'b1) begin
+      write_response <= 1'b1;
+      case (rw_address)
+        `RVX_I2C_PRESCALE_REG_ADDR: prescale <= write_data[0+:PRESCALE_WIDTH];
+        `RVX_I2C_DATA_REG_ADDR:     tx_data <= write_data[0+:DATA_WIDTH];
+        `RVX_I2C_COMMAND_REG_ADDR:  command <= write_data[0+:COMMAND_WIDTH];
+        default:                    ;
+      endcase
     end
-  end
-
-  always @(posedge clock) begin
-    if (!reset_n) begin
-      tx_data <= {DATA_WIDTH{1'b0}};
-    end
-    else if (rw_address == `RVX_I2C_DATA_REG_ADDR && valid_write_request == 1'b1) begin
-      tx_data <= write_data[0+:DATA_WIDTH];
-    end
-  end
-
-  always @(posedge clock) begin
-    if (!reset_n) begin
-      command <= COMMAND_START;
-    end
-    else if (rw_address == `RVX_I2C_COMMAND_REG_ADDR && valid_write_request == 1'b1) begin
-      command <= write_data[0+:COMMAND_WIDTH];
-    end
+    else write_response <= 1'b0;
   end
 
   // Run and stop logics
