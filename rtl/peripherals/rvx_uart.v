@@ -29,40 +29,28 @@ module rvx_uart (
 );
 
   // Signals and registers
-  reg [31:0] cycles_per_baud;
-  reg [31:0] tx_cycle_counter;
-  reg [31:0] rx_cycle_counter;
-  reg [ 3:0] tx_bit_counter;
-  reg [ 3:0] rx_bit_counter;
-  reg [ 9:0] tx_register;
-  reg [ 7:0] rx_register;
-  reg [ 7:0] rx_data;
-  reg        rx_started;
-
-  // Write and read responses
-  // ---------------------------------------------------------------------------
-
-  always @(posedge clock) begin
-    if (!reset_n) begin
-      read_response  <= 1'b0;
-      write_response <= 1'b0;
-    end
-    else begin
-      read_response  <= read_request;
-      write_response <= write_request;
-    end
-  end
+  reg  [31:0] cycles_per_baud;
+  reg  [31:0] tx_cycle_counter;
+  reg  [31:0] rx_cycle_counter;
+  reg  [ 3:0] tx_bit_counter;
+  reg  [ 3:0] rx_bit_counter;
+  reg  [ 9:0] tx_register;
+  reg  [ 7:0] rx_register;
+  reg  [ 7:0] rx_data;
+  reg         rx_started;
 
   // Register read logic
   // ---------------------------------------------------------------------------
 
-  wire ready_to_send = (tx_bit_counter == 0) && (cycles_per_baud != 0);
+  wire        ready_to_send = (tx_bit_counter == 0) && (cycles_per_baud != 0);
 
   always @(posedge clock) begin
-    if (!reset_n) begin
-      read_data <= 32'h00000000;
+    if (!reset_n || !read_request) begin
+      read_response <= 1'b0;
+      read_data     <= 32'h00000000;
     end
     else if (read_request == 1'b1) begin
+      read_response <= 1'b1;
       case (rw_address[4:0])
         `RVX_UART_READ_REG_ADDR:   read_data <= {24'b0, rx_data};
         `RVX_UART_STATUS_REG_ADDR: read_data <= {30'b0, uart_irq, ready_to_send};
@@ -80,11 +68,17 @@ module rvx_uart (
 
   always @(posedge clock) begin
     if (!reset_n) begin
+      write_response  <= 1'b0;
       cycles_per_baud <= 0;
     end
-    else if (rw_address == `RVX_UART_BAUD_REG_ADDR && valid_write_request == 1'b1) begin
-      cycles_per_baud <= write_data;
+    else if (valid_write_request == 1'b1) begin
+      write_response <= 1'b1;
+      case (rw_address[4:0])
+        `RVX_UART_BAUD_REG_ADDR: cycles_per_baud <= write_data;
+        default:                 ;
+      endcase
     end
+    else write_response <= 1'b0;
   end
 
   // TX logic

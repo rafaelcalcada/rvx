@@ -34,40 +34,30 @@ module rvx_spi (
   localparam STATE_CPOL_N = 4'b1000;
 
   // Signals and registers
-  reg       cpol;
-  reg       cpha;
-  reg       start_flag;
-  reg       chip_select;
-  reg       leading_cycle;
-  reg [3:0] spi_state;
-  reg [7:0] tx_reg;
-  reg [7:0] rx_reg;
-  reg [3:0] bit_counter;
-  reg [7:0] cycle_counter;
-  reg [7:0] clock_div;
-
-  // Write and read responses
-  // ---------------------------------------------------------------------------
-
-  always @(posedge clock) begin
-    if (!reset_n) begin
-      read_response  <= 1'b0;
-      write_response <= 1'b0;
-    end
-    else begin
-      read_response  <= read_request;
-      write_response <= write_request;
-    end
-  end
+  reg        cpol;
+  reg        cpha;
+  reg        start_flag;
+  reg        chip_select;
+  reg        leading_cycle;
+  reg  [3:0] spi_state;
+  reg  [7:0] tx_reg;
+  reg  [7:0] rx_reg;
+  reg  [3:0] bit_counter;
+  reg  [7:0] cycle_counter;
+  reg  [7:0] clock_div;
 
   // Register read logic
   // ---------------------------------------------------------------------------
 
-  wire busy = spi_state == STATE_CPOL || spi_state == STATE_CPOL_N || start_flag == 1'b1;
+  wire       busy = spi_state == STATE_CPOL || spi_state == STATE_CPOL_N || start_flag == 1'b1;
 
   always @(posedge clock) begin
-    if (!reset_n) read_data <= 32'hdeadbeef;
+    if (!reset_n || !read_request) begin
+      read_response <= 1'b0;
+      read_data     <= 32'h00000000;
+    end
     else if (read_request == 1'b1) begin
+      read_response <= 1'b1;
       case (rw_address)
         `RVX_SPI_MODE_REG_ADDR:        read_data <= {30'b0, cpol, cpha};
         `RVX_SPI_CHIP_SELECT_REG_ADDR: read_data <= {31'b0, chip_select};
@@ -78,7 +68,10 @@ module rvx_spi (
         default:                       read_data <= 32'h00000000;
       endcase
     end
-    else read_data <= write_data;
+    else begin
+      read_response <= 1'b0;
+      read_data     <= write_data;
+    end
   end
 
   // Register write logic
@@ -89,12 +82,14 @@ module rvx_spi (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      cpol        <= 1'b0;
-      cpha        <= 1'b0;
-      chip_select <= 1'b1;
-      clock_div   <= 8'h00;
+      write_response <= 1'b0;
+      cpol           <= 1'b0;
+      cpha           <= 1'b0;
+      chip_select    <= 1'b1;
+      clock_div      <= 8'h00;
     end
     else if (valid_write_request == 1'b1) begin
+      write_response <= 1'b1;
       case (rw_address)
         `RVX_SPI_MODE_REG_ADDR: begin
           cpha <= write_data[0];
@@ -106,14 +101,10 @@ module rvx_spi (
         `RVX_SPI_DIVIDER_REG_ADDR: begin
           clock_div <= write_data[7:0];
         end
-        default: begin
-          cpol        <= cpol;
-          cpha        <= cpha;
-          chip_select <= chip_select;
-          clock_div   <= clock_div;
-        end
+        default: ;
       endcase
     end
+    else write_response <= 1'b0;
   end
 
   // Transmission start logic
