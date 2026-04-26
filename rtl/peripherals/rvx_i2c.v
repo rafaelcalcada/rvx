@@ -32,29 +32,24 @@ module rvx_i2c (
   // Data and encode preparation
   // ---------------------------------------------------------------------------
 
-  reg  [7:0] tx_data;
-  reg        tx_no_acknowledge;
-  wire [8:0] tx_data_encode = {tx_data, tx_no_acknowledge};
-  reg  [7:0] rx_data;
-  reg        rx_no_acknowledge;
-  wire [8:0] rx_data_encode;
-  reg        i2c_run;
-  reg        i2c_run_strobe;
-  reg  [1:0] command;
-  wire [2:0] status = {i2c_irq, rx_no_acknowledge, i2c_run | i2c_run_strobe};
+  reg  [ 7:0] tx_data;
+  reg         tx_no_acknowledge;
+  wire [ 8:0] tx_data_encode = {tx_data, tx_no_acknowledge};
+  reg  [ 7:0] rx_data;
+  reg         rx_no_acknowledge;
+  wire [ 8:0] rx_data_encode;
+  reg         i2c_run;
+  reg         i2c_run_strobe;
+  reg  [ 2:0] command;
+  wire [ 2:0] status = {i2c_irq, rx_no_acknowledge, i2c_run | i2c_run_strobe};
 
   // Commands
   // ---------------------------------------------------------------------------
 
-  localparam COMMAND_START = 2'b00;
-  localparam COMMAND_RESTART = 2'b01;
-  localparam COMMAND_STOP = 2'b10;
-  localparam COMMAND_DATA = 2'b11;
-
-  wire        command_is_start = (command == COMMAND_START);
-  wire        command_is_restart = (command == COMMAND_RESTART);
-  wire        command_is_stop = (command == COMMAND_STOP);
-  wire        command_is_data = (command == COMMAND_DATA);
+  wire        command_is_start = (command == `RVX_I2C_COMMAND_START);
+  wire        command_is_restart = (command == `RVX_I2C_COMMAND_RESTART);
+  wire        command_is_stop = (command == `RVX_I2C_COMMAND_STOP);
+  wire        command_is_data = (command == `RVX_I2C_COMMAND_DATA);
 
   reg  [ 7:0] sda_start_encode;
   reg  [ 7:0] scl_start_encode;
@@ -99,7 +94,7 @@ module rvx_i2c (
       case (rw_address)
         `RVX_I2C_PRESCALE_REG_ADDR: read_data <= {16'b0, prescale};
         `RVX_I2C_DATA_REG_ADDR:     read_data <= {24'b0, rx_data};
-        `RVX_I2C_COMMAND_REG_ADDR:  read_data <= {30'b0, command};
+        `RVX_I2C_COMMAND_REG_ADDR:  read_data <= {29'b0, command};
         `RVX_I2C_STATUS_REG_ADDR:   read_data <= {29'b0, status};
         default:                    read_data <= {32'b0};
       endcase
@@ -116,7 +111,7 @@ module rvx_i2c (
     if (!reset_n) begin
       prescale       <= 16'b0;
       tx_data        <= 8'b0;
-      command        <= 2'b00;
+      command        <= `RVX_I2C_COMMAND_NOP;
       write_response <= 1'b0;
     end
     else if (valid_write_request == 1'b1) begin
@@ -124,7 +119,7 @@ module rvx_i2c (
       case (rw_address)
         `RVX_I2C_PRESCALE_REG_ADDR: prescale <= write_data[15:0];
         `RVX_I2C_DATA_REG_ADDR:     tx_data <= write_data[7:0];
-        `RVX_I2C_COMMAND_REG_ADDR:  command <= write_data[1:0];
+        `RVX_I2C_COMMAND_REG_ADDR:  command <= write_data[2:0];
         default:                    ;
       endcase
     end
@@ -151,7 +146,7 @@ module rvx_i2c (
 
       if (write_to_status_reg) begin
         i2c_run_strobe    <= write_data[`RVX_I2C_STATUS_BIT_RUN];
-        tx_no_acknowledge <= write_data[`RVX_I2C_STATUS_BIT_NOACKNOWLEDGE];
+        tx_no_acknowledge <= write_data[`RVX_I2C_STATUS_BIT_NACK];
       end
 
       if (write_to_status_reg && write_data[`RVX_I2C_STATUS_BIT_IRQ]) begin

@@ -178,7 +178,8 @@ module rvx_i2c_tb ();
     `RVX_TITLE("Test start");
     write_register(`RVX_I2C_COMMAND_REG_ADDR, `RVX_I2C_COMMAND_START);
     read_register(`RVX_I2C_COMMAND_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h0, "Register RVX_I2C_COMMAND_REG_ADDR is not 0x00000000 after write.")
+    `RVX_ASSERT(read_data === `RVX_I2C_COMMAND_START,
+                "Register RVX_I2C_COMMAND_REG_ADDR is not 0x00000001 after write.")
 
     write_register(`RVX_I2C_STATUS_REG_ADDR, `RVX_I2C_STATUS_MASK_RUN);
     #(CLOCK_PERIOD * 4);
@@ -203,7 +204,8 @@ module rvx_i2c_tb ();
     `RVX_TITLE("Test restart");
     write_register(`RVX_I2C_COMMAND_REG_ADDR, `RVX_I2C_COMMAND_RESTART);
     read_register(`RVX_I2C_COMMAND_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h1, "Register RVX_I2C_COMMAND_REG_ADDR is not 0x00000001 after write.")
+    `RVX_ASSERT(read_data === `RVX_I2C_COMMAND_RESTART,
+                "Register RVX_I2C_COMMAND_REG_ADDR is not 0x00000002 after write.")
 
     write_register(`RVX_I2C_STATUS_REG_ADDR, `RVX_I2C_STATUS_MASK_RUN);
     read_register(`RVX_I2C_STATUS_REG_ADDR);
@@ -216,7 +218,7 @@ module rvx_i2c_tb ();
     `RVX_TITLE("Test data");
     write_register(`RVX_I2C_DATA_REG_ADDR, 'h3);
     write_register(`RVX_I2C_COMMAND_REG_ADDR, `RVX_I2C_COMMAND_DATA);
-    write_register(`RVX_I2C_STATUS_REG_ADDR, `RVX_I2C_STATUS_MASK_RUN | `RVX_I2C_STATUS_MASK_NOACKNOWLEDGE);
+    write_register(`RVX_I2C_STATUS_REG_ADDR, `RVX_I2C_STATUS_MASK_RUN | `RVX_I2C_STATUS_MASK_NACK);
     #(CLOCK_PERIOD * 200);
 
     read_register(`RVX_I2C_DATA_REG_ADDR);
