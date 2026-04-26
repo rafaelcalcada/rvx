@@ -221,18 +221,22 @@
 `define RVX_I2C_DATA_REG_ADDR 5'h04
 `define RVX_I2C_COMMAND_REG_ADDR 5'h08
 `define RVX_I2C_STATUS_REG_ADDR 5'h0c
-// I2C register status bits map
+
+// I2C register status bit positions
 `define RVX_I2C_STATUS_BIT_RUN 0
-`define RVX_I2C_STATUS_BIT_NOACKNOWLEDGE 1
+`define RVX_I2C_STATUS_BIT_NACK 1
 `define RVX_I2C_STATUS_BIT_IRQ 2
-// I2C register status mask map
+
+// I2C register status bit masks
 `define RVX_I2C_STATUS_MASK_RUN 16'h1
-`define RVX_I2C_STATUS_MASK_NOACKNOWLEDGE 16'h2
+`define RVX_I2C_STATUS_MASK_NACK 16'h2
 `define RVX_I2C_STATUS_MASK_IRQ 16'h4
-// I2C register command map
-`define RVX_I2C_COMMAND_START 16'h0
-`define RVX_I2C_COMMAND_RESTART 16'h1
-`define RVX_I2C_COMMAND_STOP 16'h2
-`define RVX_I2C_COMMAND_DATA 16'h3
+
+// I2C register command encodings
+`define RVX_I2C_COMMAND_NOP 0
+`define RVX_I2C_COMMAND_START 1
+`define RVX_I2C_COMMAND_RESTART 2
+`define RVX_I2C_COMMAND_STOP 3
+`define RVX_I2C_COMMAND_DATA 4
 
 `endif
