@@ -29,41 +29,32 @@ module rvx_i2c (
 
 );
 
-  // Internal constants
-  // ---------------------------------------------------------------------------
-
-  localparam PRESCALE_WIDTH = 16;
-  localparam DATA_WIDTH = 8;
-  localparam COMMAND_WIDTH = 2;
-  localparam STATUS_WIDTH = 3;
-  localparam ENCODE_WIDTH = 6;
-
   // Data and encode preparation
   // ---------------------------------------------------------------------------
 
-  reg  [   DATA_WIDTH-1:0] tx_data;
-  reg                      tx_no_acknowledge;
-  wire [     DATA_WIDTH:0] tx_data_encode = {tx_data, tx_no_acknowledge};
-  reg  [   DATA_WIDTH-1:0] rx_data;
-  reg                      rx_no_acknowledge;
-  wire [     DATA_WIDTH:0] rx_data_encode;
-  reg                      i2c_run;
-  reg                      i2c_run_strobe;
-  reg  [COMMAND_WIDTH-1:0] command;
-  wire [ STATUS_WIDTH-1:0] status = {i2c_irq, rx_no_acknowledge, i2c_run | i2c_run_strobe};
+  reg  [7:0] tx_data;
+  reg        tx_no_acknowledge;
+  wire [8:0] tx_data_encode = {tx_data, tx_no_acknowledge};
+  reg  [7:0] rx_data;
+  reg        rx_no_acknowledge;
+  wire [8:0] rx_data_encode;
+  reg        i2c_run;
+  reg        i2c_run_strobe;
+  reg  [1:0] command;
+  wire [2:0] status = {i2c_irq, rx_no_acknowledge, i2c_run | i2c_run_strobe};
 
   // Commands
   // ---------------------------------------------------------------------------
 
-  localparam COMMAND_START = 2'd0;
-  localparam COMMAND_RESTART = 2'd1;
-  localparam COMMAND_STOP = 2'd2;
-  localparam COMMAND_DATA = 2'd3;
+  localparam COMMAND_START = 2'b00;
+  localparam COMMAND_RESTART = 2'b01;
+  localparam COMMAND_STOP = 2'b10;
+  localparam COMMAND_DATA = 2'b11;
 
-  wire        is_command_start = (command == COMMAND_START);
-  wire        is_command_restart = (command == COMMAND_RESTART);
-  wire        is_command_stop = (command == COMMAND_STOP);
-  wire        is_command_data = (command == COMMAND_DATA);
+  wire        command_is_start = (command == COMMAND_START);
+  wire        command_is_restart = (command == COMMAND_RESTART);
+  wire        command_is_stop = (command == COMMAND_STOP);
+  wire        command_is_data = (command == COMMAND_DATA);
 
   reg  [ 7:0] sda_start_encode;
   reg  [ 7:0] scl_start_encode;
@@ -87,13 +78,13 @@ module rvx_i2c (
 
   // Prescale counters
   // ---------------------------------------------------------------------------
-  reg  [PRESCALE_WIDTH-1:0] prescale;
-  reg  [PRESCALE_WIDTH-1:0] prescale_counter;
-  wire                      prescale_count_ok = (prescale_counter == prescale);
+  reg  [15:0] prescale;
+  reg  [15:0] prescale_counter;
+  wire        prescale_count_ok = (prescale_counter == prescale);
 
-  reg  [  ENCODE_WIDTH-1:0] encode_counter;
-  reg  [  ENCODE_WIDTH-1:0] encode_count_max;
-  wire                      encode_count_ok = (encode_counter == encode_count_max);
+  reg  [ 5:0] encode_counter;
+  reg  [ 5:0] encode_count_max;
+  wire        encode_count_ok = (encode_counter == encode_count_max);
 
   // Register read logic
   // ---------------------------------------------------------------------------
@@ -101,16 +92,16 @@ module rvx_i2c (
   always @(posedge clock) begin
     if (!reset_n || !read_request) begin
       read_response <= 1'b0;
-      read_data     <= 32'h0;
+      read_data     <= 32'b0;
     end
     else if (read_request == 1'b1) begin
       read_response <= 1'b1;
       case (rw_address)
-        `RVX_I2C_PRESCALE_REG_ADDR: read_data <= {{32 - PRESCALE_WIDTH{1'b0}}, prescale};
-        `RVX_I2C_DATA_REG_ADDR:     read_data <= {{32 - DATA_WIDTH{1'b0}}, rx_data};
-        `RVX_I2C_COMMAND_REG_ADDR:  read_data <= {{32 - COMMAND_WIDTH{1'b0}}, command};
-        `RVX_I2C_STATUS_REG_ADDR:   read_data <= {{32 - STATUS_WIDTH{1'b0}}, status};
-        default:                    read_data <= 32'h0;
+        `RVX_I2C_PRESCALE_REG_ADDR: read_data <= {16'b0, prescale};
+        `RVX_I2C_DATA_REG_ADDR:     read_data <= {24'b0, rx_data};
+        `RVX_I2C_COMMAND_REG_ADDR:  read_data <= {30'b0, command};
+        `RVX_I2C_STATUS_REG_ADDR:   read_data <= {29'b0, status};
+        default:                    read_data <= {32'b0};
       endcase
     end
   end
@@ -123,17 +114,17 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      prescale       <= {PRESCALE_WIDTH{1'b0}};
-      tx_data        <= {DATA_WIDTH{1'b0}};
-      command        <= {COMMAND_WIDTH{1'b0}};
+      prescale       <= 16'b0;
+      tx_data        <= 8'b0;
+      command        <= 2'b00;
       write_response <= 1'b0;
     end
     else if (valid_write_request == 1'b1) begin
       write_response <= 1'b1;
       case (rw_address)
-        `RVX_I2C_PRESCALE_REG_ADDR: prescale <= write_data[0+:PRESCALE_WIDTH];
-        `RVX_I2C_DATA_REG_ADDR:     tx_data <= write_data[0+:DATA_WIDTH];
-        `RVX_I2C_COMMAND_REG_ADDR:  command <= write_data[0+:COMMAND_WIDTH];
+        `RVX_I2C_PRESCALE_REG_ADDR: prescale <= write_data[15:0];
+        `RVX_I2C_DATA_REG_ADDR:     tx_data <= write_data[7:0];
+        `RVX_I2C_COMMAND_REG_ADDR:  command <= write_data[1:0];
         default:                    ;
       endcase
     end
@@ -152,8 +143,8 @@ module rvx_i2c (
       tx_no_acknowledge <= 1'b0;
       rx_no_acknowledge <= 1'b0;
       i2c_irq           <= 1'b0;
-      rx_data           <= {DATA_WIDTH{1'b0}};
-      encode_count_max  <= {ENCODE_WIDTH{1'b0}};
+      rx_data           <= 8'b0;
+      encode_count_max  <= 6'b0;
     end
     else begin
       i2c_run_strobe <= 1'b0;
@@ -170,18 +161,18 @@ module rvx_i2c (
       if (i2c_run && encode_count_ok && prescale_count_ok) begin
         i2c_run <= 1'b0;
         i2c_irq <= 1'b1;
-        if (is_command_data) begin
+        if (command_is_data) begin
           rx_no_acknowledge <= rx_data_encode[0];
-          rx_data           <= rx_data_encode[1+:DATA_WIDTH];
+          rx_data           <= rx_data_encode[8:1];
         end
       end
 
       if (i2c_run_strobe) begin
         i2c_run <= 1'b1;
-        if (is_command_start || is_command_restart || is_command_stop) begin
+        if (command_is_start || command_is_restart || command_is_stop) begin
           encode_count_max <= 6'd6;
         end
-        if (is_command_data) begin
+        if (command_is_data) begin
           encode_count_max <= 6'd35;
         end
       end
@@ -192,7 +183,7 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (is_command_start && prescale_count_ok && !encode_count_ok) begin
+    if (command_is_start && prescale_count_ok && !encode_count_ok) begin
       sda_start_encode <= {sda_start_encode[0+:7], sda_start_encode[7]};
       scl_start_encode <= {scl_start_encode[0+:7], scl_start_encode[7]};
     end
@@ -207,7 +198,7 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (is_command_restart && prescale_count_ok && !encode_count_ok) begin
+    if (command_is_restart && prescale_count_ok && !encode_count_ok) begin
       sda_restart_encode <= {sda_restart_encode[0+:7], sda_restart_encode[7]};
       scl_restart_encode <= {scl_restart_encode[0+:7], scl_restart_encode[7]};
     end
@@ -222,7 +213,7 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (is_command_stop && prescale_count_ok && !encode_count_ok) begin
+    if (command_is_stop && prescale_count_ok && !encode_count_ok) begin
       sda_stop_encode <= {sda_stop_encode[0+:7], sda_stop_encode[7]};
       scl_stop_encode <= {scl_stop_encode[0+:7], scl_stop_encode[7]};
     end
@@ -237,7 +228,7 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (is_command_data && prescale_count_ok && !encode_count_ok) begin
+    if (command_is_data && prescale_count_ok && !encode_count_ok) begin
       sda_data_encode <= {sda_data_encode[0+:35], sda_input};
       scl_data_encode <= {scl_data_encode[0+:35], 1'b0};
     end
@@ -257,22 +248,22 @@ module rvx_i2c (
       scl_output <= 1'b1;
     end
     else begin
-      if (is_command_start && i2c_run) begin
+      if (command_is_start && i2c_run) begin
         sda_output <= sda_start_encode[7];
         scl_output <= scl_start_encode[7];
       end
 
-      if (is_command_restart && i2c_run) begin
+      if (command_is_restart && i2c_run) begin
         sda_output <= sda_restart_encode[7];
         scl_output <= scl_restart_encode[7];
       end
 
-      if (is_command_stop && i2c_run) begin
+      if (command_is_stop && i2c_run) begin
         sda_output <= sda_stop_encode[7];
         scl_output <= scl_stop_encode[7];
       end
 
-      if (is_command_data && i2c_run) begin
+      if (command_is_data && i2c_run) begin
         sda_output <= sda_data_encode[35];
         scl_output <= scl_data_encode[35];
       end
@@ -284,18 +275,18 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      prescale_counter <= {PRESCALE_WIDTH{1'b0}};
-      encode_counter   <= {ENCODE_WIDTH{1'b0}};
+      prescale_counter <= 16'b0;
+      encode_counter   <= 6'b0;
     end
     else begin
       prescale_counter <= prescale_counter + 1'h1;
       if (prescale_count_ok) begin
-        prescale_counter <= {PRESCALE_WIDTH{1'b0}};
+        prescale_counter <= 16'b0;
         encode_counter   <= encode_counter + 1'h1;
       end
       if (!i2c_run || (prescale_count_ok && encode_count_ok)) begin
-        prescale_counter <= {PRESCALE_WIDTH{1'b0}};
-        encode_counter   <= {ENCODE_WIDTH{1'b0}};
+        prescale_counter <= 16'b0;
+        encode_counter   <= 6'b0;
       end
     end
   end
