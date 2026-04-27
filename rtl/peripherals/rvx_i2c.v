@@ -51,35 +51,35 @@ module rvx_i2c (
   wire        command_is_stop = (command == `RVX_I2C_COMMAND_STOP);
   wire        command_is_data = (command == `RVX_I2C_COMMAND_DATA);
 
-  reg  [ 7:0] sda_start_encode;
-  reg  [ 7:0] scl_start_encode;
-  reg  [ 7:0] sda_restart_encode;
-  reg  [ 7:0] scl_restart_encode;
-  reg  [ 7:0] sda_stop_encode;
-  reg  [ 7:0] scl_stop_encode;
-  reg  [35:0] sda_data_encode;
-  reg  [35:0] scl_data_encode;
-  wire [35:0] sda_data_encode_value;
-  wire [35:0] scl_data_encode_value;
+  reg  [ 3:0] sda_start_encode;
+  reg  [ 3:0] scl_start_encode;
+  reg  [ 3:0] sda_restart_encode;
+  reg  [ 3:0] scl_restart_encode;
+  reg  [ 3:0] sda_stop_encode;
+  reg  [ 3:0] scl_stop_encode;
+  reg  [17:0] sda_data_encode;
+  reg  [17:0] scl_data_encode;
+  wire [17:0] sda_data_encode_value;
+  wire [17:0] scl_data_encode_value;
 
   genvar i;
   generate
     for (i = 0; i < 9; i = i + 1) begin : out
-      assign sda_data_encode_value[(i*4)+:4] = {4{tx_data_encode[i]}};
-      assign scl_data_encode_value[(i*4)+:4] = 4'b0110;
-      assign rx_data_encode[i]               = sda_data_encode[(i*4)];
+      assign sda_data_encode_value[(i*2)+:2] = {2{tx_data_encode[i]}};
+      assign scl_data_encode_value[(i*2)+:2] = 2'b01;
+      assign rx_data_encode[i]               = sda_data_encode[(i*2)];
     end
   endgenerate
 
-  // Prescale counters
+  // Counters
   // ---------------------------------------------------------------------------
-  reg  [15:0] prescale;
-  reg  [15:0] prescale_counter;
-  wire        prescale_count_ok = (prescale_counter == prescale);
+  reg  [15:0] divider;
+  reg  [15:0] cycle_counter;
+  wire        shift_enable = (cycle_counter == divider);
 
-  reg  [ 5:0] encode_counter;
-  reg  [ 5:0] encode_count_max;
-  wire        encode_count_ok = (encode_counter == encode_count_max);
+  reg  [ 5:0] shift_counter;
+  reg  [ 5:0] num_shifts;
+  wire        shift_completed = (shift_counter == num_shifts);
 
   // Register read logic
   // ---------------------------------------------------------------------------
@@ -92,11 +92,11 @@ module rvx_i2c (
     else if (read_request == 1'b1) begin
       read_response <= 1'b1;
       case (rw_address)
-        `RVX_I2C_PRESCALE_REG_ADDR: read_data <= {16'b0, prescale};
-        `RVX_I2C_DATA_REG_ADDR:     read_data <= {24'b0, rx_data};
-        `RVX_I2C_COMMAND_REG_ADDR:  read_data <= {29'b0, command};
-        `RVX_I2C_STATUS_REG_ADDR:   read_data <= {29'b0, status};
-        default:                    read_data <= {32'b0};
+        `RVX_I2C_DIVIDER_REG_ADDR: read_data <= {16'b0, divider};
+        `RVX_I2C_DATA_REG_ADDR:    read_data <= {24'b0, rx_data};
+        `RVX_I2C_COMMAND_REG_ADDR: read_data <= {29'b0, command};
+        `RVX_I2C_STATUS_REG_ADDR:  read_data <= {29'b0, status};
+        default:                   read_data <= {32'b0};
       endcase
     end
   end
@@ -109,7 +109,7 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      prescale       <= 16'b0;
+      divider        <= 16'b0;
       tx_data        <= 8'b0;
       command        <= `RVX_I2C_COMMAND_NOP;
       write_response <= 1'b0;
@@ -117,10 +117,10 @@ module rvx_i2c (
     else if (valid_write_request == 1'b1) begin
       write_response <= 1'b1;
       case (rw_address)
-        `RVX_I2C_PRESCALE_REG_ADDR: prescale <= write_data[15:0];
-        `RVX_I2C_DATA_REG_ADDR:     tx_data <= write_data[7:0];
-        `RVX_I2C_COMMAND_REG_ADDR:  command <= write_data[2:0];
-        default:                    ;
+        `RVX_I2C_DIVIDER_REG_ADDR: divider <= write_data[15:0];
+        `RVX_I2C_DATA_REG_ADDR:    tx_data <= write_data[7:0];
+        `RVX_I2C_COMMAND_REG_ADDR: command <= write_data[2:0];
+        default:                   ;
       endcase
     end
     else write_response <= 1'b0;
@@ -139,7 +139,7 @@ module rvx_i2c (
       rx_no_acknowledge <= 1'b0;
       i2c_irq           <= 1'b0;
       rx_data           <= 8'b0;
-      encode_count_max  <= 6'b0;
+      num_shifts        <= 6'b0;
     end
     else begin
       i2c_run_strobe <= 1'b0;
@@ -153,7 +153,7 @@ module rvx_i2c (
         i2c_irq <= 1'b0;
       end
 
-      if (i2c_run && encode_count_ok && prescale_count_ok) begin
+      if (i2c_run && shift_completed && shift_enable) begin
         i2c_run <= 1'b0;
         i2c_irq <= 1'b1;
         if (command_is_data) begin
@@ -165,10 +165,10 @@ module rvx_i2c (
       if (i2c_run_strobe) begin
         i2c_run <= 1'b1;
         if (command_is_start || command_is_restart || command_is_stop) begin
-          encode_count_max <= 6'd6;
+          num_shifts <= 6'd3;
         end
         if (command_is_data) begin
-          encode_count_max <= 6'd35;
+          num_shifts <= 6'd18;
         end
       end
     end
@@ -178,14 +178,14 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command_is_start && prescale_count_ok && !encode_count_ok) begin
-      sda_start_encode <= {sda_start_encode[0+:7], sda_start_encode[7]};
-      scl_start_encode <= {scl_start_encode[0+:7], scl_start_encode[7]};
+    if (command_is_start && shift_enable && !shift_completed) begin
+      sda_start_encode <= {sda_start_encode[0+:3], sda_start_encode[3]};
+      scl_start_encode <= {scl_start_encode[0+:3], scl_start_encode[3]};
     end
 
     if (i2c_run_strobe) begin
-      sda_start_encode <= 8'b11110000;
-      scl_start_encode <= 8'b11111100;
+      sda_start_encode <= 4'b1000;
+      scl_start_encode <= 4'b1110;
     end
   end
 
@@ -193,14 +193,14 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command_is_restart && prescale_count_ok && !encode_count_ok) begin
-      sda_restart_encode <= {sda_restart_encode[0+:7], sda_restart_encode[7]};
-      scl_restart_encode <= {scl_restart_encode[0+:7], scl_restart_encode[7]};
+    if (command_is_restart && shift_enable && !shift_completed) begin
+      sda_restart_encode <= {sda_restart_encode[0+:3], sda_restart_encode[3]};
+      scl_restart_encode <= {scl_restart_encode[0+:3], scl_restart_encode[3]};
     end
 
     if (i2c_run_strobe) begin
-      sda_restart_encode <= 8'b11110000;
-      scl_restart_encode <= 8'b00111100;
+      sda_restart_encode <= 4'b1100;
+      scl_restart_encode <= 4'b0110;
     end
   end
 
@@ -208,14 +208,14 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command_is_stop && prescale_count_ok && !encode_count_ok) begin
-      sda_stop_encode <= {sda_stop_encode[0+:7], sda_stop_encode[7]};
-      scl_stop_encode <= {scl_stop_encode[0+:7], scl_stop_encode[7]};
+    if (command_is_stop && shift_enable && !shift_completed) begin
+      sda_stop_encode <= {sda_stop_encode[0+:3], sda_stop_encode[3]};
+      scl_stop_encode <= {scl_stop_encode[0+:3], scl_stop_encode[3]};
     end
 
     if (i2c_run_strobe) begin
-      sda_stop_encode <= 8'b00011111;
-      scl_stop_encode <= 8'b01111111;
+      sda_stop_encode <= 4'b0001;
+      scl_stop_encode <= 4'b0111;
     end
   end
 
@@ -223,9 +223,9 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command_is_data && prescale_count_ok && !encode_count_ok) begin
-      sda_data_encode <= {sda_data_encode[0+:35], sda_input};
-      scl_data_encode <= {scl_data_encode[0+:35], 1'b0};
+    if (command_is_data && shift_enable && !shift_completed) begin
+      sda_data_encode <= {sda_data_encode[0+:17], sda_input};
+      scl_data_encode <= {scl_data_encode[0+:17], 1'b0};
     end
 
     if (i2c_run_strobe) begin
@@ -244,44 +244,44 @@ module rvx_i2c (
     end
     else begin
       if (command_is_start && i2c_run) begin
-        sda_output <= sda_start_encode[7];
-        scl_output <= scl_start_encode[7];
+        sda_output <= sda_start_encode[3];
+        scl_output <= scl_start_encode[3];
       end
 
       if (command_is_restart && i2c_run) begin
-        sda_output <= sda_restart_encode[7];
-        scl_output <= scl_restart_encode[7];
+        sda_output <= sda_restart_encode[3];
+        scl_output <= scl_restart_encode[3];
       end
 
       if (command_is_stop && i2c_run) begin
-        sda_output <= sda_stop_encode[7];
-        scl_output <= scl_stop_encode[7];
+        sda_output <= sda_stop_encode[3];
+        scl_output <= scl_stop_encode[3];
       end
 
       if (command_is_data && i2c_run) begin
-        sda_output <= sda_data_encode[35];
-        scl_output <= scl_data_encode[35];
+        sda_output <= sda_data_encode[17];
+        scl_output <= scl_data_encode[17];
       end
     end
   end
 
-  // Prescale counter for the bit rate generator
+  // Counters update logic
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      prescale_counter <= 16'b0;
-      encode_counter   <= 6'b0;
+      cycle_counter <= 16'b0;
+      shift_counter <= 6'b0;
     end
     else begin
-      prescale_counter <= prescale_counter + 1'h1;
-      if (prescale_count_ok) begin
-        prescale_counter <= 16'b0;
-        encode_counter   <= encode_counter + 1'h1;
+      cycle_counter <= cycle_counter + 1'h1;
+      if (shift_enable) begin
+        cycle_counter <= 16'b0;
+        shift_counter <= shift_counter + 1'h1;
       end
-      if (!i2c_run || (prescale_count_ok && encode_count_ok)) begin
-        prescale_counter <= 16'b0;
-        encode_counter   <= 6'b0;
+      if (!i2c_run || (shift_enable && shift_completed)) begin
+        cycle_counter <= 16'b0;
+        shift_counter <= 6'b0;
       end
     end
   end
