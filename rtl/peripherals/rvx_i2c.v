@@ -38,10 +38,10 @@ module rvx_i2c (
   reg  [ 7:0] rx_data;
   reg         rx_no_acknowledge;
   wire [ 8:0] rx_data_encode;
-  reg         i2c_run;
-  reg         i2c_run_strobe;
+  reg         i2c_busy;
+  reg         i2c_start;
   reg  [ 2:0] command;
-  wire [ 2:0] status = {i2c_irq, rx_no_acknowledge, i2c_run | i2c_run_strobe};
+  wire [ 2:0] status = {i2c_irq, rx_no_acknowledge, i2c_busy | i2c_start};
 
   // Commands
   // ---------------------------------------------------------------------------
@@ -133,8 +133,8 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      i2c_run_strobe    <= 1'b0;
-      i2c_run           <= 1'b0;
+      i2c_start         <= 1'b0;
+      i2c_busy          <= 1'b0;
       tx_no_acknowledge <= 1'b0;
       rx_no_acknowledge <= 1'b0;
       i2c_irq           <= 1'b0;
@@ -142,10 +142,10 @@ module rvx_i2c (
       num_shifts        <= 6'b0;
     end
     else begin
-      i2c_run_strobe <= 1'b0;
+      i2c_start <= 1'b0;
 
       if (write_to_status_reg) begin
-        i2c_run_strobe    <= write_data[`RVX_I2C_STATUS_BIT_RUN];
+        i2c_start         <= write_data[`RVX_I2C_STATUS_BIT_RUN];
         tx_no_acknowledge <= write_data[`RVX_I2C_STATUS_BIT_NACK];
       end
 
@@ -153,17 +153,17 @@ module rvx_i2c (
         i2c_irq <= 1'b0;
       end
 
-      if (i2c_run && shift_completed && shift_enable) begin
-        i2c_run <= 1'b0;
-        i2c_irq <= 1'b1;
+      if (i2c_busy && shift_completed && shift_enable) begin
+        i2c_busy <= 1'b0;
+        i2c_irq  <= 1'b1;
         if (command_is_data) begin
           rx_no_acknowledge <= rx_data_encode[0];
           rx_data           <= rx_data_encode[8:1];
         end
       end
 
-      if (i2c_run_strobe) begin
-        i2c_run <= 1'b1;
+      if (i2c_start) begin
+        i2c_busy <= 1'b1;
         if (command_is_start || command_is_restart || command_is_stop) begin
           num_shifts <= 6'd3;
         end
@@ -183,7 +183,7 @@ module rvx_i2c (
       scl_start_encode <= {scl_start_encode[0+:3], scl_start_encode[3]};
     end
 
-    if (i2c_run_strobe) begin
+    if (i2c_start) begin
       sda_start_encode <= 4'b1000;
       scl_start_encode <= 4'b1110;
     end
@@ -198,7 +198,7 @@ module rvx_i2c (
       scl_restart_encode <= {scl_restart_encode[0+:3], scl_restart_encode[3]};
     end
 
-    if (i2c_run_strobe) begin
+    if (i2c_start) begin
       sda_restart_encode <= 4'b1100;
       scl_restart_encode <= 4'b0110;
     end
@@ -213,7 +213,7 @@ module rvx_i2c (
       scl_stop_encode <= {scl_stop_encode[0+:3], scl_stop_encode[3]};
     end
 
-    if (i2c_run_strobe) begin
+    if (i2c_start) begin
       sda_stop_encode <= 4'b0001;
       scl_stop_encode <= 4'b0111;
     end
@@ -228,7 +228,7 @@ module rvx_i2c (
       scl_data_encode <= {scl_data_encode[0+:17], 1'b0};
     end
 
-    if (i2c_run_strobe) begin
+    if (i2c_start) begin
       sda_data_encode <= sda_data_encode_value;
       scl_data_encode <= scl_data_encode_value;
     end
@@ -243,22 +243,22 @@ module rvx_i2c (
       scl_output <= 1'b1;
     end
     else begin
-      if (command_is_start && i2c_run) begin
+      if (command_is_start && i2c_busy) begin
         sda_output <= sda_start_encode[3];
         scl_output <= scl_start_encode[3];
       end
 
-      if (command_is_restart && i2c_run) begin
+      if (command_is_restart && i2c_busy) begin
         sda_output <= sda_restart_encode[3];
         scl_output <= scl_restart_encode[3];
       end
 
-      if (command_is_stop && i2c_run) begin
+      if (command_is_stop && i2c_busy) begin
         sda_output <= sda_stop_encode[3];
         scl_output <= scl_stop_encode[3];
       end
 
-      if (command_is_data && i2c_run) begin
+      if (command_is_data && i2c_busy) begin
         sda_output <= sda_data_encode[17];
         scl_output <= scl_data_encode[17];
       end
@@ -279,7 +279,7 @@ module rvx_i2c (
         cycle_counter <= 16'b0;
         shift_counter <= shift_counter + 1'h1;
       end
-      if (!i2c_run || (shift_enable && shift_completed)) begin
+      if (!i2c_busy || (shift_enable && shift_completed)) begin
         cycle_counter <= 16'b0;
         shift_counter <= 6'b0;
       end
