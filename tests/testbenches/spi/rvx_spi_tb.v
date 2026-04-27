@@ -359,7 +359,7 @@ module rvx_spi_tb ();
 
     $display("");
     $display("Running SPI data transfer tests in mode 0 (divider = 4)...");
-    $display("---------------------------------------------------------");
+    $display("----------------------------------------------------------");
 
     // Configure SPI: MODE 0, base speed, deassert CS (selects subordinate 0)
     write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000000);
@@ -379,8 +379,8 @@ module rvx_spi_tb ();
                 "CS (Chip Select) line is not deasserted (logic HIGH) after writing 1 to CHIP SELECT register.")
 
     $display("");
-    $display("Running SPI data transfer tests in mode 1 (base speed)...");
-    $display("---------------------------------------------------------");
+    $display("Running SPI data transfer tests in mode 1 (divider = 4)...");
+    $display("----------------------------------------------------------");
 
     // Configure SPI: MODE 1, base speed, deassert gpio_cs (selects subordinate 1)
     write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000001);
@@ -397,8 +397,8 @@ module rvx_spi_tb ();
     `RVX_ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
 
     $display("");
-    $display("Running SPI data transfer tests in mode 2 (base speed)...");
-    $display("---------------------------------------------------------");
+    $display("Running SPI data transfer tests in mode 2 (divider = 4)...");
+    $display("----------------------------------------------------------");
 
     // Configure SPI: MODE 2, base speed, deassert gpio_cs (selects subordinate 1)
     write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000002);
@@ -415,8 +415,8 @@ module rvx_spi_tb ();
     `RVX_ASSERT(gpio_cs === 1'b1, "CS (Chip Select) line for subordinate 1 is not deasserted (logic HIGH).")
 
     $display("");
-    $display("Running SPI data transfer tests in mode 3 (base speed)...");
-    $display("---------------------------------------------------------");
+    $display("Running SPI data transfer tests in mode 3 (divider = 4)...");
+    $display("----------------------------------------------------------");
 
     // Configure SPI: MODE 3, base speed, deassert CS (selects subordinate 0)
     write_spi_register(`RVX_SPI_MODE_REG_ADDR, 32'h00000003);

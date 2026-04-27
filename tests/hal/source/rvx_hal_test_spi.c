@@ -24,13 +24,13 @@ void run_rvx_hal_spi_test()
   rvx_test_update_error_count(&spi_tests_error_count);
 
   rvx_test_start("\nTest 2: Setting SPI MODE register value to 1 succeeds. ");
-  rvx_spi_init(RVX_SPI_ADDRESS, RVX_SPI_MODE_1, 0);
+  rvx_spi_set_mode(RVX_SPI_ADDRESS, RVX_SPI_MODE_1);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_MODE == RVX_SPI_MODE_1);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&spi_tests_error_count);
 
   rvx_test_start("\nTest 3: Setting SPI MODE register value back to 0 succeeds. ");
-  rvx_spi_init(RVX_SPI_ADDRESS, RVX_SPI_MODE_0, 0);
+  rvx_spi_set_mode(RVX_SPI_ADDRESS, RVX_SPI_MODE_0);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_MODE == RVX_SPI_MODE_0);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&spi_tests_error_count);
@@ -44,7 +44,8 @@ void run_rvx_hal_spi_test()
   rvx_test_update_error_count(&spi_tests_error_count);
 
   rvx_test_start("\nTest 5: Transfering bytes to SPI Subordinate 0 in MODE 0. ");
-  rvx_spi_init(RVX_SPI_ADDRESS, RVX_SPI_MODE_0, 24);
+  rvx_spi_set_mode(RVX_SPI_ADDRESS, RVX_SPI_MODE_0);
+  rvx_spi_set_divider(RVX_SPI_ADDRESS, 50);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_DIVIDER == 24);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_MODE == RVX_SPI_MODE_0);
   rvx_spi_assert_cs(RVX_SPI_ADDRESS);
@@ -55,7 +56,8 @@ void run_rvx_hal_spi_test()
   rvx_test_update_error_count(&spi_tests_error_count);
 
   rvx_test_start("\nTest 6: Transfering bytes to SPI Subordinate 1 in MODE 1. ");
-  rvx_spi_init(RVX_SPI_ADDRESS, RVX_SPI_MODE_1, 24);
+  rvx_spi_set_mode(RVX_SPI_ADDRESS, RVX_SPI_MODE_1);
+  rvx_spi_set_divider(RVX_SPI_ADDRESS, 50);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_DIVIDER == 24);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_MODE == RVX_SPI_MODE_1);
   rvx_gpio_set_low(RVX_GPIO_ADDRESS, 0); // Assert CS for subordinate 1
@@ -67,7 +69,8 @@ void run_rvx_hal_spi_test()
   rvx_test_update_error_count(&spi_tests_error_count);
 
   rvx_test_start("\nTest 7: Transfering bytes to SPI Subordinate 1 in MODE 2. ");
-  rvx_spi_init(RVX_SPI_ADDRESS, RVX_SPI_MODE_2, 24);
+  rvx_spi_set_mode(RVX_SPI_ADDRESS, RVX_SPI_MODE_2);
+  rvx_spi_set_divider(RVX_SPI_ADDRESS, 50);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_DIVIDER == 24);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_MODE == RVX_SPI_MODE_2);
   rvx_gpio_set_low(RVX_GPIO_ADDRESS, 0); // Assert CS for subordinate 1
@@ -79,7 +82,8 @@ void run_rvx_hal_spi_test()
   rvx_test_update_error_count(&spi_tests_error_count);
 
   rvx_test_start("\nTest 8: Transfering bytes to SPI Subordinate 0 in MODE 3. ");
-  rvx_spi_init(RVX_SPI_ADDRESS, RVX_SPI_MODE_3, 24);
+  rvx_spi_set_mode(RVX_SPI_ADDRESS, RVX_SPI_MODE_3);
+  rvx_spi_set_divider(RVX_SPI_ADDRESS, 50);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_DIVIDER == 24);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_MODE == RVX_SPI_MODE_3);
   rvx_spi_assert_cs(RVX_SPI_ADDRESS);

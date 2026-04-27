@@ -7,7 +7,7 @@ void print_byte(const uint8_t read_data);
 
 void main(void)
 {
-  // Initialize UART at 9600 baud (assuming clock frequency is 12 MHz)
+  // Initialize UART at 9600 baud (assuming RVX is connected to a 12 MHz clock source)
   rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
 
   // Print welcome message
@@ -15,10 +15,9 @@ void main(void)
   rvx_uart_send_string(RVX_UART_ADDRESS,
                        "This example reads the manufacturer ID of the FPGA board's SPI flash memory.\n");
 
-  // Initialize the SPI controller:
-  // - Mode 0 (CPOL = 0, CPHA = 0)
-  // - Frequency = sys_freq / [2 * (sclk_config + 1)] = 12 MHz / [2 * (5 + 1)] = 1 MHz
-  rvx_spi_init(RVX_SPI_ADDRESS, RVX_SPI_MODE_0, 5);
+  // Initialize the SPI controller to mode 0 and 1MHz frequency (assuming RVX is connected to a 12 MHz clock source)
+  rvx_spi_set_mode(RVX_SPI_ADDRESS, RVX_SPI_MODE_0);
+  rvx_spi_set_divider(RVX_SPI_ADDRESS, 12);
 
   // Read Manufacturer ID from SPI Flash
   rvx_uart_send_string(RVX_UART_ADDRESS, "\nReading Manufacturer ID from SPI Flash...\n");

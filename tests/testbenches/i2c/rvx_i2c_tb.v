@@ -105,11 +105,11 @@ module rvx_i2c_tb ();
     input [4:0] address;
     begin
       case (address)
-        `RVX_I2C_PRESCALE_REG_ADDR: reg_name = "PRESCALE";
-        `RVX_I2C_DATA_REG_ADDR:     reg_name = "DATA";
-        `RVX_I2C_STATUS_REG_ADDR:   reg_name = "STATUS";
-        `RVX_I2C_COMMAND_REG_ADDR:  reg_name = "COMMAND";
-        default:                    reg_name = "UNKNOWN";
+        `RVX_I2C_DIVIDER_REG_ADDR: reg_name = "DIVIDER";
+        `RVX_I2C_DATA_REG_ADDR:    reg_name = "DATA";
+        `RVX_I2C_STATUS_REG_ADDR:  reg_name = "STATUS";
+        `RVX_I2C_COMMAND_REG_ADDR: reg_name = "COMMAND";
+        default:                   reg_name = "UNKNOWN";
       endcase
     end
   endfunction
@@ -156,8 +156,8 @@ module rvx_i2c_tb ();
     `RVX_TITLE("Start test I2C");
 
     `RVX_TITLE("Test register and irq after reset");
-    read_register(`RVX_I2C_PRESCALE_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h0, "Register RVX_I2C_PRESCALE_REG_ADDR is not 0 after reset.")
+    read_register(`RVX_I2C_DIVIDER_REG_ADDR);
+    `RVX_ASSERT(read_data === 32'h0, "Register RVX_I2C_DIVIDER_REG_ADDR is not 0 after reset.")
 
     read_register(`RVX_I2C_DATA_REG_ADDR);
     `RVX_ASSERT(read_data === 32'h0, "Register RVX_I2C_DATA_REG_ADDR is not 0 after reset.")
@@ -171,9 +171,9 @@ module rvx_i2c_tb ();
     `RVX_ASSERT(i2c_irq === 1'b0, "Irq is not clear after reset.")
 
     `RVX_TITLE("Test prescale");
-    write_register(`RVX_I2C_PRESCALE_REG_ADDR, 16'h4);
-    read_register(`RVX_I2C_PRESCALE_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h4, "Register RVX_I2C_PRESCALE_REG_ADDR is not 0x00000004 after write.")
+    write_register(`RVX_I2C_DIVIDER_REG_ADDR, 16'h4);
+    read_register(`RVX_I2C_DIVIDER_REG_ADDR);
+    `RVX_ASSERT(read_data === 32'h4, "Register RVX_I2C_DIVIDER_REG_ADDR is not 0x00000004 after write.")
 
     `RVX_TITLE("Test start");
     write_register(`RVX_I2C_COMMAND_REG_ADDR, `RVX_I2C_COMMAND_START);
