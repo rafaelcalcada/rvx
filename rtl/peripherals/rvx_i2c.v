@@ -43,13 +43,8 @@ module rvx_i2c (
   reg  [ 2:0] command;
   wire [ 2:0] status = {i2c_irq, rx_no_acknowledge, i2c_busy | i2c_start};
 
-  // Commands
+  // Shift registers for the SDA and SCL lines
   // ---------------------------------------------------------------------------
-
-  wire        command_is_start = (command == `RVX_I2C_COMMAND_START);
-  wire        command_is_restart = (command == `RVX_I2C_COMMAND_RESTART);
-  wire        command_is_stop = (command == `RVX_I2C_COMMAND_STOP);
-  wire        command_is_data = (command == `RVX_I2C_COMMAND_DATA);
 
   reg  [ 3:0] sda_start_encode;
   reg  [ 3:0] scl_start_encode;
@@ -156,7 +151,7 @@ module rvx_i2c (
       if (i2c_busy && shift_completed && shift_enable) begin
         i2c_busy <= 1'b0;
         i2c_irq  <= 1'b1;
-        if (command_is_data) begin
+        if (command == `RVX_I2C_COMMAND_DATA) begin
           rx_no_acknowledge <= rx_data_encode[0];
           rx_data           <= rx_data_encode[8:1];
         end
@@ -164,12 +159,11 @@ module rvx_i2c (
 
       if (i2c_start) begin
         i2c_busy <= 1'b1;
-        if (command_is_start || command_is_restart || command_is_stop) begin
-          num_shifts <= 6'd3;
-        end
-        if (command_is_data) begin
-          num_shifts <= 6'd18;
-        end
+        case (command)
+          `RVX_I2C_COMMAND_START, `RVX_I2C_COMMAND_RESTART, `RVX_I2C_COMMAND_STOP: num_shifts <= 6'd3;
+          `RVX_I2C_COMMAND_DATA:                                                   num_shifts <= 6'd18;
+          default:                                                                 num_shifts <= 6'b0;
+        endcase
       end
     end
   end
@@ -178,7 +172,7 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command_is_start && shift_enable && !shift_completed) begin
+    if (command == `RVX_I2C_COMMAND_START && shift_enable && !shift_completed) begin
       sda_start_encode <= {sda_start_encode[0+:3], sda_start_encode[3]};
       scl_start_encode <= {scl_start_encode[0+:3], scl_start_encode[3]};
     end
@@ -193,7 +187,7 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command_is_restart && shift_enable && !shift_completed) begin
+    if (command == `RVX_I2C_COMMAND_RESTART && shift_enable && !shift_completed) begin
       sda_restart_encode <= {sda_restart_encode[0+:3], sda_restart_encode[3]};
       scl_restart_encode <= {scl_restart_encode[0+:3], scl_restart_encode[3]};
     end
@@ -208,7 +202,7 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command_is_stop && shift_enable && !shift_completed) begin
+    if (command == `RVX_I2C_COMMAND_STOP && shift_enable && !shift_completed) begin
       sda_stop_encode <= {sda_stop_encode[0+:3], sda_stop_encode[3]};
       scl_stop_encode <= {scl_stop_encode[0+:3], scl_stop_encode[3]};
     end
@@ -223,7 +217,7 @@ module rvx_i2c (
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command_is_data && shift_enable && !shift_completed) begin
+    if (command == `RVX_I2C_COMMAND_DATA && shift_enable && !shift_completed) begin
       sda_data_encode <= {sda_data_encode[0+:17], sda_input};
       scl_data_encode <= {scl_data_encode[0+:17], 1'b0};
     end
@@ -242,26 +236,29 @@ module rvx_i2c (
       sda_output <= 1'b1;
       scl_output <= 1'b1;
     end
-    else begin
-      if (command_is_start && i2c_busy) begin
-        sda_output <= sda_start_encode[3];
-        scl_output <= scl_start_encode[3];
-      end
-
-      if (command_is_restart && i2c_busy) begin
-        sda_output <= sda_restart_encode[3];
-        scl_output <= scl_restart_encode[3];
-      end
-
-      if (command_is_stop && i2c_busy) begin
-        sda_output <= sda_stop_encode[3];
-        scl_output <= scl_stop_encode[3];
-      end
-
-      if (command_is_data && i2c_busy) begin
-        sda_output <= sda_data_encode[17];
-        scl_output <= scl_data_encode[17];
-      end
+    else if (i2c_busy) begin
+      case (command)
+        `RVX_I2C_COMMAND_START: begin
+          sda_output <= sda_start_encode[3];
+          scl_output <= scl_start_encode[3];
+        end
+        `RVX_I2C_COMMAND_RESTART: begin
+          sda_output <= sda_restart_encode[3];
+          scl_output <= scl_restart_encode[3];
+        end
+        `RVX_I2C_COMMAND_STOP: begin
+          sda_output <= sda_stop_encode[3];
+          scl_output <= scl_stop_encode[3];
+        end
+        `RVX_I2C_COMMAND_DATA: begin
+          sda_output <= sda_data_encode[17];
+          scl_output <= scl_data_encode[17];
+        end
+        default: begin
+          sda_output <= 1'b1;
+          scl_output <= 1'b1;
+        end
+      endcase
     end
   end
 
