@@ -211,7 +211,8 @@ module rvx #(
   rvx_tcm #(
 
       .SIZE_IN_BYTES (TCM_SIZE_IN_BYTES),
-      .INIT_FILE_PATH(TCM_BOOT_IMAGE_PATH)
+      .INIT_FILE_PATH(TCM_BOOT_IMAGE_PATH),
+      .BASE_ADDRESS  (TCM_BASE_ADDRESS)
 
   ) rvx_tightly_coupled_memory_instance (
 
