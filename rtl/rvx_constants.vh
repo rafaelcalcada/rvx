@@ -224,12 +224,12 @@
 
 // I2C register status bit positions
 `define RVX_I2C_STATUS_BIT_RUN 0
-`define RVX_I2C_STATUS_BIT_NACK 1
+`define RVX_I2C_STATUS_BIT_ACK 1
 `define RVX_I2C_STATUS_BIT_IRQ 2
 
 // I2C register status bit masks
 `define RVX_I2C_STATUS_MASK_RUN 16'h1
-`define RVX_I2C_STATUS_MASK_NACK 16'h2
+`define RVX_I2C_STATUS_MASK_ACK 16'h2
 `define RVX_I2C_STATUS_MASK_IRQ 16'h4
 
 // I2C register command encodings

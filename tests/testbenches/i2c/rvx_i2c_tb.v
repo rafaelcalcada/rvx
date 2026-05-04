@@ -218,7 +218,7 @@ module rvx_i2c_tb ();
     `RVX_TITLE("Test data");
     write_register(`RVX_I2C_DATA_REG_ADDR, 'h3);
     write_register(`RVX_I2C_COMMAND_REG_ADDR, `RVX_I2C_COMMAND_DATA);
-    write_register(`RVX_I2C_STATUS_REG_ADDR, `RVX_I2C_STATUS_MASK_RUN | `RVX_I2C_STATUS_MASK_NACK);
+    write_register(`RVX_I2C_STATUS_REG_ADDR, `RVX_I2C_STATUS_MASK_RUN | `RVX_I2C_STATUS_MASK_ACK);
     #(CLOCK_PERIOD * 200);
 
     read_register(`RVX_I2C_DATA_REG_ADDR);
