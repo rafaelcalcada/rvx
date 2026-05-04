@@ -37,7 +37,7 @@ module rvx_i2c (
   wire [ 8:0] tx_data_encode = {tx_data, tx_no_acknowledge};
   reg  [ 7:0] rx_data;
   reg         rx_no_acknowledge;
-  wire [ 8:0] rx_data_encode;
+  reg  [ 8:0] rx_data_encode;
   reg         i2c_busy;
   reg         i2c_start;
   reg  [ 2:0] command;
@@ -54,17 +54,6 @@ module rvx_i2c (
   reg  [ 3:0] scl_stop_encode;
   reg  [17:0] sda_data_encode;
   reg  [17:0] scl_data_encode;
-  wire [17:0] sda_data_encode_value;
-  wire [17:0] scl_data_encode_value;
-
-  genvar i;
-  generate
-    for (i = 0; i < 9; i = i + 1) begin : out
-      assign sda_data_encode_value[(i*2)+:2] = {2{tx_data_encode[i]}};
-      assign scl_data_encode_value[(i*2)+:2] = 2'b01;
-      assign rx_data_encode[i]               = sda_data_encode[(i*2)];
-    end
-  endgenerate
 
   // Counters
   // ---------------------------------------------------------------------------
@@ -216,15 +205,22 @@ module rvx_i2c (
   // Data + acknowledge encode logic
   // ---------------------------------------------------------------------------
 
+  integer i;
   always @(posedge clock) begin
     if (command == `RVX_I2C_COMMAND_DATA && shift_enable && !shift_completed) begin
-      sda_data_encode <= {sda_data_encode[0+:17], sda_input};
+      sda_data_encode <= {sda_data_encode[0+:17], 1'b0};
       scl_data_encode <= {scl_data_encode[0+:17], 1'b0};
+      if (shift_counter[0]) begin
+        rx_data_encode <= {rx_data_encode[0+:8], sda_input};
+      end
     end
 
     if (i2c_start) begin
-      sda_data_encode <= sda_data_encode_value;
-      scl_data_encode <= scl_data_encode_value;
+      rx_data_encode <= 9'b0;
+      for (i = 0; i < 9; i = i + 1) begin
+        sda_data_encode[(i*2)+:2] <= {2{tx_data_encode[i]}};
+        scl_data_encode[(i*2)+:2] <= 2'b01;
+      end
     end
   end
 
