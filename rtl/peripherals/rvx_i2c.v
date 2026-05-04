@@ -29,38 +29,43 @@ module rvx_i2c (
 
 );
 
-  // Data and encode preparation
+  // TX and RX registers
   // ---------------------------------------------------------------------------
 
   reg  [ 7:0] tx_data;
-  reg         tx_no_acknowledge;
-  wire [ 8:0] tx_data_encode = {tx_data, tx_no_acknowledge};
+  reg         tx_ack_bit;
+  wire [ 8:0] tx_reg = {tx_data, tx_ack_bit};
   reg  [ 7:0] rx_data;
-  reg         rx_no_acknowledge;
-  reg  [ 8:0] rx_data_encode;
-  reg         i2c_busy;
-  reg         i2c_start;
-  reg  [ 2:0] command;
-  wire [ 2:0] status = {i2c_irq, rx_no_acknowledge, i2c_busy | i2c_start};
+  reg         rx_ack_bit;
+  reg  [ 8:0] rx_reg;
 
-  // Shift registers for the SDA and SCL lines
+  // Control and status signals
   // ---------------------------------------------------------------------------
 
-  reg  [ 3:0] sda_start_encode;
-  reg  [ 3:0] scl_start_encode;
-  reg  [ 3:0] sda_restart_encode;
-  reg  [ 3:0] scl_restart_encode;
-  reg  [ 3:0] sda_stop_encode;
-  reg  [ 3:0] scl_stop_encode;
-  reg  [17:0] sda_data_encode;
-  reg  [17:0] scl_data_encode;
+  reg         busy;
+  reg         start;
+  reg  [ 2:0] command;
+  wire [ 2:0] status = {i2c_irq, rx_ack_bit, busy | start};
+
+  // Shift registers for start, restart, stop, and data commands.
+  // They are used to generate the appropriate SDA and SCL waveforms.
+  // ---------------------------------------------------------------------------
+
+  reg  [ 3:0] sda_start_shift_reg;
+  reg  [ 3:0] scl_start_shift_reg;
+  reg  [ 3:0] sda_restart_shift_reg;
+  reg  [ 3:0] scl_restart_shift_reg;
+  reg  [ 3:0] sda_stop_shift_reg;
+  reg  [ 3:0] scl_stop_shift_reg;
+  reg  [17:0] sda_data_shift_reg;
+  reg  [17:0] scl_data_shift_reg;
 
   // Counters
   // ---------------------------------------------------------------------------
+
   reg  [15:0] divider;
   reg  [15:0] cycle_counter;
   wire        shift_enable = (cycle_counter == divider);
-
   reg  [ 5:0] shift_counter;
   reg  [ 5:0] num_shifts;
   wire        shift_completed = (shift_counter == num_shifts);
@@ -117,37 +122,37 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      i2c_start         <= 1'b0;
-      i2c_busy          <= 1'b0;
-      tx_no_acknowledge <= 1'b0;
-      rx_no_acknowledge <= 1'b0;
-      i2c_irq           <= 1'b0;
-      rx_data           <= 8'b0;
-      num_shifts        <= 6'b0;
+      start      <= 1'b0;
+      busy       <= 1'b0;
+      tx_ack_bit <= 1'b0;
+      rx_ack_bit <= 1'b0;
+      i2c_irq    <= 1'b0;
+      rx_data    <= 8'b0;
+      num_shifts <= 6'b0;
     end
     else begin
-      i2c_start <= 1'b0;
+      start <= 1'b0;
 
       if (write_to_status_reg) begin
-        i2c_start         <= write_data[`RVX_I2C_STATUS_BIT_RUN];
-        tx_no_acknowledge <= write_data[`RVX_I2C_STATUS_BIT_NACK];
+        start      <= write_data[`RVX_I2C_STATUS_BIT_RUN];
+        tx_ack_bit <= write_data[`RVX_I2C_STATUS_BIT_NACK];
       end
 
       if (write_to_status_reg && write_data[`RVX_I2C_STATUS_BIT_IRQ]) begin
         i2c_irq <= 1'b0;
       end
 
-      if (i2c_busy && shift_completed && shift_enable) begin
-        i2c_busy <= 1'b0;
-        i2c_irq  <= 1'b1;
+      if (busy && shift_completed && shift_enable) begin
+        busy    <= 1'b0;
+        i2c_irq <= 1'b1;
         if (command == `RVX_I2C_COMMAND_DATA) begin
-          rx_no_acknowledge <= rx_data_encode[0];
-          rx_data           <= rx_data_encode[8:1];
+          rx_ack_bit <= rx_reg[0];
+          rx_data    <= rx_reg[8:1];
         end
       end
 
-      if (i2c_start) begin
-        i2c_busy <= 1'b1;
+      if (start) begin
+        busy <= 1'b1;
         case (command)
           `RVX_I2C_COMMAND_START, `RVX_I2C_COMMAND_RESTART, `RVX_I2C_COMMAND_STOP: num_shifts <= 6'd3;
           `RVX_I2C_COMMAND_DATA:                                                   num_shifts <= 6'd18;
@@ -162,13 +167,13 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (command == `RVX_I2C_COMMAND_START && shift_enable && !shift_completed) begin
-      sda_start_encode <= {sda_start_encode[0+:3], sda_start_encode[3]};
-      scl_start_encode <= {scl_start_encode[0+:3], scl_start_encode[3]};
+      sda_start_shift_reg <= {sda_start_shift_reg[0+:3], sda_start_shift_reg[3]};
+      scl_start_shift_reg <= {scl_start_shift_reg[0+:3], scl_start_shift_reg[3]};
     end
 
-    if (i2c_start) begin
-      sda_start_encode <= 4'b1000;
-      scl_start_encode <= 4'b1110;
+    if (start) begin
+      sda_start_shift_reg <= 4'b1000;
+      scl_start_shift_reg <= 4'b1110;
     end
   end
 
@@ -177,13 +182,13 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (command == `RVX_I2C_COMMAND_RESTART && shift_enable && !shift_completed) begin
-      sda_restart_encode <= {sda_restart_encode[0+:3], sda_restart_encode[3]};
-      scl_restart_encode <= {scl_restart_encode[0+:3], scl_restart_encode[3]};
+      sda_restart_shift_reg <= {sda_restart_shift_reg[0+:3], sda_restart_shift_reg[3]};
+      scl_restart_shift_reg <= {scl_restart_shift_reg[0+:3], scl_restart_shift_reg[3]};
     end
 
-    if (i2c_start) begin
-      sda_restart_encode <= 4'b1100;
-      scl_restart_encode <= 4'b0110;
+    if (start) begin
+      sda_restart_shift_reg <= 4'b1100;
+      scl_restart_shift_reg <= 4'b0110;
     end
   end
 
@@ -192,13 +197,13 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (command == `RVX_I2C_COMMAND_STOP && shift_enable && !shift_completed) begin
-      sda_stop_encode <= {sda_stop_encode[0+:3], sda_stop_encode[3]};
-      scl_stop_encode <= {scl_stop_encode[0+:3], scl_stop_encode[3]};
+      sda_stop_shift_reg <= {sda_stop_shift_reg[0+:3], sda_stop_shift_reg[3]};
+      scl_stop_shift_reg <= {scl_stop_shift_reg[0+:3], scl_stop_shift_reg[3]};
     end
 
-    if (i2c_start) begin
-      sda_stop_encode <= 4'b0001;
-      scl_stop_encode <= 4'b0111;
+    if (start) begin
+      sda_stop_shift_reg <= 4'b0001;
+      scl_stop_shift_reg <= 4'b0111;
     end
   end
 
@@ -208,18 +213,18 @@ module rvx_i2c (
   integer i;
   always @(posedge clock) begin
     if (command == `RVX_I2C_COMMAND_DATA && shift_enable && !shift_completed) begin
-      sda_data_encode <= {sda_data_encode[0+:17], 1'b0};
-      scl_data_encode <= {scl_data_encode[0+:17], 1'b0};
+      sda_data_shift_reg <= {sda_data_shift_reg[0+:17], 1'b0};
+      scl_data_shift_reg <= {scl_data_shift_reg[0+:17], 1'b0};
       if (shift_counter[0]) begin
-        rx_data_encode <= {rx_data_encode[0+:8], sda_input};
+        rx_reg <= {rx_reg[0+:8], sda_input};
       end
     end
 
-    if (i2c_start) begin
-      rx_data_encode <= 9'b0;
+    if (start) begin
+      rx_reg <= 9'b0;
       for (i = 0; i < 9; i = i + 1) begin
-        sda_data_encode[(i*2)+:2] <= {2{tx_data_encode[i]}};
-        scl_data_encode[(i*2)+:2] <= 2'b01;
+        sda_data_shift_reg[(i*2)+:2] <= {2{tx_reg[i]}};
+        scl_data_shift_reg[(i*2)+:2] <= 2'b01;
       end
     end
   end
@@ -232,23 +237,23 @@ module rvx_i2c (
       sda_output <= 1'b1;
       scl_output <= 1'b1;
     end
-    else if (i2c_busy) begin
+    else if (busy) begin
       case (command)
         `RVX_I2C_COMMAND_START: begin
-          sda_output <= sda_start_encode[3];
-          scl_output <= scl_start_encode[3];
+          sda_output <= sda_start_shift_reg[3];
+          scl_output <= scl_start_shift_reg[3];
         end
         `RVX_I2C_COMMAND_RESTART: begin
-          sda_output <= sda_restart_encode[3];
-          scl_output <= scl_restart_encode[3];
+          sda_output <= sda_restart_shift_reg[3];
+          scl_output <= scl_restart_shift_reg[3];
         end
         `RVX_I2C_COMMAND_STOP: begin
-          sda_output <= sda_stop_encode[3];
-          scl_output <= scl_stop_encode[3];
+          sda_output <= sda_stop_shift_reg[3];
+          scl_output <= scl_stop_shift_reg[3];
         end
         `RVX_I2C_COMMAND_DATA: begin
-          sda_output <= sda_data_encode[17];
-          scl_output <= scl_data_encode[17];
+          sda_output <= sda_data_shift_reg[17];
+          scl_output <= scl_data_shift_reg[17];
         end
         default: begin
           sda_output <= 1'b1;
@@ -272,7 +277,7 @@ module rvx_i2c (
         cycle_counter <= 16'b0;
         shift_counter <= shift_counter + 1'h1;
       end
-      if (!i2c_busy || (shift_enable && shift_completed)) begin
+      if (!busy || (shift_enable && shift_completed)) begin
         cycle_counter <= 16'b0;
         shift_counter <= 6'b0;
       end
