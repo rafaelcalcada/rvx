@@ -162,69 +162,68 @@ module rvx_i2c (
     end
   end
 
-  // Start encode logic
+  // Start shift register implementation
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command == `RVX_I2C_COMMAND_START && shift_enable && !shift_completed) begin
-      sda_start_shift_reg <= {sda_start_shift_reg[0+:3], sda_start_shift_reg[3]};
-      scl_start_shift_reg <= {scl_start_shift_reg[0+:3], scl_start_shift_reg[3]};
-    end
-
-    if (start) begin
+    if (!reset_n || start) begin
       sda_start_shift_reg <= 4'b1000;
       scl_start_shift_reg <= 4'b1110;
     end
+    else if (command == `RVX_I2C_COMMAND_START && shift_enable && !shift_completed) begin
+      sda_start_shift_reg <= {sda_start_shift_reg[0+:3], sda_start_shift_reg[3]};
+      scl_start_shift_reg <= {scl_start_shift_reg[0+:3], scl_start_shift_reg[3]};
+    end
   end
 
-  // Restart encode logic
+  // Restart shift register implementation
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command == `RVX_I2C_COMMAND_RESTART && shift_enable && !shift_completed) begin
-      sda_restart_shift_reg <= {sda_restart_shift_reg[0+:3], sda_restart_shift_reg[3]};
-      scl_restart_shift_reg <= {scl_restart_shift_reg[0+:3], scl_restart_shift_reg[3]};
-    end
-
-    if (start) begin
+    if (!reset_n || start) begin
       sda_restart_shift_reg <= 4'b1100;
       scl_restart_shift_reg <= 4'b0110;
     end
+    else if (command == `RVX_I2C_COMMAND_RESTART && shift_enable && !shift_completed) begin
+      sda_restart_shift_reg <= {sda_restart_shift_reg[0+:3], sda_restart_shift_reg[3]};
+      scl_restart_shift_reg <= {scl_restart_shift_reg[0+:3], scl_restart_shift_reg[3]};
+    end
   end
 
-  // Stop encode logic
+  // Stop shift register implementation
   // ---------------------------------------------------------------------------
 
   always @(posedge clock) begin
-    if (command == `RVX_I2C_COMMAND_STOP && shift_enable && !shift_completed) begin
-      sda_stop_shift_reg <= {sda_stop_shift_reg[0+:3], sda_stop_shift_reg[3]};
-      scl_stop_shift_reg <= {scl_stop_shift_reg[0+:3], scl_stop_shift_reg[3]};
-    end
-
-    if (start) begin
+    if (!reset_n || start) begin
       sda_stop_shift_reg <= 4'b0001;
       scl_stop_shift_reg <= 4'b0111;
     end
+    else if (command == `RVX_I2C_COMMAND_STOP && shift_enable && !shift_completed) begin
+      sda_stop_shift_reg <= {sda_stop_shift_reg[0+:3], sda_stop_shift_reg[3]};
+      scl_stop_shift_reg <= {scl_stop_shift_reg[0+:3], scl_stop_shift_reg[3]};
+    end
   end
 
-  // Data + acknowledge encode logic
+  // Data shift register implementation
   // ---------------------------------------------------------------------------
 
   integer i;
   always @(posedge clock) begin
-    if (command == `RVX_I2C_COMMAND_DATA && shift_enable && !shift_completed) begin
-      sda_data_shift_reg <= {sda_data_shift_reg[0+:17], 1'b0};
-      scl_data_shift_reg <= {scl_data_shift_reg[0+:17], 1'b0};
-      if (shift_counter[0]) begin
-        rx_reg <= {rx_reg[0+:8], sda_input};
-      end
-    end
-
-    if (start) begin
+    if (!reset_n || start) begin
       rx_reg <= 9'b0;
+      // Duplicate each bit of tx_reg and preload SCL shift register
+      // with 50/50 duty cycle clock pattern
       for (i = 0; i < 9; i = i + 1) begin
         sda_data_shift_reg[(i*2)+:2] <= {2{tx_reg[i]}};
         scl_data_shift_reg[(i*2)+:2] <= 2'b01;
+      end
+    end
+    else if (command == `RVX_I2C_COMMAND_DATA && shift_enable && !shift_completed) begin
+      sda_data_shift_reg <= {sda_data_shift_reg[0+:17], 1'b0};
+      scl_data_shift_reg <= {scl_data_shift_reg[0+:17], 1'b0};
+      // Sample SDA on the rising edge of SCL (halfway through the bit period)
+      if (shift_counter[0]) begin
+        rx_reg <= {rx_reg[0+:8], sda_input};
       end
     end
   end
@@ -272,15 +271,15 @@ module rvx_i2c (
       shift_counter <= 6'b0;
     end
     else begin
-      cycle_counter <= cycle_counter + 1'h1;
-      if (shift_enable) begin
-        cycle_counter <= 16'b0;
-        shift_counter <= shift_counter + 1'h1;
-      end
       if (!busy || (shift_enable && shift_completed)) begin
         cycle_counter <= 16'b0;
         shift_counter <= 6'b0;
       end
+      else if (shift_enable) begin
+        cycle_counter <= 16'b0;
+        shift_counter <= shift_counter + 1'h1;
+      end
+      else cycle_counter <= cycle_counter + 1'h1;
     end
   end
 
