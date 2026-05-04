@@ -44,6 +44,7 @@ module rvx_i2c (
 
   reg         busy;
   reg         start;
+  reg         clear_irq;
   reg  [ 2:0] command;
   wire [ 2:0] status = {i2c_irq, rx_ack_bit, busy | start};
 
@@ -103,6 +104,7 @@ module rvx_i2c (
       tx_data        <= 8'b0;
       tx_ack_bit     <= 1'b0;
       command        <= `RVX_I2C_COMMAND_NOP;
+      clear_irq      <= 1'b0;
       write_response <= 1'b0;
     end
     else if (valid_write_request == 1'b1) begin
@@ -114,35 +116,42 @@ module rvx_i2c (
         `RVX_I2C_STATUS_REG_ADDR: begin
           start      <= write_data[`RVX_I2C_STATUS_BIT_RUN];
           tx_ack_bit <= write_data[`RVX_I2C_STATUS_BIT_ACK];
+          clear_irq  <= write_data[`RVX_I2C_STATUS_BIT_IRQ];
         end
         default:                   ;
       endcase
     end
     else begin
       start          <= 1'b0;
+      clear_irq      <= 1'b0;
       write_response <= 1'b0;
     end
   end
 
-  // Run and stop logics
+  // Command execution logic
   // ---------------------------------------------------------------------------
-
-  wire write_to_status_reg = (rw_address == `RVX_I2C_STATUS_REG_ADDR && valid_write_request == 1'b1);
 
   always @(posedge clock) begin
     if (!reset_n) begin
       busy       <= 1'b0;
-      rx_ack_bit <= 1'b0;
       i2c_irq    <= 1'b0;
       rx_data    <= 8'b0;
+      rx_ack_bit <= 1'b0;
       num_shifts <= 6'b0;
     end
     else begin
-      if (write_to_status_reg && write_data[`RVX_I2C_STATUS_BIT_IRQ]) begin
+      if (start) begin
+        busy    <= 1'b1;
         i2c_irq <= 1'b0;
+        case (command)
+          `RVX_I2C_COMMAND_START:   num_shifts <= 6'd3;
+          `RVX_I2C_COMMAND_RESTART: num_shifts <= 6'd3;
+          `RVX_I2C_COMMAND_STOP:    num_shifts <= 6'd3;
+          `RVX_I2C_COMMAND_DATA:    num_shifts <= 6'd18;
+          default:                  num_shifts <= 6'b0;
+        endcase
       end
-
-      if (busy && shift_completed && shift_enable) begin
+      else if (busy && shift_completed && shift_enable) begin
         busy    <= 1'b0;
         i2c_irq <= 1'b1;
         if (command == `RVX_I2C_COMMAND_DATA) begin
@@ -150,14 +159,8 @@ module rvx_i2c (
           rx_data    <= rx_reg[8:1];
         end
       end
-
-      if (start) begin
-        busy <= 1'b1;
-        case (command)
-          `RVX_I2C_COMMAND_START, `RVX_I2C_COMMAND_RESTART, `RVX_I2C_COMMAND_STOP: num_shifts <= 6'd3;
-          `RVX_I2C_COMMAND_DATA:                                                   num_shifts <= 6'd18;
-          default:                                                                 num_shifts <= 6'b0;
-        endcase
+      else if (clear_irq) begin
+        i2c_irq <= 1'b0;
       end
     end
   end
