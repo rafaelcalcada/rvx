@@ -98,8 +98,10 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (!reset_n) begin
+      start          <= 1'b0;
       divider        <= 16'b0;
       tx_data        <= 8'b0;
+      tx_ack_bit     <= 1'b0;
       command        <= `RVX_I2C_COMMAND_NOP;
       write_response <= 1'b0;
     end
@@ -109,10 +111,17 @@ module rvx_i2c (
         `RVX_I2C_DIVIDER_REG_ADDR: divider <= write_data[15:0];
         `RVX_I2C_DATA_REG_ADDR:    tx_data <= write_data[7:0];
         `RVX_I2C_COMMAND_REG_ADDR: command <= write_data[2:0];
+        `RVX_I2C_STATUS_REG_ADDR: begin
+          start      <= write_data[`RVX_I2C_STATUS_BIT_RUN];
+          tx_ack_bit <= write_data[`RVX_I2C_STATUS_BIT_ACK];
+        end
         default:                   ;
       endcase
     end
-    else write_response <= 1'b0;
+    else begin
+      start          <= 1'b0;
+      write_response <= 1'b0;
+    end
   end
 
   // Run and stop logics
@@ -122,22 +131,13 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      start      <= 1'b0;
       busy       <= 1'b0;
-      tx_ack_bit <= 1'b0;
       rx_ack_bit <= 1'b0;
       i2c_irq    <= 1'b0;
       rx_data    <= 8'b0;
       num_shifts <= 6'b0;
     end
     else begin
-      start <= 1'b0;
-
-      if (write_to_status_reg) begin
-        start      <= write_data[`RVX_I2C_STATUS_BIT_RUN];
-        tx_ack_bit <= write_data[`RVX_I2C_STATUS_BIT_NACK];
-      end
-
       if (write_to_status_reg && write_data[`RVX_I2C_STATUS_BIT_IRQ]) begin
         i2c_irq <= 1'b0;
       end
