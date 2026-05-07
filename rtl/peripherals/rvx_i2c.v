@@ -21,6 +21,7 @@ module rvx_i2c (
 
     // I2C signals
     input  wire sda_input,
+    input  wire scl_input,
     output reg  sda_output,
     output reg  scl_output,
 
@@ -32,44 +33,46 @@ module rvx_i2c (
   // TX and RX registers
   // ---------------------------------------------------------------------------
 
-  reg  [ 7:0] tx_data;
-  reg         tx_ack_bit;
-  wire [ 8:0] tx_reg = {tx_data, tx_ack_bit};
-  reg  [ 7:0] rx_data;
-  reg         rx_ack_bit;
-  reg  [ 8:0] rx_reg;
+  reg [7:0] tx_data;
+  reg tx_ack_bit;
+  wire [8:0] tx_reg = {tx_data, tx_ack_bit};
+  reg [7:0] rx_data;
+  reg rx_ack_bit;
+  reg [8:0] rx_reg;
 
   // Control and status signals
   // ---------------------------------------------------------------------------
 
-  reg         busy;
-  reg         start;
-  reg         clear_irq;
-  reg  [ 2:0] command;
-  wire [ 2:0] status = {i2c_irq, rx_ack_bit, busy | start};
+  reg busy;
+  reg start;
+  reg clear_irq;
+  reg [2:0] command;
+  wire [2:0] status = {i2c_irq, rx_ack_bit, busy | start};
+  wire clock_stretching = busy && scl_input == 1'b0 && scl_data_shift_reg[17] == 1'b1 &&
+      command == `RVX_I2C_COMMAND_DATA;
 
   // Shift registers for start, restart, stop, and data commands.
   // They are used to generate the appropriate SDA and SCL waveforms.
   // ---------------------------------------------------------------------------
 
-  reg  [ 3:0] sda_start_shift_reg;
-  reg  [ 3:0] scl_start_shift_reg;
-  reg  [ 3:0] sda_restart_shift_reg;
-  reg  [ 3:0] scl_restart_shift_reg;
-  reg  [ 3:0] sda_stop_shift_reg;
-  reg  [ 3:0] scl_stop_shift_reg;
-  reg  [17:0] sda_data_shift_reg;
-  reg  [17:0] scl_data_shift_reg;
+  reg [3:0] sda_start_shift_reg;
+  reg [3:0] scl_start_shift_reg;
+  reg [3:0] sda_restart_shift_reg;
+  reg [3:0] scl_restart_shift_reg;
+  reg [3:0] sda_stop_shift_reg;
+  reg [3:0] scl_stop_shift_reg;
+  reg [17:0] sda_data_shift_reg;
+  reg [17:0] scl_data_shift_reg;
 
   // Counters
   // ---------------------------------------------------------------------------
 
-  reg  [15:0] divider;
-  reg  [15:0] cycle_counter;
-  wire        shift_enable = (cycle_counter == divider);
-  reg  [ 5:0] shift_counter;
-  reg  [ 5:0] num_shifts;
-  wire        shift_completed = (shift_counter == num_shifts);
+  reg [15:0] divider;
+  reg [15:0] cycle_counter;
+  wire shift_enable = (cycle_counter == divider && !clock_stretching);
+  reg [5:0] shift_counter;
+  reg [5:0] num_shifts;
+  wire shift_completed = (shift_counter == num_shifts);
 
   // Register read logic
   // ---------------------------------------------------------------------------
@@ -274,7 +277,7 @@ module rvx_i2c (
       shift_counter <= 6'b0;
     end
     else begin
-      if (!busy || (shift_enable && shift_completed)) begin
+      if (start) begin
         cycle_counter <= 16'b0;
         shift_counter <= 6'b0;
       end
@@ -282,7 +285,9 @@ module rvx_i2c (
         cycle_counter <= 16'b0;
         shift_counter <= shift_counter + 1'h1;
       end
-      else cycle_counter <= cycle_counter + 1'h1;
+      else if (cycle_counter < divider) begin
+        cycle_counter <= cycle_counter + 1'h1;
+      end
     end
   end
 

@@ -23,6 +23,7 @@ module rvx #(
     input  wire                  miso,
     output wire                  cs,
     input  wire                  i2c_sda_input,
+    input  wire                  i2c_scl_input,
     output wire                  i2c_sda_output,
     output wire                  i2c_scl_output
 
@@ -337,7 +338,7 @@ module rvx #(
 
   );
 
-  rvx_i2c #() rvx_i2c_instance (
+  rvx_i2c rvx_i2c_instance (
 
       // Global signals
       .clock  (clock),
@@ -355,6 +356,7 @@ module rvx #(
 
       // I2C signals
       .sda_input (i2c_sda_input),
+      .scl_input (i2c_scl_input),
       .sda_output(i2c_sda_output),
       .scl_output(i2c_scl_output),
 
