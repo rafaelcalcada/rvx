@@ -15,7 +15,7 @@ module rvx_cmod_a7 #(
     input  wire miso,
     output wire cs,
     inout  wire sda,
-    output wire scl,
+    inout  wire scl,
     input  wire push_button_0,  // Used for reset
     input  wire push_button_1,  // Used for toggling LED
     output wire led_0,
@@ -46,10 +46,9 @@ module rvx_cmod_a7 #(
 
   rvx #(
 
-      .TCM_SIZE_IN_BYTES     (32768),
-      .TCM_BOOT_IMAGE_PATH   ("rvx_timer_example.mem"),
-      .SPI_BOOT_IMAGE_ADDRESS(32'h00000000),
-      .GPIO_WIDTH            (GPIO_WIDTH)
+      .TCM_SIZE_IN_BYTES  (32768),
+      .TCM_BOOT_IMAGE_PATH("rvx_i2c_example.mem"),
+      .GPIO_WIDTH         (GPIO_WIDTH)
 
   ) rvx_instance (
 
@@ -65,6 +64,7 @@ module rvx_cmod_a7 #(
       .gpio_output_enable(gpio_output_enable),
       .gpio_output       (gpio_output),
       .i2c_sda_input     (sda),
+      .i2c_scl_input     (scl),
       .i2c_sda_output    (i2c_sda_output),
       .i2c_scl_output    (i2c_scl_output)
 

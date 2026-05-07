@@ -24,6 +24,7 @@ module rvx_i2c_tb ();
   reg     [ 3:0] write_strobe;
 
   // I2C signals
+  reg            scl_input;
   wire           sda_output;
   wire           i2c_irq;
 
@@ -54,6 +55,7 @@ module rvx_i2c_tb ();
 
       // I2C signals
       .sda_input (sda_output),
+      .scl_input (scl_input),
       .sda_output(),
       .scl_output(),
 
@@ -79,6 +81,7 @@ module rvx_i2c_tb ();
 
       // I2C signals
       .sda_input (),
+      .scl_input (scl_input),
       .sda_output(sda_output),
       .scl_output(),
 
@@ -248,6 +251,15 @@ module rvx_i2c_tb ();
     $display("");
 
     $finish();
+  end
+
+  // Test clock stretching by forcing the SCL line low when the I2C controller releases it
+  initial begin
+    scl_input = 1'b1;
+    #1550;
+    scl_input = 1'b0;
+    #1000;
+    scl_input = 1'b1;
   end
 
 endmodule

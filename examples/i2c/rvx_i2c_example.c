@@ -15,7 +15,7 @@ void main(void)
   rvx_uart_send_string(RVX_UART_ADDRESS, "This example reads the ID from BMP280 - Digital Pressure Sensor\n");
 
   // Set I2C prescale to 10 kHz for 12 MHz
-  rvx_i2c_prescale_set(RVX_I2C_ADDRESS, 299u);
+  rvx_i2c_set_divider(RVX_I2C_ADDRESS, 1200);
 
   const uint8_t bmp280_slave_addr = 0b1110110; // Or 0b1110111
   const uint8_t bmp280_id_reg_addr = 0xD0;
