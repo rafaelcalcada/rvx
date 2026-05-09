@@ -226,6 +226,8 @@
 `define RVX_I2C_STATUS_BIT_RUN 0
 `define RVX_I2C_STATUS_BIT_ACK 1
 `define RVX_I2C_STATUS_BIT_IRQ 2
+`define RVX_I2C_STATUS_BIT_SDA 3
+`define RVX_I2C_STATUS_BIT_SCL 4
 
 // I2C register status bit masks
 `define RVX_I2C_STATUS_MASK_RUN 16'h1
