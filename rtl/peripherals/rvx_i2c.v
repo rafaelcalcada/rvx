@@ -47,7 +47,7 @@ module rvx_i2c (
   reg start;
   reg clear_irq;
   reg [2:0] command;
-  wire [2:0] status = {i2c_irq, rx_ack_bit, busy | start};
+  wire [4:0] status = {scl_input, sda_input, i2c_irq, rx_ack_bit, busy | start};
   wire clock_stretching = busy && scl_input == 1'b0 && scl_data_shift_reg[17] == 1'b1 &&
       command == `RVX_I2C_COMMAND_DATA;
 
@@ -88,7 +88,7 @@ module rvx_i2c (
         `RVX_I2C_DIVIDER_REG_ADDR: read_data <= {16'b0, divider};
         `RVX_I2C_DATA_REG_ADDR:    read_data <= {24'b0, rx_data};
         `RVX_I2C_COMMAND_REG_ADDR: read_data <= {29'b0, command};
-        `RVX_I2C_STATUS_REG_ADDR:  read_data <= {29'b0, status};
+        `RVX_I2C_STATUS_REG_ADDR:  read_data <= {27'b0, status};
         default:                   read_data <= {32'b0};
       endcase
     end

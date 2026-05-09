@@ -169,7 +169,7 @@ module rvx_i2c_tb ();
     `RVX_ASSERT(read_data === 32'h0, "Register RVX_I2C_COMMAND_REG_ADDR is not 0 after reset.")
 
     read_register(`RVX_I2C_STATUS_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h0, "Register RVX_I2C_STATUS_REG_ADDR is not 0 after reset.")
+    `RVX_ASSERT(read_data === 32'h18, "Register RVX_I2C_STATUS_REG_ADDR is not 0x18 after reset.")
 
     `RVX_ASSERT(i2c_irq === 1'b0, "Irq is not clear after reset.")
 
@@ -187,7 +187,7 @@ module rvx_i2c_tb ();
     write_register(`RVX_I2C_STATUS_REG_ADDR, `RVX_I2C_STATUS_MASK_RUN);
     #(CLOCK_PERIOD * 4);
     read_register(`RVX_I2C_STATUS_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h1, "Register RVX_I2C_STATUS_REG_ADDR is not 0x00000001 after write.")
+    `RVX_ASSERT(read_data === 32'h19, "Register RVX_I2C_STATUS_REG_ADDR is not 0x00000001 after write.")
     #(CLOCK_PERIOD * 50);
 
     `RVX_TITLE("Test data");
@@ -199,7 +199,7 @@ module rvx_i2c_tb ();
     read_register(`RVX_I2C_DATA_REG_ADDR);
     `RVX_ASSERT(read_data === 32'h0, "Register RVX_I2C_DATA_REG_ADDR is not 0x00000000 after write.")
     read_register(`RVX_I2C_STATUS_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h4, "Register RVX_I2C_STATUS_REG_ADDR is not 0x00000004 after write.")
+    `RVX_ASSERT(read_data === 32'h14, "Register RVX_I2C_STATUS_REG_ADDR is not 0x00000014 after write.")
 
     `RVX_TITLE("Test set irq after run");
     `RVX_ASSERT(i2c_irq === 1'b1, "Irq is not set")
@@ -212,7 +212,7 @@ module rvx_i2c_tb ();
 
     write_register(`RVX_I2C_STATUS_REG_ADDR, `RVX_I2C_STATUS_MASK_RUN);
     read_register(`RVX_I2C_STATUS_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h5, "Register RVX_I2C_STATUS_REG_ADDR is not 0x00000005 after write.")
+    `RVX_ASSERT(read_data === 32'h15, "Register RVX_I2C_STATUS_REG_ADDR is not 0x00000015 after write.")
     #(CLOCK_PERIOD * 50);
 
     `RVX_TITLE("Test set irq after run");
@@ -227,7 +227,7 @@ module rvx_i2c_tb ();
     read_register(`RVX_I2C_DATA_REG_ADDR);
     `RVX_ASSERT(read_data === 32'h3, "Register RVX_I2C_DATA_REG_ADDR is not 0x00000003 after write.")
     read_register(`RVX_I2C_STATUS_REG_ADDR);
-    `RVX_ASSERT(read_data === 32'h6, "Register RVX_I2C_STATUS_REG_ADDR is not 0x00000006 after write.")
+    `RVX_ASSERT(read_data === 32'h16, "Register RVX_I2C_STATUS_REG_ADDR is not 0x00000016 after write.")
 
     `RVX_TITLE("Test set irq after run");
     `RVX_ASSERT(i2c_irq === 1'b1, "Irq is not set")
