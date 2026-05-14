@@ -36,7 +36,7 @@ theme:
     favicon: images/rvx_favicon.png
     highlightjs: true
     palette:
-      primary: indigo
+      primary: white
     features:
         - navigation.top
         - navigation.tabs
