@@ -15,13 +15,13 @@ set(RVX_BARE_METAL TRUE)
 # Special flag for bootloader compilation, uses a different linker script
 set(RVX_BOOTLOADER TRUE)
 
-# Fetch RVX HAL
+# Fetch RVX SDK
 include(FetchContent)
-FetchContent_Declare(rvx_hal
-  GIT_REPOSITORY https://github.com/rafaelcalcada/rvx-hal.git
+FetchContent_Declare(rvx_sdk
+  GIT_REPOSITORY https://github.com/rafaelcalcada/rvx-sdk.git
   GIT_TAG main
 )
-FetchContent_MakeAvailable(rvx_hal)
+FetchContent_MakeAvailable(rvx_sdk)
 
 # Define the project languages
 project(${APP_NAME} LANGUAGES C ASM) # ASM is needed for RVX startup code
@@ -32,8 +32,8 @@ set(SOURCE_FILES rvx_bootloader.c)
 # Create the executable
 add_executable(${APP_NAME} ${SOURCE_FILES})
 
-# Link to RVX HAL
-target_link_libraries(${APP_NAME} PRIVATE rvx_hal)
+# Link to RVX SDK
+target_link_libraries(${APP_NAME} PRIVATE rvx_sdk)
 
 # Generate boot image
 rvx_generate_boot_image(${APP_NAME})

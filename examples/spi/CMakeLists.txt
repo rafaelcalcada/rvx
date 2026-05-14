@@ -21,15 +21,15 @@ set(RVX_HEAP_SIZE 1024)
 # For FreeRTOS applications, set to FALSE or leave it undefined.
 set(RVX_BARE_METAL TRUE)
 
-# Fetch RVX HAL
-# Note that the RVX HAL is included before the project() command,
+# Fetch RVX SDK
+# Note that the RVX SDK is included before the project() command,
 # so that it can set up compiler and linker settings for RVX.
 include(FetchContent)
-FetchContent_Declare(rvx_hal
-  GIT_REPOSITORY https://github.com/rafaelcalcada/rvx-hal.git
+FetchContent_Declare(rvx_sdk
+  GIT_REPOSITORY https://github.com/rafaelcalcada/rvx-sdk.git
   GIT_TAG main
 )
-FetchContent_MakeAvailable(rvx_hal)
+FetchContent_MakeAvailable(rvx_sdk)
 
 # Define the project and set languages
 # ASM is needed for RVX startup code
@@ -38,8 +38,8 @@ project(${APP_NAME} LANGUAGES C ASM)
 # Create the executable
 add_executable(${APP_NAME} rvx_spi_example.c)
 
-# Link to RVX HAL
-target_link_libraries(${APP_NAME} PRIVATE rvx_hal)
+# Link to RVX SDK
+target_link_libraries(${APP_NAME} PRIVATE rvx_sdk)
 
 # This function generates the boot images for RVX
 rvx_generate_boot_image(${APP_NAME})

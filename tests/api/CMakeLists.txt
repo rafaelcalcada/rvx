@@ -15,13 +15,13 @@ set(RVX_HEAP_SIZE 2048)
 # Indicate that this is a bare-metal application
 set(RVX_BARE_METAL TRUE)
 
-# Fetch RVX HAL
+# Fetch RVX SDK
 include(FetchContent)
-FetchContent_Declare(rvx_hal
-  GIT_REPOSITORY https://github.com/rafaelcalcada/rvx-hal.git
+FetchContent_Declare(rvx_sdk
+  GIT_REPOSITORY https://github.com/rafaelcalcada/rvx-sdk.git
   GIT_TAG main
 )
-FetchContent_MakeAvailable(rvx_hal)
+FetchContent_MakeAvailable(rvx_sdk)
 
 # Define the project languages
 project(${APP_NAME} LANGUAGES C ASM)
@@ -42,8 +42,8 @@ add_executable(${APP_NAME} ${SOURCE_FILES})
 # Add include directories
 target_include_directories(${APP_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
-# Link to RVX HAL
-target_link_libraries(${APP_NAME} PRIVATE rvx_hal)
+# Link to RVX SDK
+target_link_libraries(${APP_NAME} PRIVATE rvx_sdk)
 
 # Generate boot image
 rvx_generate_boot_image(${APP_NAME})
