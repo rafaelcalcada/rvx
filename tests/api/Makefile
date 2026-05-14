@@ -18,15 +18,15 @@ tests:
 
 run:
 	@test -f ${RVX_SIMULATOR_PATH}/build/rvx_simulator || { echo "rvx_simulator not found. Run 'make simulator' first."; exit 1; }
-	@test -f build/rvx_hal_tests.mem || { echo "rvx_hal_tests.mem not found. Run 'make tests' to build the tests first."; exit 1; }
-	${RVX_SIMULATOR_PATH}/build/rvx_simulator build/rvx_hal_tests.mem --max-cycles=10000000
+	@test -f build/rvx_api_tests.mem || { echo "rvx_api_tests.mem not found. Run 'make tests' to build the tests first."; exit 1; }
+	${RVX_SIMULATOR_PATH}/build/rvx_simulator build/rvx_api_tests.mem --max-cycles=10000000
 
 simulator:
 	$(MAKE) -C ${RVX_SIMULATOR_PATH} -j$(nproc)
 
 clean:
 	rm -rf build
-	@echo "RVX HAL tests artifacts removed."
+	@echo "RVX API test artifacts removed."
 
 clean-all: clean
 	$(MAKE) -C ${RVX_SIMULATOR_PATH} clean

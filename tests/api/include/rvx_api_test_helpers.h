@@ -23,7 +23,7 @@
 extern int rvx_test_error_flag;
 extern int rvx_test_global_error_flag;
 
-/// @name RVX HAL Test Utility Functions
+/// @name RVX API Test Utility Functions
 /// @{
 void rvx_test_assert(bool condition, const char *message);
 void rvx_test_assert_eq(uint8_t val1, uint8_t val2, const char *message);

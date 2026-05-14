@@ -59,7 +59,7 @@ nav:
     - Homepage: 'index.md'
     - Developer Guide: 'devguide.md'
     - Design Reference: 'design.md'
-    - RVX HAL Reference: 'hardware.md'
+    - RVX API Reference: 'hardware.md'
     - Examples:
         - Hello World: 'examples/helloworld.md'
         - FreeRTOS: 'examples/freertos.md'

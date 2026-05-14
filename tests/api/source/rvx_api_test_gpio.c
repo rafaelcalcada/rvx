@@ -2,16 +2,16 @@
 // Copyright (c) 2020-2025 RVX Project Contributors
 
 #include "rvx.h"
-#include "rvx_hal_test_helpers.h"
+#include "rvx_api_test_helpers.h"
 
-/// @brief Run RVX HAL GPIO integration tests.
-void run_rvx_hal_gpio_test()
+/// @brief Run RVX API GPIO integration tests.
+void run_rvx_api_gpio_test()
 {
   RvxGpio *rvx_gpio_address = RVX_GPIO_ADDRESS;
   unsigned int gpio_tests_error_count = 0;
 
   rvx_uart_init(RVX_UART_ADDRESS, 1000000, 50000000);
-  rvx_uart_send_string(RVX_UART_ADDRESS, "\nRVX HAL - GPIO integration tests\n--------------------------------\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "\nRVX API - GPIO integration tests\n--------------------------------\n");
 
   rvx_test_start("\nTest 1: GPIO OUTPUT register is 0 after reset. ");
   RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_REG == 0);
@@ -98,9 +98,9 @@ void run_rvx_hal_gpio_test()
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
-  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the GPIO controller failed. "
+  const char *error_msg = "\n\nERROR: Some RVX API integration tests for the GPIO controller failed. "
                           "Check the test output for details.\n";
-  const char *success_msg = "\n\nRVX HAL GPIO tests: All tests passed successfully.\n";
+  const char *success_msg = "\n\nRVX API GPIO tests: All tests passed successfully.\n";
 
   if (gpio_tests_error_count)
     rvx_uart_send_string(RVX_UART_ADDRESS, error_msg);
