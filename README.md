@@ -5,12 +5,12 @@ RVX is a RISC-V microcontroller IP core written in Verilog for embedded, FPGA, a
 ## Features
 
 - **RISC-V ISA**: Implements the RV32I integer instruction set + Zicsr and Zmmul extensions.
-- **Verified**: Validated with the [RISC-V Tests][1] framework.
-- **Software Stack**: [RVX HAL][2] makes developing software for RVX fast, easy, and maintainable.
-- **Supports FreeRTOS** — Runs FreeRTOS out of the box, with full bare-metal support as well.
+- **Verified**: Tested with the [RISC-V Tests][1] framework.
+- **RVX Software Development Kit**: Provides a complete embedded software stack for RVX, including peripheral drivers, startup code, linker scripts, and build integration.
+- **FreeRTOS Ready** — Runs FreeRTOS out of the box, including example applications.
 - **Built-in Peripherals** — Includes I2C, SPI, GPIO, and UART controllers and drivers.
-- **Easy to Integrate** — Integrates cleanly into FPGA and ASIC workflows.
-- **Comprehensive Documentation** — Includes [Developer Guide][3], [Design Reference][4], [RVX HAL Reference][2], and several [Example Projects][5].
+- **Easy to Integrate** — Integrates cleanly into FPGA and ASIC workflows, avoiding vendor-specific constructs to ensure portability across synthesis tools.
+- **Comprehensive Documentation** — Includes [Developer Guide][2], [Design Reference][3], [RVX API Reference][4], and several [Example Projects][5].
 
 ## Getting Started
 
@@ -21,7 +21,7 @@ If you are new to RVX, start with the [Hello World][6] example. It demonstrates 
 Each example contains:
 
 - Step-by-step build and run instructions
-- Complete RTL and software source code
+- Complete RTL and software source codes
 - Pre-built FPGA bitstreams for supported boards
 
 ### Example Projects
@@ -38,35 +38,29 @@ Each example contains:
 
 Software for RVX is developed using the **RISC-V GNU Toolchain** and **CMake**.
 
-The [RVX Hardware Abstraction Layer][2] provides peripheral drivers and simple access to processor registers for RVX. It integrates with CMake to configure compiler and linker settings, making software development for RVX fast, easy, and maintainable.
+The [RVX Software Development Kit][13] provides a complete embedded software stack for RVX, including peripheral drivers, startup code, linker scripts, and build integration.
 
-For more details on the software stack and development workflow, see the [Developer Guide][3].
-
-## RVX Design
-
-RVX is written in synthesizable **Verilog** and is designed for compatibility with FPGA and ASIC workflows.
-
-The design avoids vendor-specific constructs to ensure portability across synthesis tools.
+For more details on the software stack and development workflow, see the [Developer Guide][2].
 
 ## Documentation
 
 The documentation for RVX includes:
 
-- [Developer Guide][3] — Guide for developing software applications for RVX.
-- [Design Reference][4] — Documentation for the RTL design of RVX, including architecture, source files, configuration parameters, I/O signals, and memory map.
-- [RVX HAL Reference][2] — Reference for the RVX Hardware Abstraction Layer (HAL), including peripheral drivers and processor register access.
-- [Example Projects][5] — Complete source code and instructions for building and running example applications.
+- [Developer Guide][2] — Guide for developing software applications for RVX.
+- [Design Reference][3] — Documentation for the RVX design, including architectural overview, source files, configuration parameters, I/O signals, and memory map.
+- [RVX API Reference][4] — Reference documentation for the RVX peripheral drivers' API.
+- [Example Projects][5] — Complete source code and instructions for building and running the example applications.
 
 ## License
 
-RVX is open source and distributed under the [MIT License][13].
+RVX is open source and distributed under the [MIT License][14].
 
 [![RVX Tests](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml/badge.svg)](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml)
 
 [1]: https://github.com/riscv-software-src/riscv-tests
-[2]: https://rafaelcalcada.github.io/rvx/hal
-[3]: https://rafaelcalcada.github.io/rvx/devguide
-[4]: https://rafaelcalcada.github.io/rvx/design
+[2]: https://rafaelcalcada.github.io/rvx/devguide
+[3]: https://rafaelcalcada.github.io/rvx/design
+[4]: https://rafaelcalcada.github.io/rvx/api
 [5]: https://rafaelcalcada.github.io/rvx/examples
 [6]: https://rafaelcalcada.github.io/rvx/examples/helloworld
 [7]: https://rafaelcalcada.github.io/rvx/examples/freertos
@@ -75,4 +69,5 @@ RVX is open source and distributed under the [MIT License][13].
 [10]: https://rafaelcalcada.github.io/rvx/examples/i2c
 [11]: https://rafaelcalcada.github.io/rvx/examples/gpio
 [12]: https://rafaelcalcada.github.io/rvx/examples/timer
-[13]: LICENSE
+[13]: https://rafaelcalcada.github.io/rvx/sdk
+[14]: LICENSE
