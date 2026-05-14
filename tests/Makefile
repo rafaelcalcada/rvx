@@ -10,7 +10,7 @@ all:
 	$(MAKE) -C testbenches/timer
 	$(MAKE) -C testbenches/i2c
 	$(MAKE) -C compliance
-	$(MAKE) -C hal
+	$(MAKE) -C api
 
 clean:
 	$(MAKE) -C testbenches/gpio clean
@@ -19,4 +19,4 @@ clean:
 	$(MAKE) -C testbenches/timer clean
 	$(MAKE) -C testbenches/i2c clean
 	$(MAKE) -C compliance clean-all
-	$(MAKE) -C hal clean-all
+	$(MAKE) -C api clean-all

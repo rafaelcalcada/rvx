@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025 RVX Project Contributors
 
 #include "rvx.h"
-#include "rvx_hal_test_helpers.h"
+#include "rvx_api_test_helpers.h"
 
 /// @name Global variables
 /// @{
@@ -10,7 +10,7 @@ uint8_t uart_received_byte = 0;                ///< Last byte received via UART 
 volatile bool uart_received_byte_flag = false; ///< Flag indicating a byte has been received via UART interrupt
 /// @}
 
-/// @name RVX HAL UART Test Utility Functions
+/// @name RVX API UART Test Utility Functions
 /// @{
 void transfer_byte_busy_wait(uint8_t tx_byte);
 void transfer_byte_interrupt(uint8_t tx_byte);
@@ -23,8 +23,8 @@ RVX_TRAP_HANDLER_M(rvx_trap_handler_fast_irq_0)
   uart_received_byte_flag = true;
 }
 
-/// @brief Run RVX HAL UART integration tests.
-void run_rvx_hal_uart_test()
+/// @brief Run RVX API UART integration tests.
+void run_rvx_api_uart_test()
 {
   RvxUart *rvx_uart_address = RVX_UART_ADDRESS;
   unsigned int uart_tests_error_count = 0;
@@ -35,7 +35,7 @@ void run_rvx_hal_uart_test()
   uint32_t status_reg_reset_value = rvx_uart_address->RVX_UART_STATUS_REG;
 
   rvx_uart_init(RVX_UART_ADDRESS, 1000000, 50000000);
-  rvx_uart_send_string(RVX_UART_ADDRESS, "\nRVX HAL - UART integration tests\n--------------------------------\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "\nRVX API - UART integration tests\n--------------------------------\n");
 
   rvx_test_start("\nTest 1: Initialize UART at 9600 baud. ");
   RVX_TEST_ASSERT(rvx_uart_address->RVX_UART_BAUD_REG == 50);
@@ -88,9 +88,9 @@ void run_rvx_hal_uart_test()
   rvx_test_finish("\n  All bytes transferred successfully. (Passed)");
   rvx_test_update_error_count(&uart_tests_error_count);
 
-  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the UART controller failed. "
+  const char *error_msg = "\n\nERROR: Some RVX API integration tests for the UART controller failed. "
                           "Check the test output for details.\n";
-  const char *success_msg = "\n\nRVX HAL UART tests: All tests passed successfully.\n";
+  const char *success_msg = "\n\nRVX API UART tests: All tests passed successfully.\n";
 
   if (uart_tests_error_count)
     rvx_uart_send_string(RVX_UART_ADDRESS, error_msg);

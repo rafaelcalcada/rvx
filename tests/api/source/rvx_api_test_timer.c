@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025 RVX Project Contributors
 
 #include "rvx.h"
-#include "rvx_hal_test_helpers.h"
+#include "rvx_api_test_helpers.h"
 
 /// @brief Set up the timer interrupt handler.
 RVX_TRAP_HANDLER_M(rvx_trap_handler_timer_m)
@@ -11,13 +11,13 @@ RVX_TRAP_HANDLER_M(rvx_trap_handler_timer_m)
   rvx_uart_send_string(RVX_UART_ADDRESS, "Passed.");
 }
 
-/// @brief Run RVX HAL Timer integration tests.
-void run_rvx_hal_timer_test()
+/// @brief Run RVX API Timer integration tests.
+void run_rvx_api_timer_test()
 {
   unsigned int timer_tests_error_count = 0;
 
   rvx_uart_init(RVX_UART_ADDRESS, 1000000, 50000000);
-  rvx_uart_send_string(RVX_UART_ADDRESS, "\nRVX HAL - Timer integration tests\n---------------------------------\n");
+  rvx_uart_send_string(RVX_UART_ADDRESS, "\nRVX API - Timer integration tests\n---------------------------------\n");
 
   rvx_test_start("\nTest 1: Timer COUNTER ENABLE register is 1 after reset. ");
   RVX_TEST_ASSERT(rvx_timer_is_running(RVX_TIMER_ADDRESS) == true);
@@ -72,9 +72,9 @@ void run_rvx_hal_timer_test()
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&timer_tests_error_count);
 
-  const char *error_msg = "\n\nERROR: Some RVX HAL integration tests for the Timer controller failed. "
+  const char *error_msg = "\n\nERROR: Some RVX API integration tests for the Timer controller failed. "
                           "Check the test output for details.\n";
-  const char *success_msg = "\n\nRVX HAL Timer tests: All tests passed successfully.\n";
+  const char *success_msg = "\n\nRVX API Timer tests: All tests passed successfully.\n";
 
   if (timer_tests_error_count)
     rvx_uart_send_string(RVX_UART_ADDRESS, error_msg);

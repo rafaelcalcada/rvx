@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.28)
 
 # Name of the project/executable to be generated
-set(APP_NAME "rvx_hal_tests")
+set(APP_NAME "rvx_api_tests")
 
 # Memory and stack sizes
 set(RVX_MEMORY_SIZE 32768)
@@ -28,12 +28,12 @@ project(${APP_NAME} LANGUAGES C ASM)
 
 # Source files for the application
 set(SOURCE_FILES
-  source/rvx_hal_test.c
-  source/rvx_hal_test_helpers.c
-  source/rvx_hal_test_uart.c
-  source/rvx_hal_test_gpio.c
-  source/rvx_hal_test_spi.c
-  source/rvx_hal_test_timer.c
+  source/rvx_api_test.c
+  source/rvx_api_test_helpers.c
+  source/rvx_api_test_uart.c
+  source/rvx_api_test_gpio.c
+  source/rvx_api_test_spi.c
+  source/rvx_api_test_timer.c
 )
 
 # Create the executable
