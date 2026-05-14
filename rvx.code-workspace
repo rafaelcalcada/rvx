@@ -9,12 +9,12 @@
       "name": "RVX Simulator"
     },
     {
-      "path": "/workspaces/rvx/hal",
-      "name": "RVX HAL"
+      "path": "/workspaces/rvx/sdk",
+      "name": "RVX SDK"
     },
     {
-      "path": "/workspaces/rvx/tests/hal",
-      "name": "RVX HAL Tests"
+      "path": "/workspaces/rvx/tests/api",
+      "name": "RVX API Tests"
     },
     {
       "path": "/workspaces/rvx/tests/compliance",
