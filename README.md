@@ -15,9 +15,9 @@ RVX is a RISC-V microcontroller IP core written in Verilog for embedded, FPGA, a
 
 ## Getting Started
 
-The fastest way to evaluate RVX is to build and run one of the example projects.
+The fastest way to evaluate RVX is to build and run one of the example projects for your FPGA board.
 
-If you are new to RVX, start with the [Hello World][6] example. It demonstrates how to build and run a simple "Hello, World!" program for RVX, and introduces the RVX toolchain and development workflow.
+If you are new to RVX, start with the [Hello World][6] example. It demonstrates how to build and run a simple "Hello, World!" program for RVX, introducing the RVX toolchain and development workflow.
 
 Each example contains:
 
@@ -33,7 +33,7 @@ Each example contains:
 - [SPI][9] - Communicates with external SPI devices using the SPI peripheral.
 - [I2C][10] - Example of communication using the I2C controller.
 - [GPIO][11] - Digital input/output control using the GPIO module.
-- [Timer][12] - Time interval measurement and periodic interrupt generation.
+- [Timer][12] - Demonstrates the use of the built-in timer peripheral for timekeeping and scheduling.
 
 ## Software Stack
 
