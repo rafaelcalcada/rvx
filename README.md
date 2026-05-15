@@ -4,12 +4,13 @@ RVX is a RISC-V microcontroller IP core written in Verilog for embedded, FPGA, a
 
 ## Features
 
-- **RISC-V ISA**: Implements the RV32I integer instruction set + Zicsr and Zmmul extensions.
-- **Verified**: Tested with the [RISC-V Tests][1] framework.
-- **RVX Software Development Kit**: Provides a complete embedded software stack for RVX, including peripheral drivers, startup code, linker scripts, and build integration.
+- **RISC-V ISA** — Implements the RV32I integer instruction set and the Zicsr and Zmmul extensions.
+- **Verified** — Tested with the [RISC-V Tests][1] framework.
+- **Software Development Kit** — The [RVX SDK][13] provides a complete embedded software stack for RVX, including peripheral drivers, startup code, linker scripts, and build integration.
 - **FreeRTOS Ready** — Runs FreeRTOS out of the box, including example applications.
 - **Built-in Peripherals** — Includes I2C, SPI, GPIO, and UART controllers and drivers.
-- **Easy to Integrate** — Integrates cleanly into FPGA and ASIC workflows, avoiding vendor-specific constructs to ensure portability across synthesis tools.
+- **Easy to Integrate** — Integrates cleanly into FPGA and ASIC workflows.
+- **Portable** — Avoids vendor-specific constructs to ensure portability across synthesis tools.
 - **Comprehensive Documentation** — Includes [Developer Guide][2], [Design Reference][3], [RVX API Reference][4], and several [Example Projects][5].
 
 ## Getting Started
