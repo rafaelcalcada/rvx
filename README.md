@@ -37,11 +37,11 @@ Each example contains:
 
 ## Software Stack
 
-Software for RVX is developed using the **RISC-V GNU Toolchain**.
+Software for RVX is developed using the [RISC-V GNU Toolchain](https://github.com/riscv/riscv-gnu-toolchain).
 
 The [RVX SDK][13] provides a complete embedded software stack for RVX, including peripheral drivers, startup code, linker scripts, and build integration.
 
-For more details on the software stack and development workflow, see the [Developer Guide][2].
+For details on the software stack and development workflow, see the [Developer Guide][2].
 
 ## Documentation
 
