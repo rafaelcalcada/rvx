@@ -7,94 +7,80 @@
 /// @brief Run RVX API GPIO integration tests.
 void run_rvx_api_gpio_test()
 {
-  RvxGpio *rvx_gpio_address = RVX_GPIO_ADDRESS;
+  RvxGpioRegs *gpio_controller = (RvxGpioRegs *)RVX_GPIO_CONTROLLER_ADDRESS;
   unsigned int gpio_tests_error_count = 0;
 
   rvx_uart_init(RVX_UART_ADDRESS, 1000000, 50000000);
   rvx_uart_send_string(RVX_UART_ADDRESS, "\nRVX API - GPIO integration tests\n--------------------------------\n");
 
   rvx_test_start("\nTest 1: GPIO OUTPUT register is 0 after reset. ");
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_REG == 0);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_REG == 0);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
   rvx_test_start("\nTest 2: GPIO OUTPUT ENABLE register is 0 after reset. ");
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_ENABLE_REG == 0);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_ENABLE_REG == 0);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
   rvx_test_start("\nTest 3: GPIO READ register is 0 after reset. ");
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_READ_REG == 0xa5a5a5a5);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_READ_REG == 0xa5a5a5a5);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
   rvx_test_start("\nTest 4: Configure a pin as output. ");
-  rvx_gpio_set_direction(RVX_GPIO_ADDRESS, 2, RVX_GPIO_OUTPUT);
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_ENABLE_REG == 0x4);
-  RVX_TEST_ASSERT(rvx_gpio_read(RVX_GPIO_ADDRESS, 2) == false);
+  rvx_gpio_pin_mode(gpio_controller, 2, RVX_GPIO_OUTPUT);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_ENABLE_REG == 0x4);
+  RVX_TEST_ASSERT(rvx_gpio_pin_read(gpio_controller, 2) == RVX_GPIO_LOW);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
   rvx_test_start("\nTest 5: Configure the same pin as input. ");
-  rvx_gpio_set_direction(RVX_GPIO_ADDRESS, 2, RVX_GPIO_INPUT);
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_ENABLE_REG == 0x0);
-  RVX_TEST_ASSERT(rvx_gpio_read(RVX_GPIO_ADDRESS, 2) == true);
+  rvx_gpio_pin_mode(gpio_controller, 2, RVX_GPIO_INPUT);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_ENABLE_REG == 0x0);
+  RVX_TEST_ASSERT(rvx_gpio_pin_read(gpio_controller, 2) == RVX_GPIO_HIGH);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
   rvx_test_start("\nTest 6: Configure multiple pins as output. ");
-  rvx_gpio_set_direction_mask(RVX_GPIO_ADDRESS, 0xF00FF00F);
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_ENABLE_REG == 0xF00FF00F);
-  RVX_TEST_ASSERT(rvx_gpio_read_all(RVX_GPIO_ADDRESS) == 0x05a005a0);
+  rvx_gpio_port_mode(gpio_controller, 0xF00FF00F);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_ENABLE_REG == 0xF00FF00F);
+  RVX_TEST_ASSERT(rvx_gpio_port_read(gpio_controller) == 0x05a005a0);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
   rvx_test_start("\nTest 7: Configure multiple pins as inputs. ");
-  rvx_gpio_set_direction_mask(RVX_GPIO_ADDRESS, 0xF00F0000);
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_ENABLE_REG == 0xF00F0000);
-  RVX_TEST_ASSERT(rvx_gpio_read_all(RVX_GPIO_ADDRESS) == 0x05a0a5a5);
+  rvx_gpio_port_mode(gpio_controller, 0xF00F0000);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_ENABLE_REG == 0xF00F0000);
+  RVX_TEST_ASSERT(rvx_gpio_port_read(gpio_controller) == 0x05a0a5a5);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
   rvx_test_start("\nTest 8: Write value (1) to an output pin. ");
-  rvx_gpio_write(RVX_GPIO_ADDRESS, 16, true);
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_REG == 0x00010000);
-  RVX_TEST_ASSERT(rvx_gpio_read_all(RVX_GPIO_ADDRESS) == 0x05a1a5a5);
+  rvx_gpio_pin_write(gpio_controller, 16, RVX_GPIO_HIGH);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_REG == 0x00010000);
+  RVX_TEST_ASSERT(rvx_gpio_port_read(gpio_controller) == 0x05a1a5a5);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
   rvx_test_start("\nTest 9: Clear (write 0) the same output pin. ");
-  rvx_gpio_set_low(RVX_GPIO_ADDRESS, 16);
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_REG == 0x00000000);
-  RVX_TEST_ASSERT(rvx_gpio_read_all(RVX_GPIO_ADDRESS) == 0x05a0a5a5);
+  rvx_gpio_pin_clear(gpio_controller, 16);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_REG == 0x00000000);
+  RVX_TEST_ASSERT(rvx_gpio_port_read(gpio_controller) == 0x05a0a5a5);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
   rvx_test_start("\nTest 10: Set (write 1) the same output pin. ");
-  rvx_gpio_set_high(RVX_GPIO_ADDRESS, 16);
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_REG == 0x00010000);
-  RVX_TEST_ASSERT(rvx_gpio_read_all(RVX_GPIO_ADDRESS) == 0x05a1a5a5);
+  rvx_gpio_pin_write(gpio_controller, 16, RVX_GPIO_HIGH);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_REG == 0x00010000);
+  RVX_TEST_ASSERT(rvx_gpio_port_read(gpio_controller) == 0x05a1a5a5);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 
-  rvx_test_start("\nTest 11: Write values (0xf0000000) to multiple output pins. ");
-  rvx_gpio_write_mask(RVX_GPIO_ADDRESS, 0xf0000000);
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_REG == 0xf0000000);
-  RVX_TEST_ASSERT(rvx_gpio_read_all(RVX_GPIO_ADDRESS) == 0xf5a0a5a5);
-  rvx_test_finish("(Passed)");
-  rvx_test_update_error_count(&gpio_tests_error_count);
-
-  rvx_test_start("\nTest 12: Clear (0xf0000000) multiple output pins. ");
-  rvx_gpio_set_low_mask(RVX_GPIO_ADDRESS, 0xf0000000);
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_REG == 0x00000000);
-  RVX_TEST_ASSERT(rvx_gpio_read_all(RVX_GPIO_ADDRESS) == 0x05a0a5a5);
-  rvx_test_finish("(Passed)");
-  rvx_test_update_error_count(&gpio_tests_error_count);
-
-  rvx_test_start("\nTest 13: Set (0xf0000000) multiple output pins. ");
-  rvx_gpio_set_high_mask(RVX_GPIO_ADDRESS, 0xf0000000);
-  RVX_TEST_ASSERT(rvx_gpio_address->RVX_GPIO_OUTPUT_REG == 0xf0000000);
-  RVX_TEST_ASSERT(rvx_gpio_read_all(RVX_GPIO_ADDRESS) == 0xf5a0a5a5);
+  rvx_test_start("\nTest 11: Write values (0xf0000000) to all output pins. ");
+  rvx_gpio_port_write(gpio_controller, 0xf0000000);
+  RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_REG == 0xf0000000);
+  RVX_TEST_ASSERT(rvx_gpio_port_read(gpio_controller) == 0xf5a0a5a5);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&gpio_tests_error_count);
 

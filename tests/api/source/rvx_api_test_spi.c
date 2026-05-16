@@ -8,6 +8,7 @@ void transfer_test();
 
 void run_rvx_api_spi_test()
 {
+  RvxGpioRegs *gpio_controller = (RvxGpioRegs *)RVX_GPIO_CONTROLLER_ADDRESS;
   RvxSpi *rvx_spi_address = RVX_SPI_ADDRESS;
   unsigned int spi_tests_error_count = 0;
 
@@ -15,8 +16,8 @@ void run_rvx_api_spi_test()
   rvx_uart_send_string(RVX_UART_ADDRESS,
                        "\nRVX API - SPI integration tests\n---------------------------------------\n");
 
-  rvx_gpio_set_direction(RVX_GPIO_ADDRESS, 0, RVX_GPIO_OUTPUT); // Use GPIO pin 0 as CS for subordinate 1
-  rvx_gpio_set_high(RVX_GPIO_ADDRESS, 0);                       // Deassert CS for subordinate 1
+  rvx_gpio_pin_mode(gpio_controller, 0, RVX_GPIO_OUTPUT); // Use GPIO pin 0 as CS for subordinate 1
+  rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_HIGH);  // Deassert CS for subordinate 1
 
   rvx_test_start("\nTest 1: SPI MODE register value is 0 after reset. ");
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_MODE == RVX_SPI_MODE_0);
@@ -60,11 +61,11 @@ void run_rvx_api_spi_test()
   rvx_spi_set_divider(RVX_SPI_ADDRESS, 50);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_DIVIDER == 24);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_MODE == RVX_SPI_MODE_1);
-  rvx_gpio_set_low(RVX_GPIO_ADDRESS, 0); // Assert CS for subordinate 1
-  RVX_TEST_ASSERT(rvx_gpio_read(RVX_GPIO_ADDRESS, 0) == false);
+  rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_LOW); // Assert CS for subordinate 1
+  RVX_TEST_ASSERT(rvx_gpio_pin_read(gpio_controller, 0) == RVX_GPIO_LOW);
   transfer_test();
-  rvx_gpio_set_high(RVX_GPIO_ADDRESS, 0); // Deassert CS for subordinate 1
-  RVX_TEST_ASSERT(rvx_gpio_read(RVX_GPIO_ADDRESS, 0) == true);
+  rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_HIGH); // Deassert CS for subordinate 1
+  RVX_TEST_ASSERT(rvx_gpio_pin_read(gpio_controller, 0) == RVX_GPIO_HIGH);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&spi_tests_error_count);
 
@@ -73,11 +74,11 @@ void run_rvx_api_spi_test()
   rvx_spi_set_divider(RVX_SPI_ADDRESS, 50);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_DIVIDER == 24);
   RVX_TEST_ASSERT(rvx_spi_address->RVX_SPI_MODE == RVX_SPI_MODE_2);
-  rvx_gpio_set_low(RVX_GPIO_ADDRESS, 0); // Assert CS for subordinate 1
-  RVX_TEST_ASSERT(rvx_gpio_read(RVX_GPIO_ADDRESS, 0) == false);
+  rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_LOW); // Assert CS for subordinate 1
+  RVX_TEST_ASSERT(rvx_gpio_pin_read(gpio_controller, 0) == RVX_GPIO_LOW);
   transfer_test();
-  rvx_gpio_set_high(RVX_GPIO_ADDRESS, 0); // Deassert CS for subordinate 1
-  RVX_TEST_ASSERT(rvx_gpio_read(RVX_GPIO_ADDRESS, 0) == true);
+  rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_HIGH); // Deassert CS for subordinate 1
+  RVX_TEST_ASSERT(rvx_gpio_pin_read(gpio_controller, 0) == RVX_GPIO_HIGH);
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&spi_tests_error_count);
 

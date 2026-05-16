@@ -47,7 +47,7 @@ module rvx_cmod_a7 #(
   rvx #(
 
       .TCM_SIZE_IN_BYTES  (32768),
-      .TCM_BOOT_IMAGE_PATH("rvx_i2c_example.mem"),
+      .TCM_BOOT_IMAGE_PATH("rvx_gpio_example.mem"),
       .GPIO_WIDTH         (GPIO_WIDTH)
 
   ) rvx_instance (
