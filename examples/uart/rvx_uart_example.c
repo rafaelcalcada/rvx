@@ -7,14 +7,17 @@
 char uart_rx_buffer[UART_RX_BUFFER_SIZE]; // Buffer to store bytes received via UART
 unsigned int uart_rx_buffer_count = 0;    // Number of bytes in the UART RX buffer
 
+// Pointer to the UART controller registers.
+extern RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
+
 void main(void)
 {
   // Initialize UART at 9600 baud (assuming clock frequency is 12 MHz)
-  rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
+  rvx_uart_set_baud_rate(uart_controller, 9600, 12000000);
 
   // Print welcome message
-  rvx_uart_send_string(RVX_UART_ADDRESS, "RVX UART Example Project\n\n");
-  rvx_uart_send_string(RVX_UART_ADDRESS, "Type something and press Enter to echo it back.\n");
+  rvx_uart_send_string(uart_controller, "RVX UART Example Project\n\n");
+  rvx_uart_send_string(uart_controller, "Type something and press Enter to echo it back.\n");
 
   // Enable vectored interrupt mode and Fast Interrupt 0 in M-mode, then globally enable interrupts in M-mode
   // The UART interrupt line is connected to Fast Interrupt 0 by default
@@ -30,7 +33,7 @@ void main(void)
 RVX_TRAP_HANDLER_M(rvx_trap_handler_fast_irq_0)
 {
   // Read received byte from UART
-  char rx_data = rvx_uart_read(RVX_UART_ADDRESS);
+  char rx_data = rvx_uart_read(uart_controller);
 
   // Predicate conditions for handling received byte
   bool enter_key_pressed = (rx_data == '\n' || rx_data == '\r');
@@ -43,19 +46,19 @@ RVX_TRAP_HANDLER_M(rvx_trap_handler_fast_irq_0)
   if (backspace_pressed && buffer_not_empty)
   {
     uart_rx_buffer[--uart_rx_buffer_count] = '\0';
-    rvx_uart_send_string(RVX_UART_ADDRESS, "\b \b");
+    rvx_uart_send_string(uart_controller, "\b \b");
   }
   else if (printable_char_pressed && !buffer_full)
   {
     uart_rx_buffer[uart_rx_buffer_count++] = rx_data;
     uart_rx_buffer[uart_rx_buffer_count] = '\0';
-    rvx_uart_send(RVX_UART_ADDRESS, rx_data);
+    rvx_uart_send(uart_controller, rx_data);
   }
   else if ((enter_key_pressed && buffer_not_empty) || buffer_full)
   {
-    rvx_uart_send_string(RVX_UART_ADDRESS, "\nYou typed: '");
-    rvx_uart_send_string(RVX_UART_ADDRESS, uart_rx_buffer);
-    rvx_uart_send_string(RVX_UART_ADDRESS, "'\n");
+    rvx_uart_send_string(uart_controller, "\nYou typed: '");
+    rvx_uart_send_string(uart_controller, uart_rx_buffer);
+    rvx_uart_send_string(uart_controller, "'\n");
     uart_rx_buffer_count = 0;
     uart_rx_buffer[0] = '\0';
   }

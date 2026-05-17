@@ -15,15 +15,18 @@ extern uint8_t __heap_end;                  ///< Heap end symbol provided by RVX
 // Pointer to the GPIO controller registers.
 RvxGpioRegs *gpio_controller = (RvxGpioRegs *)RVX_GPIO_CONTROLLER_ADDRESS;
 
+// Pointer to the UART controller registers.
+RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
+
 void main(void)
 {
   // Initialize UART at 9600 baud (assuming clock frequency is 12 MHz)
-  rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
+  rvx_uart_set_baud_rate(uart_controller, 9600, 12000000);
 
   // Print welcome message
-  rvx_uart_send_string(RVX_UART_ADDRESS, "RVX FreeRTOS Example Project\n\n");
+  rvx_uart_send_string(uart_controller, "RVX FreeRTOS Example Project\n\n");
   rvx_uart_send_string(
-      RVX_UART_ADDRESS,
+      uart_controller,
       "LEDs 0 and 1 will blink alternately at different rates with the help of FreeRTOS task scheduler.\n");
 
   // Configure pins 0 and 2 as outputs
@@ -80,7 +83,7 @@ RVX_NAKED void rvx_trap_handler_default(void)
 void freertos_risc_v_application_interrupt_handler(uint32_t interrupt_cause)
 {
   (void)interrupt_cause;
-  rvx_uart_send_string(RVX_UART_ADDRESS, "Interrupt occurred!\n");
+  rvx_uart_send_string(uart_controller, "Interrupt occurred!\n");
 
   // Example
 
@@ -94,7 +97,7 @@ void freertos_risc_v_application_interrupt_handler(uint32_t interrupt_cause)
 void freertos_risc_v_application_exception_handler(uint32_t exception_cause)
 {
   (void)exception_cause;
-  rvx_uart_send_string(RVX_UART_ADDRESS, "Exception occurred!\n");
+  rvx_uart_send_string(uart_controller, "Exception occurred!\n");
 
   // Example
 

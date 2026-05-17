@@ -8,12 +8,15 @@ void main(void)
   // Pointer to the GPIO controller registers.
   RvxGpioRegs *gpio_controller = (RvxGpioRegs *)RVX_GPIO_CONTROLLER_ADDRESS;
 
+  // Pointer to the UART controller registers.
+  RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
+
   // Initialize UART at 9600 baud (assuming clock frequency is 12 MHz)
-  rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
+  rvx_uart_set_baud_rate(uart_controller, 9600, 12000000);
 
   // Print welcome message
-  rvx_uart_send_string(RVX_UART_ADDRESS, "RVX GPIO Example Project\n\n");
-  rvx_uart_send_string(RVX_UART_ADDRESS, "To toggle LED 0 state, press push-button 1.\n");
+  rvx_uart_send_string(uart_controller, "RVX GPIO Example Project\n\n");
+  rvx_uart_send_string(uart_controller, "To toggle LED 0 state, press push-button 1.\n");
 
   // Configure pin 0 as output, pin 1 as input
   rvx_gpio_pin_mode(gpio_controller, 0, RVX_GPIO_OUTPUT);

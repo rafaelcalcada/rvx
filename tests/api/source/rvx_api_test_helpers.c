@@ -3,6 +3,9 @@
 
 #include "rvx_api_test_helpers.h"
 
+// Pointer to the UART controller registers.
+extern RvxUartRegs *uart_controller;
+
 /// @brief Global variables to track test errors
 /// @{
 int rvx_test_error_flag = 0;        ///< Local error flag for the current test
@@ -22,7 +25,7 @@ void rvx_test_assert(bool condition, const char *message)
 {
   if (!condition)
   {
-    rvx_uart_send_string(RVX_UART_ADDRESS, message);
+    rvx_uart_send_string(uart_controller, message);
     rvx_test_error_flag = 1;
     rvx_test_global_error_flag = 1;
   }
@@ -42,12 +45,12 @@ void rvx_test_assert_eq(uint8_t val1, uint8_t val2, const char *message)
 {
   if (val1 != val2)
   {
-    rvx_uart_send_string(RVX_UART_ADDRESS, message);
-    rvx_uart_send_string(RVX_UART_ADDRESS, "\nLeft-hand value: ");
+    rvx_uart_send_string(uart_controller, message);
+    rvx_uart_send_string(uart_controller, "\nLeft-hand value: ");
     rvx_test_print_byte(val1);
-    rvx_uart_send_string(RVX_UART_ADDRESS, "\nRight-hand value: ");
+    rvx_uart_send_string(uart_controller, "\nRight-hand value: ");
     rvx_test_print_byte(val2);
-    rvx_uart_send(RVX_UART_ADDRESS, '\n');
+    rvx_uart_send(uart_controller, '\n');
     rvx_test_error_flag = 1;
     rvx_test_global_error_flag = 1;
   }
@@ -68,7 +71,7 @@ void rvx_test_print_byte(const uint8_t read_data)
   str_val[2] = high_nibble < 10 ? high_nibble + '0' : high_nibble - 10 + 'a';
   str_val[3] = low_nibble < 10 ? low_nibble + '0' : low_nibble - 10 + 'a';
   str_val[4] = '\0';
-  rvx_uart_send_string(RVX_UART_ADDRESS, str_val);
+  rvx_uart_send_string(uart_controller, str_val);
 }
 
 /**
@@ -87,7 +90,7 @@ void rvx_test_print_double_word_hex(uint64_t value)
     buffer[17 - i] = hex_chars[(value >> (i * 4)) & 0xF];
   }
   buffer[18] = '\0';
-  rvx_uart_send_string(RVX_UART_ADDRESS, buffer);
+  rvx_uart_send_string(uart_controller, buffer);
 }
 
 /**
@@ -97,7 +100,7 @@ void rvx_test_print_double_word_hex(uint64_t value)
  */
 void rvx_test_start(const char *test_message)
 {
-  rvx_uart_send_string(RVX_UART_ADDRESS, test_message);
+  rvx_uart_send_string(uart_controller, test_message);
   rvx_test_error_flag = 0;
 }
 
@@ -108,7 +111,7 @@ void rvx_test_finish(const char *success_message)
 {
   if (rvx_test_error_flag == 0)
   {
-    rvx_uart_send_string(RVX_UART_ADDRESS, success_message);
+    rvx_uart_send_string(uart_controller, success_message);
   }
 }
 
