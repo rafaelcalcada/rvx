@@ -6,6 +6,9 @@
 // Pointer to the UART controller registers.
 RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
 
+// Pointer to the SPI controller registers.
+RvxSpiRegs *spi_controller = (RvxSpiRegs *)RVX_SPI_CONTROLLER_ADDRESS;
+
 void print_byte(const uint8_t read_data);
 
 void main(void)
@@ -19,15 +22,15 @@ void main(void)
                        "This example reads the manufacturer ID of the FPGA board's SPI flash memory.\n");
 
   // Initialize the SPI controller to mode 0 and 1MHz frequency (assuming RVX is connected to a 12 MHz clock source)
-  rvx_spi_set_mode(RVX_SPI_ADDRESS, RVX_SPI_MODE_0);
-  rvx_spi_set_divider(RVX_SPI_ADDRESS, 12);
+  rvx_spi_set_mode(spi_controller, RVX_SPI_MODE_0);
+  rvx_spi_set_divider(spi_controller, 12);
 
   // Read Manufacturer ID from SPI Flash
   rvx_uart_send_string(uart_controller, "\nReading Manufacturer ID from SPI Flash...\n");
-  rvx_spi_assert_cs(RVX_SPI_ADDRESS);
-  rvx_spi_write(RVX_SPI_ADDRESS, 0x9F);                       // 0x9F = Read Manufacturer ID command
-  uint8_t read_val = rvx_spi_transfer(RVX_SPI_ADDRESS, 0x00); // Read Manufacturer ID
-  rvx_spi_deassert_cs(RVX_SPI_ADDRESS);
+  rvx_spi_assert_cs(spi_controller);
+  rvx_spi_write(spi_controller, 0x9F);                       // 0x9F = Read Manufacturer ID command
+  uint8_t read_val = rvx_spi_transfer(spi_controller, 0x00); // Read Manufacturer ID
+  rvx_spi_deassert_cs(spi_controller);
 
   // Print Manufacturer ID
   print_byte(read_val);
