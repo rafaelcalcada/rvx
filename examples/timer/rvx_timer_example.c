@@ -9,6 +9,9 @@ RvxGpioRegs *gpio_controller = (RvxGpioRegs *)RVX_GPIO_CONTROLLER_ADDRESS;
 // Pointer to the UART controller registers.
 RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
 
+// Pointer to the timer controller registers.
+RvxTimerRegs *timer_controller = (RvxTimerRegs *)RVX_TIMER_CONTROLLER_ADDRESS;
+
 void main(void)
 {
   // Initialize UART at 9600 baud (RVX clock is 12 MHz)
@@ -25,29 +28,34 @@ void main(void)
   rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_HIGH);
 
   // Configure the machine timer to generate an interrupt every 1 second
-  rvx_timer_stop(RVX_TIMER_ADDRESS);                  // Make sure the timer is stopped before configuring
-  rvx_timer_set_compare(RVX_TIMER_ADDRESS, 12000000); // Assuming CPU frequency is 12 MHz
-  rvx_timer_set_counter(RVX_TIMER_ADDRESS, 0);        // Reset counter to 0 before starting
+  rvx_timer_stop_counter(timer_controller);          // Make sure the timer is stopped before configuring
+  rvx_timer_set_compare(timer_controller, 12000000); // Assuming CPU frequency is 12 MHz
+  rvx_timer_reset_counter(timer_controller);         // Reset counter before starting the timer
 
-  // Enable vectored interrupt mode and timer interrupts in M-mode, then globally enable interrupts in M-mode
-  rvx_irq_set_mode(RVX_PRIVILEGE_LEVEL_M, RVX_INTERRUPT_MODE_VECTORED);
-  rvx_irq_enable(RVX_PRIVILEGE_LEVEL_M, RVX_IRQ_TIMER_BITMASK);
-  rvx_irq_enable_global(RVX_PRIVILEGE_LEVEL_M);
+  // Enable vectored interrupt mode
+  rvx_irq_set_mode_m(RVX_IRQ_MODE_VECTORED);
+
+  // Enable the timer interrupt
+  rvx_irq_enable_m(RVX_IRQ_TIMER_BITMASK);
+
+  // Enable interrupts globally in M-mode
+  rvx_irq_enable_global_m();
 
   // Start counting the time
-  rvx_timer_start(RVX_TIMER_ADDRESS);
+  rvx_timer_start_counter(timer_controller);
 
   // Wait for a timer interrupt
-  rvx_wait_for_interrupt();
+  while (1)
+    ;
 }
 
-// Provides a custom interrupt handler for timer interrupts in M-mode.
+// Provides a trap handle for the timer interrupt
 RVX_TRAP_HANDLER_M(rvx_trap_handler_timer_m)
 {
   // Read LED 0 state and toggle it
   RvxGpioPinState led_state = rvx_gpio_pin_read(gpio_controller, 0);
   rvx_gpio_pin_write(gpio_controller, 0, !led_state);
 
-  // Set the timer counter back to 0 to restart the timer for the next interrupt
-  rvx_timer_set_counter(RVX_TIMER_ADDRESS, 0);
+  // Reset the timer counter
+  rvx_timer_reset_counter(timer_controller);
 }

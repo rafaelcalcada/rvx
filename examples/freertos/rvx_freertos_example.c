@@ -20,7 +20,7 @@ RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
 
 void main(void)
 {
-  // Initialize UART at 9600 baud (assuming clock frequency is 12 MHz)
+  // Initialize UART at 9600 baud (RVX clock frequency is 12 MHz)
   rvx_uart_set_baud_rate(uart_controller, 9600, 12000000);
 
   // Print welcome message
@@ -33,7 +33,7 @@ void main(void)
   rvx_gpio_pin_mode(gpio_controller, 0, RVX_GPIO_OUTPUT);
   rvx_gpio_pin_mode(gpio_controller, 2, RVX_GPIO_OUTPUT);
 
-  // Configure FreeRTOS heap regions (this example used FreeRTOS heap_5.c)
+  // Configure FreeRTOS heap regions (this example uses FreeRTOS heap_5.c)
   HeapRegion_t xHeapRegions[] = {{&__heap_start, (size_t)(&__heap_end - &__heap_start)}, {NULL, 0}};
 
   // Initialize heap_5 with the regions
