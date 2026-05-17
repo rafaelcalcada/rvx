@@ -3,16 +3,19 @@
 
 #include "rvx.h"
 
+// Pointer to the UART controller registers.
+RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
+
 void print_byte(const uint8_t read_data);
 
 void main(void)
 {
   // Initialize UART at 9600 baud (assuming RVX is connected to a 12 MHz clock source)
-  rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
+  rvx_uart_set_baud_rate(uart_controller, 9600, 12000000);
 
   // Print welcome message
-  rvx_uart_send_string(RVX_UART_ADDRESS, "RVX SPI Example Project\n\n");
-  rvx_uart_send_string(RVX_UART_ADDRESS,
+  rvx_uart_send_string(uart_controller, "RVX SPI Example Project\n\n");
+  rvx_uart_send_string(uart_controller,
                        "This example reads the manufacturer ID of the FPGA board's SPI flash memory.\n");
 
   // Initialize the SPI controller to mode 0 and 1MHz frequency (assuming RVX is connected to a 12 MHz clock source)
@@ -20,7 +23,7 @@ void main(void)
   rvx_spi_set_divider(RVX_SPI_ADDRESS, 12);
 
   // Read Manufacturer ID from SPI Flash
-  rvx_uart_send_string(RVX_UART_ADDRESS, "\nReading Manufacturer ID from SPI Flash...\n");
+  rvx_uart_send_string(uart_controller, "\nReading Manufacturer ID from SPI Flash...\n");
   rvx_spi_assert_cs(RVX_SPI_ADDRESS);
   rvx_spi_write(RVX_SPI_ADDRESS, 0x9F);                       // 0x9F = Read Manufacturer ID command
   uint8_t read_val = rvx_spi_transfer(RVX_SPI_ADDRESS, 0x00); // Read Manufacturer ID
@@ -28,20 +31,20 @@ void main(void)
 
   // Print Manufacturer ID
   print_byte(read_val);
-  rvx_uart_send_string(RVX_UART_ADDRESS, "Manufacturer: ");
+  rvx_uart_send_string(uart_controller, "Manufacturer: ");
   switch (read_val)
   {
   case 0x01:
-    rvx_uart_send_string(RVX_UART_ADDRESS, "Infineon\n");
+    rvx_uart_send_string(uart_controller, "Infineon\n");
     break;
   case 0xC2:
-    rvx_uart_send_string(RVX_UART_ADDRESS, "Macronix\n");
+    rvx_uart_send_string(uart_controller, "Macronix\n");
     break;
   case 0x20:
-    rvx_uart_send_string(RVX_UART_ADDRESS, "Micron\n");
+    rvx_uart_send_string(uart_controller, "Micron\n");
     break;
   default:
-    rvx_uart_send_string(RVX_UART_ADDRESS, "Unknown manufacturer\n");
+    rvx_uart_send_string(uart_controller, "Unknown manufacturer\n");
     break;
   }
 }
@@ -56,7 +59,7 @@ void print_byte(const uint8_t read_data)
   str_val[2] = high_nibble < 10 ? high_nibble + '0' : high_nibble - 10 + 'a';
   str_val[3] = low_nibble < 10 ? low_nibble + '0' : low_nibble - 10 + 'a';
   str_val[4] = '\0';
-  rvx_uart_send_string(RVX_UART_ADDRESS, "\nRead value: ");
-  rvx_uart_send_string(RVX_UART_ADDRESS, str_val);
-  rvx_uart_send_string(RVX_UART_ADDRESS, "\n");
+  rvx_uart_send_string(uart_controller, "\nRead value: ");
+  rvx_uart_send_string(uart_controller, str_val);
+  rvx_uart_send_string(uart_controller, "\n");
 }

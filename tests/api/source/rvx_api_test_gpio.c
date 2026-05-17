@@ -8,10 +8,11 @@
 void run_rvx_api_gpio_test()
 {
   RvxGpioRegs *gpio_controller = (RvxGpioRegs *)RVX_GPIO_CONTROLLER_ADDRESS;
+  RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
   unsigned int gpio_tests_error_count = 0;
 
-  rvx_uart_init(RVX_UART_ADDRESS, 1000000, 50000000);
-  rvx_uart_send_string(RVX_UART_ADDRESS, "\nRVX API - GPIO integration tests\n--------------------------------\n");
+  rvx_uart_set_baud_rate(uart_controller, 1000000, 50000000);
+  rvx_uart_send_string(uart_controller, "\nRVX API - GPIO integration tests\n--------------------------------\n");
 
   rvx_test_start("\nTest 1: GPIO OUTPUT register is 0 after reset. ");
   RVX_TEST_ASSERT(gpio_controller->RVX_GPIO_OUTPUT_REG == 0);
@@ -89,7 +90,7 @@ void run_rvx_api_gpio_test()
   const char *success_msg = "\n\nRVX API GPIO tests: All tests passed successfully.\n";
 
   if (gpio_tests_error_count)
-    rvx_uart_send_string(RVX_UART_ADDRESS, error_msg);
+    rvx_uart_send_string(uart_controller, error_msg);
   else
-    rvx_uart_send_string(RVX_UART_ADDRESS, success_msg);
+    rvx_uart_send_string(uart_controller, success_msg);
 }

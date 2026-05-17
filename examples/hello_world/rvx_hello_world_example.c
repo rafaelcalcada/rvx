@@ -5,9 +5,12 @@
 
 void main()
 {
-  // Initialize UART at 9600 baud (assuming clock frequency is 12 MHz)
-  rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
+  // Pointer to the UART controller registers.
+  RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
 
-  // Send "Hello World, RVX!" message via RVX UART
-  rvx_uart_send_string(RVX_UART_ADDRESS, "Hello World, RVX!\n");
+  // Initialize UART at 9600 baud (RVX clock is 12 MHz)
+  rvx_uart_set_baud_rate(uart_controller, 9600, 12000000);
+
+  // Send "Hello World, RVX!" message
+  rvx_uart_send_string(uart_controller, "Hello World, RVX!\n");
 }

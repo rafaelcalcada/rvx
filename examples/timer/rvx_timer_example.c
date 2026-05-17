@@ -6,14 +6,17 @@
 // Pointer to the GPIO controller registers.
 RvxGpioRegs *gpio_controller = (RvxGpioRegs *)RVX_GPIO_CONTROLLER_ADDRESS;
 
+// Pointer to the UART controller registers.
+RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
+
 void main(void)
 {
-  // Initialize UART at 9600 baud (assuming clock frequency is 12 MHz)
-  rvx_uart_init(RVX_UART_ADDRESS, 9600, 12000000);
+  // Initialize UART at 9600 baud (RVX clock is 12 MHz)
+  rvx_uart_set_baud_rate(uart_controller, 9600, 12000000);
 
   // Print welcome message
-  rvx_uart_send_string(RVX_UART_ADDRESS, "RVX Timer Example Project\n\n");
-  rvx_uart_send_string(RVX_UART_ADDRESS, "LED 0 state will be toggled by the timer every second.\n");
+  rvx_uart_send_string(uart_controller, "RVX Timer Example Project\n\n");
+  rvx_uart_send_string(uart_controller, "LED 0 state will be toggled by the timer every second.\n");
 
   // Configure pin 0 as output
   rvx_gpio_pin_mode(gpio_controller, 0, RVX_GPIO_OUTPUT);
