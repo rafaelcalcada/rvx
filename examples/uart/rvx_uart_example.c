@@ -8,29 +8,32 @@ char uart_rx_buffer[UART_RX_BUFFER_SIZE]; // Buffer to store bytes received via 
 unsigned int uart_rx_buffer_count = 0;    // Number of bytes in the UART RX buffer
 
 // Pointer to the UART controller registers.
-extern RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
+RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
 
 void main(void)
 {
-  // Initialize UART at 9600 baud (assuming clock frequency is 12 MHz)
+  // Initialize UART at 9600 baud (RVX clock frequency is 12 MHz)
   rvx_uart_set_baud_rate(uart_controller, 9600, 12000000);
 
   // Print welcome message
   rvx_uart_send_string(uart_controller, "RVX UART Example Project\n\n");
   rvx_uart_send_string(uart_controller, "Type something and press Enter to echo it back.\n");
 
-  // Enable vectored interrupt mode and Fast Interrupt 0 in M-mode, then globally enable interrupts in M-mode
-  // The UART interrupt line is connected to Fast Interrupt 0 by default
-  rvx_irq_set_mode(RVX_PRIVILEGE_LEVEL_M, RVX_INTERRUPT_MODE_VECTORED);
-  rvx_irq_enable(RVX_PRIVILEGE_LEVEL_M, RVX_IRQ_FAST_BITMASK(0));
-  rvx_irq_enable_global(RVX_PRIVILEGE_LEVEL_M);
+  // Enable vectored interrupt mode
+  rvx_irq_set_mode_m(RVX_IRQ_MODE_VECTORED);
+
+  // Enable UART interrupt
+  rvx_irq_enable_m(RVX_IRQ_UART_BITMASK);
+
+  // Enable interrupts in M-mode
+  rvx_irq_enable_global_m();
 
   // Wait for a UART interrupt
   rvx_wait_for_interrupt();
 }
 
-// Interrupt handler for Fast Interrupt 0 (connected to UART interrupt line)
-RVX_TRAP_HANDLER_M(rvx_trap_handler_fast_irq_0)
+// Provide a trap handler for the UART interrupt
+RVX_TRAP_HANDLER_M(rvx_trap_handler_uart_m)
 {
   // Read received byte from UART
   char rx_data = rvx_uart_read(uart_controller);
