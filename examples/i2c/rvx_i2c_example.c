@@ -6,6 +6,9 @@
 // Pointer to the UART controller registers.
 RvxUartRegs *uart_controller = (RvxUartRegs *)RVX_UART_CONTROLLER_ADDRESS;
 
+// Pointer to the I2C controller registers.
+RvxI2cRegs *i2c_controller = (RvxI2cRegs *)RVX_I2C_CONTROLLER_ADDRESS;
+
 void print_byte(const uint8_t read_data);
 
 void main(void)
@@ -15,22 +18,20 @@ void main(void)
 
   // Print welcome message
   rvx_uart_send_string(uart_controller, "RVX I2C Example Project\n\n");
-  rvx_uart_send_string(uart_controller, "This example reads the ID from BME280 - Digital Pressure Sensor\n");
+  rvx_uart_send_string(uart_controller, "This example reads the ID from BME280 - Temperature Sensor\n");
 
-  // Adjust I2C frequency by setting the clock divider (assuming 12 MHz clock, this sets I2C to 100 kHz)
-  rvx_i2c_set_divider(RVX_I2C_ADDRESS, 1200);
+  // Adjust I2C frequency by setting the clock divider (if RVX clock is 12 MHz, this sets I2C speed to 100 kHz)
+  rvx_i2c_set_divider(i2c_controller, 1200);
 
-  const uint8_t bmp280_slave_addr = 0b1110110;
-  const uint8_t bmp280_id_reg_addr = 0xD0;
-  uint8_t bmp280_id_value = 0;
+  const uint8_t bme280_peripheral_address = 0b1110110;
+  const uint8_t bme280_id_reg_address = 0xD0;
+  uint8_t bme280_id_value = 0;
 
   rvx_uart_send_string(uart_controller, "\nReading BME280 ID register over I2C...\n");
-  rvx_i2c_write_read(RVX_I2C_ADDRESS, bmp280_slave_addr, &bmp280_id_reg_addr, 1, &bmp280_id_value, 1);
+  rvx_i2c_write_read(i2c_controller, bme280_peripheral_address, &bme280_id_reg_address, 1, &bme280_id_value, 1);
 
   // Print BME280 ID
-  print_byte(bmp280_id_value);
-
-  rvx_wait_for_interrupt();
+  print_byte(bme280_id_value);
 }
 
 void print_byte(const uint8_t read_data)
