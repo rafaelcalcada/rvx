@@ -54,9 +54,9 @@ void led_0_task(void *pvParameters)
   for (;;)
   {
     vTaskDelay(pdMS_TO_TICKS(500)); // Delay 500 ms
-    rvx_gpio_write(gpio_controller, 0, RVX_GPIO_HIGH);
+    rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_HIGH);
     vTaskDelay(pdMS_TO_TICKS(500)); // Delay 500 ms
-    rvx_gpio_write(gpio_controller, 0, RVX_GPIO_LOW);
+    rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_LOW);
   }
 }
 
@@ -67,9 +67,9 @@ void led_1_task(void *pvParameters)
   for (;;)
   {
     vTaskDelay(pdMS_TO_TICKS(1000)); // Delay 1000 ms
-    rvx_gpio_write(gpio_controller, 2, RVX_GPIO_HIGH);
+    rvx_gpio_pin_write(gpio_controller, 2, RVX_GPIO_HIGH);
     vTaskDelay(pdMS_TO_TICKS(1000)); // Delay 1000 ms
-    rvx_gpio_write(gpio_controller, 2, RVX_GPIO_LOW);
+    rvx_gpio_pin_write(gpio_controller, 2, RVX_GPIO_LOW);
   }
 }
 
