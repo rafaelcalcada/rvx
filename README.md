@@ -6,12 +6,12 @@
 
 - **RISC-V ISA** — Implements the RV32I integer instruction set and the Zicsr and Zmmul extensions.
 - **Verified** — Tested with the [RISC-V Tests][1] framework.
-- **Software Development Kit** — The [RVX SDK][13] provides a complete embedded software stack, including peripheral drivers, startup code, linker scripts, and build integration.
+- **Software Development Kit** — The [RVX SDK][2] provides a complete embedded software stack, including peripheral drivers, startup code, linker scripts, and build integration.
 - **FreeRTOS** — RVX can run FreeRTOS, enabling multitasking and real-time capabilities.
 - **Built-in Peripherals** — Includes I2C, SPI, GPIO, and UART controllers and drivers.
 - **Easy to Integrate** — Integrates cleanly into FPGA and ASIC workflows.
 - **Portable** — Avoids vendor-specific constructs to ensure portability across synthesis tools.
-- **Documentation** — Includes [Developer Guide][2], [IP Reference][3], and several [Example Projects][5].
+- **Documentation** — Includes [Developer Guide][3], [IP Reference][4], and several [Example Projects][5].
 
 ## Getting Started
 
@@ -39,20 +39,20 @@ Each example contains:
 
 The documentation for RVX includes:
 
-- [Developer Guide][2] — Guide for developing software applications for RVX.
-- [IP Reference][3] — Documentation for the RVX design, including architectural overview, source files, configuration parameters, I/O signals, and memory map.
+- [Developer Guide][3] — Guide for developing software applications for RVX.
+- [IP Reference][4] — Documentation for the RVX design, including architectural overview, source files, configuration parameters, I/O signals, and memory map.
 - [Example Projects][5] — Complete source code and instructions for building and running the example applications.
 
 ## License
 
-RVX is free and open source, distributed under the [MIT License][14].
+RVX is free and open source, distributed under the [MIT License][13].
 
 [![RVX Tests](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml/badge.svg)](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml)
 
 [1]: https://github.com/riscv-software-src/riscv-tests
-[2]: https://rafaelcalcada.github.io/rvx/devguide
-[3]: https://rafaelcalcada.github.io/rvx/design
-[4]: https://rafaelcalcada.github.io/rvx/api
+[2]: https://github.com/rafaelcalcada/rvx-sdk
+[3]: https://rafaelcalcada.github.io/rvx/developer-guide
+[4]: https://rafaelcalcada.github.io/rvx/ip-reference
 [5]: https://rafaelcalcada.github.io/rvx/examples
 [6]: https://rafaelcalcada.github.io/rvx/examples/helloworld
 [7]: https://rafaelcalcada.github.io/rvx/examples/freertos
@@ -61,5 +61,4 @@ RVX is free and open source, distributed under the [MIT License][14].
 [10]: https://rafaelcalcada.github.io/rvx/examples/i2c
 [11]: https://rafaelcalcada.github.io/rvx/examples/gpio
 [12]: https://rafaelcalcada.github.io/rvx/examples/timer
-[13]: https://github.com/rafaelcalcada/rvx-sdk
-[14]: LICENSE
+[13]: LICENSE
