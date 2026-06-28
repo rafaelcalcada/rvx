@@ -1,5 +1,7 @@
 <p align="center"><img src="docs/source/images/rvx_logo.png" width="100"/></p><p align="center"><strong>Open-source RISC-V Microcontroller IP</strong></p>
 
+---
+
 ### About the Project
 
 **RVX** is a RISC-V microcontroller written in Verilog for embedded, FPGA, and ASIC applications. It offers a rich feature set while remaining easy to integrate, enabling rapid development of RISC-V systems — from FPGA prototypes to custom ASICs.
