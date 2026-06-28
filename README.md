@@ -1,6 +1,6 @@
-<p align="center"><img src="docs/source/images/rvx_logo.png" width="100"/></br><strong>Open-source RISC-V Microcontroller IP</strong></p>
+<p align="center"><img src="docs/source/images/rvx_logo.png" width="100"/></p><p align="center"><strong>Open-source RISC-V Microcontroller IP</strong></p>
 
-## About the Project
+### About the Project
 
 **RVX** is a RISC-V microcontroller written in Verilog for embedded, FPGA, and ASIC applications. It offers a rich feature set while remaining easy to integrate, enabling rapid development of RISC-V systems — from FPGA prototypes to custom ASICs.
 
@@ -13,7 +13,7 @@
 - **Portable** — Avoids vendor-specific constructs to ensure portability across synthesis tools.
 - **Documentation** — Includes [Developer Guide][3], [IP Reference][4], and several [Example Projects][5].
 
-## Getting Started
+### Getting Started
 
 The fastest way to evaluate RVX is to build and run one of the example projects for your FPGA board.
 
@@ -25,7 +25,7 @@ Each example contains:
 - Complete RTL and software source code
 - Pre-built FPGA bitstreams for featured boards
 
-## Examples
+### Examples
 
 - [Hello World][6] - Introduces the RVX toolchain and development workflow with a simple "Hello, World!" program.
 - [FreeRTOS][7] - Runs FreeRTOS on RVX, showcasing multitasking and real-time capabilities.
@@ -35,7 +35,7 @@ Each example contains:
 - [GPIO][11] - Digital input/output control using the GPIO controller.
 - [Timer][12] - Demonstrates the use of the built-in timer controller for timekeeping and scheduling.
 
-## Documentation
+### Documentation
 
 The documentation for RVX includes:
 
@@ -43,9 +43,11 @@ The documentation for RVX includes:
 - [IP Reference][4] — Documentation for the RVX design, including architectural overview, source files, configuration parameters, I/O signals, and memory map.
 - [Example Projects][5] — Complete source code and instructions for building and running the example applications.
 
-## License
+### License
 
 RVX is free and open source, distributed under the [MIT License][13].
+
+---
 
 [![RVX Tests](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml/badge.svg)](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml)
 
