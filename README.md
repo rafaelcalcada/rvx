@@ -15,6 +15,10 @@
 - **Portable** — Avoids vendor-specific constructs to ensure portability across synthesis tools.
 - **Documentation** — Includes [Developer Guide][3], [IP Reference][4], and several [Example Projects][5].
 
+### Architecture
+
+<p align="center"><img src="docs/source/images/rvx_architecture.svg" style="width: min(100%, 600px)"/></p>
+
 ### Getting Started
 
 The fastest way to evaluate RVX is to build and run one of the example projects for your FPGA board.
