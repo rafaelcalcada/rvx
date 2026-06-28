@@ -1,4 +1,4 @@
-site_name: RVX Docs
+site_name: RVX Documentation
 site_author: Rafael Calcada
 site_description: 32-bit RISC-V microcontroller for embedded, FPGA and ASIC applications
 repo_url: https://github.com/rafaelcalcada/rvx
@@ -57,9 +57,8 @@ remote_branch: docs
 copyright: Copyright (c) 2020-2026 RVX Project Contributors
 nav:
     - Homepage: 'index.md'
-    - Developer Guide: 'devguide.md'
-    - Design Reference: 'design.md'
-    - RVX API Reference: 'hardware.md'
+    - Developer Guide: 'developer-guide.md'
+    - IP Reference: 'ip-reference.md'
     - Examples:
         - Hello World: 'examples/helloworld.md'
         - FreeRTOS: 'examples/freertos.md'
