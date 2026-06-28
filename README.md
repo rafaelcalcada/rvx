@@ -17,7 +17,7 @@
 
 ### Architecture
 
-<p align="center"><img src="docs/source/images/rvx_architecture.png" width="80%"/></p>
+<p align="center"><img src="docs/source/images/rvx_architecture.png" width="75%"/></p>
 
 ### Getting Started
 
