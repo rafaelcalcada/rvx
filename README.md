@@ -15,8 +15,7 @@
 - **Portable** — Avoids vendor-specific constructs to ensure portability across synthesis tools.
 - **Documentation** — Includes [Developer Guide][3], [IP Reference][4], and several [Example Projects][5].
 
-### Architecture
-
+<p align="center"><strong></br>RVX Architecture Overview</strong></p>
 <p align="center"><img src="docs/source/images/rvx_architecture.png" width="80%"/></p>
 
 ### Getting Started
