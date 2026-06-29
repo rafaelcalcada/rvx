@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/source/images/rvx_logo.png" width="100"/></p><p align="center"><strong>Open-source RISC-V Microcontroller IP</strong></p>
 
----
+<p align="center"><a href="https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml"><img src="https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml/badge.svg"></a></p>
 
 ### About the Project
 
@@ -52,10 +52,6 @@ The documentation for RVX includes:
 ### License
 
 RVX is free and open source, distributed under the [MIT License][13].
-
----
-
-[![RVX Tests](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml/badge.svg)](https://github.com/rafaelcalcada/rvx/actions/workflows/tests.yml)
 
 [1]: https://github.com/riscv-software-src/riscv-tests
 [2]: https://github.com/rafaelcalcada/rvx-sdk
