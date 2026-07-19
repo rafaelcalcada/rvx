@@ -7,7 +7,7 @@ module rvx_tcm #(
     parameter SIZE_IN_BYTES = 8192,
 
     // Path to the file with program and data
-    parameter INIT_FILE_PATH = "",
+    parameter BOOT_IMAGE_PATH = "",
 
     // Base address of the memory
     parameter BASE_ADDRESS = 32'h00000000
@@ -60,7 +60,7 @@ module rvx_tcm #(
   integer i;
   initial begin
     for (i = BASE_ADDRESS/4; i < BASE_ADDRESS/4 + NUM_WORDS; i = i + 1) tcm[i] = 32'h00000000;
-    if (INIT_FILE_PATH != "") $readmemh(INIT_FILE_PATH, tcm);
+    if (BOOT_IMAGE_PATH != "") $readmemh(BOOT_IMAGE_PATH, tcm);
   end
 
   assign port0_effective_address = $unsigned(port0_address[31:0]) >> 2;

@@ -5,7 +5,7 @@
 
 module rvx_gpio #(
 
-    parameter GPIO_WIDTH = 1
+    parameter PIN_COUNT = 1
 
 ) (
 
@@ -14,19 +14,19 @@ module rvx_gpio #(
     input wire reset_n,
 
     // Register read/write
-    input  wire [           4:0] rw_address,
-    output reg  [          31:0] read_data,
-    input  wire                  read_request,
-    output reg                   read_response,
-    input  wire [GPIO_WIDTH-1:0] write_data,
-    input  wire [           3:0] write_strobe,
-    input  wire                  write_request,
-    output reg                   write_response,
+    input  wire [          4:0] rw_address,
+    output reg  [         31:0] read_data,
+    input  wire                 read_request,
+    output reg                  read_response,
+    input  wire [PIN_COUNT-1:0] write_data,
+    input  wire [          3:0] write_strobe,
+    input  wire                 write_request,
+    output reg                  write_response,
 
     // GPIO signals
-    input  wire [GPIO_WIDTH-1:0] gpio_input,
-    output reg  [GPIO_WIDTH-1:0] gpio_output_enable,
-    output reg  [GPIO_WIDTH-1:0] gpio_output
+    input  wire [PIN_COUNT-1:0] gpio_input,
+    output reg  [PIN_COUNT-1:0] gpio_output_enable,
+    output reg  [PIN_COUNT-1:0] gpio_output
 
 );
 
@@ -43,11 +43,11 @@ module rvx_gpio #(
       case (rw_address[4:0])
         `RVX_GPIO_READ_REG_ADDR: begin
           read_data <= {
-            {32 - GPIO_WIDTH{1'b0}}, (gpio_output_enable & gpio_output) | (~gpio_output_enable & gpio_input)
+            {32 - PIN_COUNT{1'b0}}, (gpio_output_enable & gpio_output) | (~gpio_output_enable & gpio_input)
           };
         end
-        `RVX_GPIO_OUTPUT_ENABLE_REG_ADDR: read_data <= {{32 - GPIO_WIDTH{1'b0}}, gpio_output_enable};
-        `RVX_GPIO_OUTPUT_REG_ADDR:        read_data <= {{32 - GPIO_WIDTH{1'b0}}, gpio_output};
+        `RVX_GPIO_OUTPUT_ENABLE_REG_ADDR: read_data <= {{32 - PIN_COUNT{1'b0}}, gpio_output_enable};
+        `RVX_GPIO_OUTPUT_REG_ADDR:        read_data <= {{32 - PIN_COUNT{1'b0}}, gpio_output};
         default:                          read_data <= 32'h00000000;
       endcase
     end
@@ -62,16 +62,16 @@ module rvx_gpio #(
   always @(posedge clock) begin
     if (!reset_n) begin
       write_response     <= 1'b0;
-      gpio_output_enable <= {GPIO_WIDTH{1'b0}};
-      gpio_output        <= {GPIO_WIDTH{1'b0}};
+      gpio_output_enable <= {PIN_COUNT{1'b0}};
+      gpio_output        <= {PIN_COUNT{1'b0}};
     end
     else if (valid_write_request == 1'b1) begin
       write_response <= 1'b1;
       case (rw_address[4:0])
-        `RVX_GPIO_OUTPUT_ENABLE_REG_ADDR: gpio_output_enable <= write_data[0+:GPIO_WIDTH];
-        `RVX_GPIO_OUTPUT_REG_ADDR:        gpio_output <= write_data[0+:GPIO_WIDTH];
-        `RVX_GPIO_CLEAR_REG_ADDR:         gpio_output <= gpio_output & ~write_data[0+:GPIO_WIDTH];
-        `RVX_GPIO_SET_REG_ADDR:           gpio_output <= gpio_output | write_data[0+:GPIO_WIDTH];
+        `RVX_GPIO_OUTPUT_ENABLE_REG_ADDR: gpio_output_enable <= write_data[0+:PIN_COUNT];
+        `RVX_GPIO_OUTPUT_REG_ADDR:        gpio_output <= write_data[0+:PIN_COUNT];
+        `RVX_GPIO_CLEAR_REG_ADDR:         gpio_output <= gpio_output & ~write_data[0+:PIN_COUNT];
+        `RVX_GPIO_SET_REG_ADDR:           gpio_output <= gpio_output | write_data[0+:PIN_COUNT];
         default:                          ;
       endcase
     end
