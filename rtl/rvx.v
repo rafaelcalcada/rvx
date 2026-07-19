@@ -5,26 +5,26 @@ module rvx #(
 
     parameter TCM_SIZE_IN_BYTES   = 8192,
     parameter TCM_BOOT_IMAGE_PATH = "",
-    parameter GPIO_WIDTH          = 1,
+    parameter GPIO_PIN_COUNT      = 1,
     parameter ENABLE_ZMMUL        = 0
 
 ) (
 
-    input  wire                  clock,
-    input  wire                  reset_n,
-    input  wire                  uart_rx,
-    output wire                  uart_tx,
-    input  wire [GPIO_WIDTH-1:0] gpio_input,
-    output wire [GPIO_WIDTH-1:0] gpio_output_enable,
-    output wire [GPIO_WIDTH-1:0] gpio_output,
-    output wire                  sclk,
-    output wire                  mosi,
-    input  wire                  miso,
-    output wire                  cs,
-    input  wire                  i2c_sda_input,
-    input  wire                  i2c_scl_input,
-    output wire                  i2c_sda_output,
-    output wire                  i2c_scl_output
+    input  wire                      clock,
+    input  wire                      reset_n,
+    input  wire                      uart_rx,
+    output wire                      uart_tx,
+    input  wire [GPIO_PIN_COUNT-1:0] gpio_input,
+    output wire [GPIO_PIN_COUNT-1:0] gpio_output_enable,
+    output wire [GPIO_PIN_COUNT-1:0] gpio_output,
+    output wire                      sclk,
+    output wire                      mosi,
+    input  wire                      miso,
+    output wire                      cs,
+    input  wire                      i2c_sda_input,
+    input  wire                      i2c_scl_input,
+    output wire                      i2c_sda_output,
+    output wire                      i2c_scl_output
 
 );
 
@@ -209,9 +209,9 @@ module rvx #(
 
   rvx_tcm #(
 
-      .SIZE_IN_BYTES (TCM_SIZE_IN_BYTES),
-      .INIT_FILE_PATH(TCM_BOOT_IMAGE_PATH),
-      .BASE_ADDRESS  (TCM_BASE_ADDRESS)
+      .SIZE_IN_BYTES  (TCM_SIZE_IN_BYTES),
+      .BOOT_IMAGE_PATH(TCM_BOOT_IMAGE_PATH),
+      .BASE_ADDRESS   (TCM_BASE_ADDRESS)
 
   ) rvx_tightly_coupled_memory_instance (
 
@@ -287,7 +287,7 @@ module rvx #(
 
   rvx_gpio #(
 
-      .GPIO_WIDTH(GPIO_WIDTH)
+      .PIN_COUNT(GPIO_PIN_COUNT)
 
   ) rvx_gpio_instance (
 
@@ -300,7 +300,7 @@ module rvx #(
       .read_data     (peripheral_read_data[32*GPIO_REGION_INDEX+:32]),
       .read_request  (peripheral_read_request[GPIO_REGION_INDEX]),
       .read_response (peripheral_read_response[GPIO_REGION_INDEX]),
-      .write_data    (peripheral_write_data[GPIO_WIDTH-1:0]),
+      .write_data    (peripheral_write_data[GPIO_PIN_COUNT-1:0]),
       .write_strobe  (peripheral_write_strobe),
       .write_request (peripheral_write_request[GPIO_REGION_INDEX]),
       .write_response(peripheral_write_response[GPIO_REGION_INDEX]),

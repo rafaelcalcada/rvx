@@ -33,7 +33,7 @@ module rvx_simulator #(
 
       .TCM_SIZE_IN_BYTES(TCM_SIZE_IN_BYTES),
       .ENABLE_ZMMUL     (ENABLE_ZMMUL),
-      .GPIO_WIDTH       (32)
+      .GPIO_PIN_COUNT   (32)
 
   ) rvx_instance (
 

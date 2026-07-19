@@ -37,7 +37,7 @@ module rvx_gpio_tb ();
   // verilator lint_off PINCONNECTEMPTY
   rvx_gpio #(
 
-      .GPIO_WIDTH(32)
+      .PIN_COUNT(32)
 
   ) rvx_gpio_instance0 (  // Instance 0 uses all 32 GPIO pins
 
@@ -64,7 +64,7 @@ module rvx_gpio_tb ();
 
   rvx_gpio #(
 
-      .GPIO_WIDTH(16)
+      .PIN_COUNT(16)
 
   ) rvx_gpio_instance1 (  // Instance 1 uses only 16 GPIO pins
 
@@ -91,7 +91,7 @@ module rvx_gpio_tb ();
 
   rvx_gpio #(
 
-      .GPIO_WIDTH(1)
+      .PIN_COUNT(1)
 
   ) rvx_gpio_instance2 (  // Instance 2 uses only 1 GPIO pin
 
