@@ -92,9 +92,9 @@ int main(int argc, char *argv[])
   // ---------------------------------------------------------------------------
 
   auto &tcm = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_tightly_coupled_memory_instance__DOT__tcm;
-  auto &rw_address = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__controller_rw_address;
-  auto &write_request = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__controller_write_request;
-  auto &write_data = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__controller_write_data;
+  auto &rw_address = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__dbus_controller_address;
+  auto &write_request = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__dbus_controller_wrequest;
+  auto &write_data = simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__dbus_controller_wdata;
   auto &tcm_size_in_bytes = simulator->rootp->rvx_simulator__DOT__TCM_SIZE_IN_BYTES;
   auto &uart_tx_bit_counter =
       simulator->rootp->rvx_simulator__DOT__rvx_instance__DOT__rvx_uart_instance__DOT__tx_bit_counter;

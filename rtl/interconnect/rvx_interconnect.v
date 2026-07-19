@@ -3,10 +3,14 @@
 
 module rvx_interconnect #(
 
-    // The number of connected peripheral devices
-    parameter                          NUM_PERIPHERALS = 1,
-    parameter [NUM_PERIPHERALS*32-1:0] BASE_ADDRESSES  = 0,
-    parameter [NUM_PERIPHERALS*32-1:0] REGION_SIZES    = 0
+    // Number of connected peripheral devices
+    parameter NUM_PERIPHERALS = 1,
+
+    // Base addresses for the the peripheral devices
+    parameter [NUM_PERIPHERALS*32-1:0] BASE_ADDRESSES = 0,
+
+    // Region sizes for the peripheral devices
+    parameter [NUM_PERIPHERALS*32-1:0] REGION_SIZES = 0
 
 ) (
 
@@ -14,49 +18,49 @@ module rvx_interconnect #(
     input wire clock,
     input wire reset_n,
 
-    // Connections with the controller device (RVX Core)
-    input  wire [31:0] controller_rw_address,
-    output reg  [31:0] controller_read_data,
-    input  wire        controller_read_request,
-    output reg         controller_read_response,
-    input  wire [31:0] controller_write_data,
-    input  wire [ 3:0] controller_write_strobe,
-    input  wire        controller_write_request,
-    output reg         controller_write_response,
+    // Connections with the device controlling the interconnect (RVX Core)
+    input  wire [31:0] controller_address,
+    output reg  [31:0] controller_rdata,
+    input  wire        controller_rrequest,
+    output reg         controller_rresponse,
+    input  wire [31:0] controller_wdata,
+    input  wire [ 3:0] controller_wstrobe,
+    input  wire        controller_wrequest,
+    output reg         controller_wresponse,
 
-    // Connections with the controlled peripheral devices (UART, SPI, GPIO, etc.)
-    output wire [                  31:0] peripheral_rw_address,
-    input  wire [NUM_PERIPHERALS*32-1:0] peripheral_read_data,
-    output wire [   NUM_PERIPHERALS-1:0] peripheral_read_request,
-    input  wire [   NUM_PERIPHERALS-1:0] peripheral_read_response,
-    output wire [                  31:0] peripheral_write_data,
-    output wire [                   3:0] peripheral_write_strobe,
-    output wire [   NUM_PERIPHERALS-1:0] peripheral_write_request,
-    input  wire [   NUM_PERIPHERALS-1:0] peripheral_write_response
+    // Connections with the controlled peripheral devices
+    output wire [                  31:0] peripheral_address,
+    input  wire [NUM_PERIPHERALS*32-1:0] peripheral_rdata,
+    output wire [   NUM_PERIPHERALS-1:0] peripheral_rrequest,
+    input  wire [   NUM_PERIPHERALS-1:0] peripheral_rresponse,
+    output wire [                  31:0] peripheral_wdata,
+    output wire [                   3:0] peripheral_wstrobe,
+    output wire [   NUM_PERIPHERALS-1:0] peripheral_wrequest,
+    input  wire [   NUM_PERIPHERALS-1:0] peripheral_wresponse
 
 );
 
   reg [NUM_PERIPHERALS-1:0] peripheral_sel;
   reg [NUM_PERIPHERALS-1:0] peripheral_sel_reg;
 
-  // Read/write request signals (forwarded directly)
+  // Read/write request signals (directly forwarded to the peripherals)
   // ---------------------------------------------------------------------------
 
-  assign peripheral_rw_address    = controller_rw_address;
-  assign peripheral_read_request  = peripheral_sel & {NUM_PERIPHERALS{controller_read_request}};
-  assign peripheral_write_data    = controller_write_data;
-  assign peripheral_write_strobe  = controller_write_strobe;
-  assign peripheral_write_request = peripheral_sel & {NUM_PERIPHERALS{controller_write_request}};
+  assign peripheral_address  = controller_address;
+  assign peripheral_rrequest = peripheral_sel & {NUM_PERIPHERALS{controller_rrequest}};
+  assign peripheral_wdata    = controller_wdata;
+  assign peripheral_wstrobe  = controller_wstrobe;
+  assign peripheral_wrequest = peripheral_sel & {NUM_PERIPHERALS{controller_wrequest}};
 
-  // Peripheral selection logic based on their base addresses and region sizes
+  // Selecting the peripheral based on the address provided by the controller
   // ---------------------------------------------------------------------------
 
   integer i;
   always @(*) begin
     for (i = 0; i < NUM_PERIPHERALS; i = i + 1) begin
       // Compare addresses per peripheral and set selection signal accordingly
-      if ((controller_rw_address >= BASE_ADDRESSES[i*32+:32]) &&
-          (controller_rw_address < (BASE_ADDRESSES[i*32+:32] + REGION_SIZES[i*32+:32])))
+      if ((controller_address >= BASE_ADDRESSES[i*32+:32]) &&
+          (controller_address < (BASE_ADDRESSES[i*32+:32] + REGION_SIZES[i*32+:32])))
         peripheral_sel[i] = 1'b1;
       else peripheral_sel[i] = 1'b0;
     end
@@ -67,8 +71,7 @@ module rvx_interconnect #(
 
   always @(posedge clock) begin
     if (!reset_n) peripheral_sel_reg <= {NUM_PERIPHERALS{1'b0}};
-    else if ((controller_read_request || controller_write_request) && (|peripheral_sel))
-      peripheral_sel_reg <= peripheral_sel;
+    else if ((controller_rrequest || controller_wrequest) && (|peripheral_sel)) peripheral_sel_reg <= peripheral_sel;
     else peripheral_sel_reg <= {NUM_PERIPHERALS{1'b0}};
   end
 
@@ -76,14 +79,14 @@ module rvx_interconnect #(
   // ---------------------------------------------------------------------------
 
   always @(*) begin
-    controller_read_data      = 32'b0;
-    controller_read_response  = 1'b1;
-    controller_write_response = 1'b1;
+    controller_rdata     = 32'b0;
+    controller_rresponse = 1'b1;
+    controller_wresponse = 1'b1;
     for (i = 0; i < NUM_PERIPHERALS; i = i + 1) begin
       if (peripheral_sel_reg[i]) begin
-        controller_read_data      = peripheral_read_data[i*32+:32];
-        controller_read_response  = peripheral_read_response[i];
-        controller_write_response = peripheral_write_response[i];
+        controller_rdata     = peripheral_rdata[i*32+:32];
+        controller_rresponse = peripheral_rresponse[i];
+        controller_wresponse = peripheral_wresponse[i];
       end
     end
   end
