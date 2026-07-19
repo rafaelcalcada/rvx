@@ -3,11 +3,10 @@
 
 module rvx #(
 
-    parameter TCM_SIZE_IN_BYTES      = 8192,
-    parameter TCM_BOOT_IMAGE_PATH    = "",
-    parameter SPI_BOOT_IMAGE_ADDRESS = 32'h00000000,
-    parameter GPIO_WIDTH             = 1,
-    parameter ENABLE_ZMMUL           = 0
+    parameter TCM_SIZE_IN_BYTES   = 8192,
+    parameter TCM_BOOT_IMAGE_PATH = "",
+    parameter GPIO_WIDTH          = 1,
+    parameter ENABLE_ZMMUL        = 0
 
 ) (
 
@@ -121,8 +120,7 @@ module rvx #(
 
   rvx_core #(
 
-      .SPI_BOOT_IMAGE_ADDRESS(SPI_BOOT_IMAGE_ADDRESS),
-      .ENABLE_ZMMUL          (ENABLE_ZMMUL)
+      .ENABLE_ZMMUL(ENABLE_ZMMUL)
 
   ) rvx_core_instance (
 

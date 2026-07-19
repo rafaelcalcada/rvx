@@ -4,9 +4,8 @@
 module rvx_simulator #(
 
     /* verilator public_flat_rd_on */
-    parameter TCM_SIZE_IN_BYTES      = 2097152,
-    parameter SPI_BOOT_IMAGE_ADDRESS = 32'h00000000,
-    parameter ENABLE_ZMMUL           = 1
+    parameter TCM_SIZE_IN_BYTES = 2097152,
+    parameter ENABLE_ZMMUL      = 1
     /* verilator public_off */
 
 ) (
@@ -32,10 +31,9 @@ module rvx_simulator #(
 
   rvx #(
 
-      .TCM_SIZE_IN_BYTES     (TCM_SIZE_IN_BYTES),
-      .SPI_BOOT_IMAGE_ADDRESS(SPI_BOOT_IMAGE_ADDRESS),
-      .ENABLE_ZMMUL          (ENABLE_ZMMUL),
-      .GPIO_WIDTH            (32)
+      .TCM_SIZE_IN_BYTES(TCM_SIZE_IN_BYTES),
+      .ENABLE_ZMMUL     (ENABLE_ZMMUL),
+      .GPIO_WIDTH       (32)
 
   ) rvx_instance (
 
