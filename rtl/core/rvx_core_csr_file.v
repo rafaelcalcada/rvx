@@ -3,11 +3,7 @@
 
 `include "rvx_constants.vh"
 
-module rvx_core_csr_file #(
-
-    parameter [31:0] SPI_BOOT_IMAGE_ADDRESS = 32'h00000000
-
-) (
+module rvx_core_csr_file (
 
     // Global signals
     input wire clock,
@@ -138,30 +134,29 @@ module rvx_core_csr_file #(
 
   always @* begin : csr_data_out_mux
     case (csr_address_s2)
-      `RISCV_CSR_MARCHID_ADDR:      csr_data_out_s2 = 32'h00000018;  // RVX microarchitecture ID
-      `RISCV_CSR_MIMPID_ADDR:       csr_data_out_s2 = 32'h00000007;  // Version 4.0.0
-      `RISCV_CSR_UCYCLE_ADDR:       csr_data_out_s2 = csr_mcycle[31:0];
-      `RISCV_CSR_UCYCLEH_ADDR:      csr_data_out_s2 = csr_mcycle[63:32];
-      `RISCV_CSR_UTIME_ADDR:        csr_data_out_s2 = csr_utime[31:0];
-      `RISCV_CSR_UTIMEH_ADDR:       csr_data_out_s2 = csr_utime[63:32];
-      `RISCV_CSR_UINSTRET_ADDR:     csr_data_out_s2 = csr_minstret[31:0];
-      `RISCV_CSR_UINSTRETH_ADDR:    csr_data_out_s2 = csr_minstret[63:32];
-      `RISCV_CSR_MSTATUS_ADDR:      csr_data_out_s2 = csr_mstatus;
-      `RISCV_CSR_MSTATUSH_ADDR:     csr_data_out_s2 = 32'h00000000;
-      `RISCV_CSR_MISA_ADDR:         csr_data_out_s2 = 32'h40000100;  // RV32I base ISA only
-      `RISCV_CSR_MIE_ADDR:          csr_data_out_s2 = csr_mie;
-      `RISCV_CSR_MTVEC_ADDR:        csr_data_out_s2 = csr_mtvec;
-      `RISCV_CSR_MSCRATCH_ADDR:     csr_data_out_s2 = csr_mscratch;
-      `RISCV_CSR_MEPC_ADDR:         csr_data_out_s2 = csr_mepc;
-      `RISCV_CSR_MCAUSE_ADDR:       csr_data_out_s2 = csr_mcause;
-      `RISCV_CSR_MTVAL_ADDR:        csr_data_out_s2 = csr_mtval;
-      `RISCV_CSR_MIP_ADDR:          csr_data_out_s2 = csr_mip;
-      `RISCV_CSR_MCYCLE_ADDR:       csr_data_out_s2 = csr_mcycle[31:0];
-      `RISCV_CSR_MCYCLEH_ADDR:      csr_data_out_s2 = csr_mcycle[63:32];
-      `RISCV_CSR_MINSTRET_ADDR:     csr_data_out_s2 = csr_minstret[31:0];
-      `RISCV_CSR_MINSTRETH_ADDR:    csr_data_out_s2 = csr_minstret[63:32];
-      `RVX_CSR_SPI_BOOT_IMAGE_ADDR: csr_data_out_s2 = SPI_BOOT_IMAGE_ADDRESS;
-      default:                      csr_data_out_s2 = 32'h00000000;
+      `RISCV_CSR_MARCHID_ADDR:   csr_data_out_s2 = 32'h00000018;  // RVX microarchitecture ID
+      `RISCV_CSR_MIMPID_ADDR:    csr_data_out_s2 = 32'h00000007;  // Version 4.0.0
+      `RISCV_CSR_UCYCLE_ADDR:    csr_data_out_s2 = csr_mcycle[31:0];
+      `RISCV_CSR_UCYCLEH_ADDR:   csr_data_out_s2 = csr_mcycle[63:32];
+      `RISCV_CSR_UTIME_ADDR:     csr_data_out_s2 = csr_utime[31:0];
+      `RISCV_CSR_UTIMEH_ADDR:    csr_data_out_s2 = csr_utime[63:32];
+      `RISCV_CSR_UINSTRET_ADDR:  csr_data_out_s2 = csr_minstret[31:0];
+      `RISCV_CSR_UINSTRETH_ADDR: csr_data_out_s2 = csr_minstret[63:32];
+      `RISCV_CSR_MSTATUS_ADDR:   csr_data_out_s2 = csr_mstatus;
+      `RISCV_CSR_MSTATUSH_ADDR:  csr_data_out_s2 = 32'h00000000;
+      `RISCV_CSR_MISA_ADDR:      csr_data_out_s2 = 32'h40000100;  // RV32I base ISA only
+      `RISCV_CSR_MIE_ADDR:       csr_data_out_s2 = csr_mie;
+      `RISCV_CSR_MTVEC_ADDR:     csr_data_out_s2 = csr_mtvec;
+      `RISCV_CSR_MSCRATCH_ADDR:  csr_data_out_s2 = csr_mscratch;
+      `RISCV_CSR_MEPC_ADDR:      csr_data_out_s2 = csr_mepc;
+      `RISCV_CSR_MCAUSE_ADDR:    csr_data_out_s2 = csr_mcause;
+      `RISCV_CSR_MTVAL_ADDR:     csr_data_out_s2 = csr_mtval;
+      `RISCV_CSR_MIP_ADDR:       csr_data_out_s2 = csr_mip;
+      `RISCV_CSR_MCYCLE_ADDR:    csr_data_out_s2 = csr_mcycle[31:0];
+      `RISCV_CSR_MCYCLEH_ADDR:   csr_data_out_s2 = csr_mcycle[63:32];
+      `RISCV_CSR_MINSTRET_ADDR:  csr_data_out_s2 = csr_minstret[31:0];
+      `RISCV_CSR_MINSTRETH_ADDR: csr_data_out_s2 = csr_minstret[63:32];
+      default:                   csr_data_out_s2 = 32'h00000000;
     endcase
   end
 

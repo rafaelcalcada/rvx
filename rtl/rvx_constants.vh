@@ -150,9 +150,6 @@
  * RVX Core Constants
  * ------------------------------------------------------------------ */
 
-// CSR holding the address of the boot image in the SPI flash memory
-`define RVX_CSR_SPI_BOOT_IMAGE_ADDR 12'h7C0
-
 // Encoding for CSR operations
 `define RVX_CSR_OPERATION_RW 2'b01
 `define RVX_CSR_OPERATION_RS 2'b10

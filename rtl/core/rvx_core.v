@@ -5,8 +5,7 @@
 
 module rvx_core #(
 
-    parameter [31:0] SPI_BOOT_IMAGE_ADDRESS = 32'h00000000,
-    parameter        ENABLE_ZMMUL           = 0
+    parameter ENABLE_ZMMUL = 0
 
 ) (
 
@@ -450,11 +449,7 @@ module rvx_core #(
 
   );
 
-  rvx_core_csr_file #(
-
-      .SPI_BOOT_IMAGE_ADDRESS(SPI_BOOT_IMAGE_ADDRESS)
-
-  ) rvx_core_csr_file_instance (
+  rvx_core_csr_file rvx_core_csr_file_instance (
 
       // Global signals
       .clock       (clock),
