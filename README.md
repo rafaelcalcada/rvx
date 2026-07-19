@@ -9,7 +9,7 @@
 - **RISC-V ISA** — Implements the RV32I integer instruction set and the Zicsr and Zmmul extensions.
 - **Verified** — Tested with the [RISC-V Tests][1] framework.
 - **Software Development Kit** — The [RVX SDK][2] provides a complete embedded software stack, including peripheral drivers, startup code, linker scripts, and build integration.
-- **FreeRTOS** — RVX can run FreeRTOS, enabling multitasking and real-time capabilities.
+- **FreeRTOS** — Supports FreeRTOS for multitasking and real-time applications.
 - **Built-in Peripherals** — Includes I2C, SPI, GPIO, and UART controllers and drivers.
 - **Easy to Integrate** — Integrates cleanly into FPGA and ASIC workflows.
 - **Portable** — Avoids vendor-specific constructs to ensure portability across synthesis tools.
