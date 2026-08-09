@@ -33,6 +33,7 @@ add_files -norecurse { ../../rtl/core/rvx_core_trap.v }
 add_files -norecurse { ../../rtl/interconnect/rvx_interconnect.v }
 add_files -norecurse { ../../rtl/memory/rvx_tcm.v }
 add_files -norecurse { ../../rtl/memory/rvx_bootloader_rom.v }
+add_files -norecurse { ../../rtl/peripherals/rvx_i2c.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_gpio.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_timer.v }
 add_files -norecurse { ../../rtl/peripherals/rvx_spi.v }
@@ -66,4 +67,9 @@ if { [file exists ../../examples/timer/build/rvx_timer_example.mem] } {
 if { [file exists ../../examples/freertos/build/rvx_freertos_example.mem] } {
     add_files -norecurse { ../../examples/freertos/build/rvx_freertos_example.mem }
     set_property file_type {Memory File} [get_files ../../examples/freertos/build/rvx_freertos_example.mem]
+}
+
+if { [file exists ../../examples/i2c/build/rvx_i2c_example.mem] } {
+    add_files -norecurse { ../../examples/i2c/build/rvx_i2c_example.mem }
+    set_property file_type {Memory File} [get_files ../../examples/i2c/build/rvx_i2c_example.mem]
 }
