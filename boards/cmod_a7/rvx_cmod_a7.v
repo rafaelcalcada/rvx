@@ -3,7 +3,7 @@
 
 module rvx_cmod_a7 #(
 
-    parameter GPIO_WIDTH = 3
+    parameter GPIO_PIN_COUNT = 3
 
 ) (
 
@@ -25,9 +25,9 @@ module rvx_cmod_a7 #(
 
   wire                  i2c_sda_output;
   wire                  i2c_scl_output;
-  wire [GPIO_WIDTH-1:0] gpio_output_enable;
-  wire [GPIO_WIDTH-1:0] gpio_input;
-  wire [GPIO_WIDTH-1:0] gpio_output;
+  wire [GPIO_PIN_COUNT-1:0] gpio_output_enable;
+  wire [GPIO_PIN_COUNT-1:0] gpio_input;
+  wire [GPIO_PIN_COUNT-1:0] gpio_output;
 
   // Number of clock cycles in 20ms at 12MHz (Cmod A7 board clock frequency)
   localparam NUM_CYCLES_IN_20_MS = 240000;
@@ -48,7 +48,7 @@ module rvx_cmod_a7 #(
 
       .TCM_SIZE_IN_BYTES  (32768),
       .TCM_BOOT_IMAGE_PATH("rvx_gpio_example.mem"),
-      .GPIO_WIDTH         (GPIO_WIDTH)
+      .GPIO_PIN_COUNT         (GPIO_PIN_COUNT)
 
   ) rvx_instance (
 
