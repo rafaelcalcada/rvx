@@ -3,7 +3,7 @@
 
 module rvx_arty_a7 #(
 
-    parameter GPIO_WIDTH = 3
+    parameter GPIO_PIN_COUNT = 3
 
 ) (
 
@@ -14,6 +14,8 @@ module rvx_arty_a7 #(
     output wire mosi,
     input  wire miso,
     output wire cs,
+    inout  wire sda,
+    inout  wire scl,
     input  wire push_button_0,  // Used for reset
     input  wire push_button_1,  // Used for toggling LED
     output wire led_4,
@@ -21,9 +23,11 @@ module rvx_arty_a7 #(
 
 );
 
-  wire [GPIO_WIDTH-1:0] gpio_output_enable;
-  wire [GPIO_WIDTH-1:0] gpio_input;
-  wire [GPIO_WIDTH-1:0] gpio_output;
+  wire                  i2c_sda_output;
+  wire                  i2c_scl_output;
+  wire [GPIO_PIN_COUNT-1:0] gpio_output_enable;
+  wire [GPIO_PIN_COUNT-1:0] gpio_input;
+  wire [GPIO_PIN_COUNT-1:0] gpio_output;
 
   // Number of clock cycles in 20ms at 50MHz (Arty A7 board clock frequency)
   localparam NUM_CYCLES_IN_20_MS = 1000000;
@@ -44,7 +48,7 @@ module rvx_arty_a7 #(
   rvx #(
 
       .TCM_SIZE_IN_BYTES(32768),
-      .GPIO_WIDTH       (GPIO_WIDTH)
+      .GPIO_PIN_COUNT       (GPIO_PIN_COUNT)
 
   ) rvx_instance (
 
@@ -58,10 +62,16 @@ module rvx_arty_a7 #(
       .cs                (cs),
       .gpio_input        (gpio_input),
       .gpio_output_enable(gpio_output_enable),
-      .gpio_output       (gpio_output)
+      .gpio_output       (gpio_output),
+      .i2c_sda_input     (sda),
+      .i2c_scl_input     (scl),
+      .i2c_sda_output    (i2c_sda_output),
+      .i2c_scl_output    (i2c_scl_output)
 
   );
 
+  assign sda           = (i2c_sda_output) ? 1'bz : 1'b0;
+  assign scl           = (i2c_scl_output) ? 1'bz : 1'b0;
   assign gpio_input[0] = gpio_output_enable[0] ? gpio_output[0] : led_4;
   assign gpio_input[1] = gpio_output_enable[1] ? gpio_output[1] : push_button_1_debounced;
   assign gpio_input[2] = gpio_output_enable[2] ? gpio_output[2] : led_5;
