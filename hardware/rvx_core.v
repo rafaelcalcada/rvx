@@ -295,7 +295,6 @@ module rvx_core #(
   wire          load_request;
   wire  [1:0 ]  load_size;
   wire          load_unsigned;
-  wire          misaligned_address_exception;
   wire          misaligned_instruction_address;
   wire          misaligned_load;
   wire          misaligned_store;
@@ -1511,18 +1510,19 @@ module rvx_core #(
   // mtval : M-mode Trap Value                                                                   //
   //---------------------------------------------------------------------------------------------//
 
-  assign misaligned_address_exception =
-    misaligned_load | misaligned_store | misaligned_instruction_address;
-
   always @(posedge clock) begin : mtval_implementation
     if(reset_internal)
       csr_mtval <= 32'h00000000;
     else if (clock_enable) begin
       if(take_trap) begin
-        if(misaligned_address_exception)
+        if(misaligned_load | misaligned_store)
           csr_mtval <= target_address_adder;
+        else if (misaligned_instruction_address)
+          csr_mtval <= next_address;
         else if (ebreak)
           csr_mtval <= program_counter;
+        else if (illegal_instruction)
+          csr_mtval <= instruction;
         else
           csr_mtval <= 32'h00000000;
       end
