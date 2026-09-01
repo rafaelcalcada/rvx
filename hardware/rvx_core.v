@@ -1344,9 +1344,9 @@ module rvx_core #(
       csr_mcycle <= 64'b0;
     else begin
       if (clock_enable & instruction_csr_address == MCYCLE && csr_file_write_enable)
-        csr_mcycle <= {csr_mcycle[63:32], csr_write_data} + 1;
+        csr_mcycle <= {csr_mcycle[63:32], csr_write_data};
       else if (clock_enable & instruction_csr_address == MCYCLEH && csr_file_write_enable)
-        csr_mcycle <= {csr_write_data, csr_mcycle[31:0]} + 1;
+        csr_mcycle <= {csr_write_data, csr_mcycle[31:0]};
       else
         csr_mcycle <= csr_mcycle + 1;
     end
@@ -1361,16 +1361,10 @@ module rvx_core #(
       csr_minstret  <= 64'b0;
     else if (clock_enable) begin
       if (instruction_csr_address == MINSTRET && csr_file_write_enable) begin
-        if (current_state == STATE_OPERATING)
-          csr_minstret <= {csr_minstret[63:32], csr_write_data} + 1;
-        else
-          csr_minstret <= {csr_minstret[63:32], csr_write_data};
+        csr_minstret <= {csr_minstret[63:32], csr_write_data};
       end
       else if (instruction_csr_address == MINSTRETH && csr_file_write_enable) begin
-        if (current_state == STATE_OPERATING)
-          csr_minstret <= {csr_write_data, csr_minstret[31:0]} + 1;
-        else
-          csr_minstret <= {csr_write_data, csr_minstret[31:0]};
+        csr_minstret <= {csr_write_data, csr_minstret[31:0]};
       end
       else begin
         if (current_state == STATE_OPERATING)
