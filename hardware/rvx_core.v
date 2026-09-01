@@ -177,6 +177,7 @@ module rvx_core #(
   localparam FUNCT3_ECALL         = 3'b000;
   localparam FUNCT3_EBREAK        = 3'b000;
   localparam FUNCT3_MRET          = 3'b000;
+  localparam FUNCT3_FENCE         = 3'b000;
 
   // Funct7
 
@@ -366,6 +367,7 @@ module rvx_core #(
   wire          srl;
   wire          sra;
   wire          csrxxx;
+  wire          fence;
   wire          illegal_store;
   wire          illegal_load;
   wire          illegal_jalr;
@@ -373,6 +375,7 @@ module rvx_core #(
   wire          illegal_op;
   wire          illegal_op_imm;
   wire          illegal_system;
+  wire          illegal_misc_mem;
   wire          unknown_type;
   wire          misaligned_word;
   wire          misaligned_half;
@@ -751,6 +754,10 @@ module rvx_core #(
     instruction_funct3 != 3'b000 &
     instruction_funct3 != 3'b100;
 
+  assign fence =
+    misc_mem_type &
+    instruction_funct3 == FUNCT3_FENCE;
+
   assign ecall =
     system_type &
     instruction_funct3 == FUNCT3_ECALL &
@@ -809,13 +816,17 @@ module rvx_core #(
     system_type &
     ~(csrxxx | ecall | ebreak | mret);
 
+  assign illegal_misc_mem =
+    misc_mem_type &
+    ~(fence);
+
   assign unknown_type =
     ~(branch_type | jal_type | jalr_type | auipc_type | lui_type | load_type | store_type
     | system_type | op_type | op_imm_type | misc_mem_type);
 
   assign illegal_instruction =
     unknown_type | illegal_store | illegal_load | illegal_jalr | illegal_branch | illegal_op
-    | illegal_op_imm | illegal_system;
+    | illegal_op_imm | illegal_system | illegal_misc_mem;
 
   // Misaligned address detection
 
