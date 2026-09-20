@@ -25,6 +25,7 @@ module rvx_core_csr_file (
     input wire        misaligned_load_s1,
     input wire        misaligned_store_s1,
     input wire [31:0] program_counter_s1,
+    input wire [31:0] next_program_counter_s1,
     input wire        take_trap_s1,
     input wire [31:0] target_address_s1,
 
@@ -47,7 +48,6 @@ module rvx_core_csr_file (
 );
 
   wire [31:0] interrupt_address_offset;
-  wire        misaligned_address_exception;
   wire [31:0] csr_data_mask;
 
   wire [31:0] csr_mstatus;
@@ -76,8 +76,6 @@ module rvx_core_csr_file (
   reg  [31:0] csr_write_data;
 
   assign csr_data_mask = csr_operation_s2[2] == 1'b1 ? {27'b0, immediate_4_0_s2} : rs1_data_s2;
-
-  assign misaligned_address_exception = misaligned_load_s1 | misaligned_store_s1 | misaligned_instruction_address_s1;
 
   assign interrupt_address_offset = {{25{1'b0}}, csr_mcause_code, 2'b00};
 
@@ -231,9 +229,9 @@ module rvx_core_csr_file (
     if (!reset_n) csr_mcycle <= 64'b0;
     else begin
       if (clock_enable & csr_address_s2 == `RISCV_CSR_MCYCLE_ADDR && csr_write_request_s2)
-        csr_mcycle <= {csr_mcycle[63:32], csr_write_data} + 1;
+        csr_mcycle <= {csr_mcycle[63:32], csr_write_data};
       else if (clock_enable & csr_address_s2 == `RISCV_CSR_MCYCLEH_ADDR && csr_write_request_s2)
-        csr_mcycle <= {csr_write_data, csr_mcycle[31:0]} + 1;
+        csr_mcycle <= {csr_write_data, csr_mcycle[31:0]};
       else csr_mcycle <= csr_mcycle + 1;
     end
   end
@@ -242,12 +240,10 @@ module rvx_core_csr_file (
     if (!reset_n) csr_minstret <= 64'b0;
     else if (clock_enable) begin
       if (csr_address_s2 == `RISCV_CSR_MINSTRET_ADDR && csr_write_request_s2) begin
-        if (core_state_s1 == `RVX_STATE_OPERATING) csr_minstret <= {csr_minstret[63:32], csr_write_data} + 1;
-        else csr_minstret <= {csr_minstret[63:32], csr_write_data};
+        csr_minstret <= {csr_minstret[63:32], csr_write_data};
       end
       else if (csr_address_s2 == `RISCV_CSR_MINSTRETH_ADDR && csr_write_request_s2) begin
-        if (core_state_s1 == `RVX_STATE_OPERATING) csr_minstret <= {csr_write_data, csr_minstret[31:0]} + 1;
-        else csr_minstret <= {csr_write_data, csr_minstret[31:0]};
+        csr_minstret <= {csr_write_data, csr_minstret[31:0]};
       end
       else begin
         if (core_state_s1 == `RVX_STATE_OPERATING) csr_minstret <= csr_minstret + 1;
@@ -383,7 +379,8 @@ module rvx_core_csr_file (
     if (!reset_n) csr_mtval <= 32'h00000000;
     else if (clock_enable) begin
       if (take_trap_s1) begin
-        if (misaligned_address_exception) csr_mtval <= target_address_s1;
+        if (misaligned_load_s1 | misaligned_store_s1) csr_mtval <= target_address_s1;
+        else if (misaligned_instruction_address_s1) csr_mtval <= next_program_counter_s1;
         else if (ebreak_s1) csr_mtval <= program_counter_s1;
         else if (illegal_instruction_s1) csr_mtval <= instruction_s1;
         else csr_mtval <= 32'h00000000;

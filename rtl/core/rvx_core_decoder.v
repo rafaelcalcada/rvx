@@ -119,6 +119,11 @@ module rvx_core_decoder #(
   assign mret_s1 = system_type & funct3 == `RISCV_FUNCT3_MRET & funct7 == `RISCV_FUNCT7_MRET &
       rs1_address == `RISCV_RS1_MRET & rs2_address == `RISCV_RS2_MRET & rd_address == `RISCV_RD_MRET;
 
+  // Misc-mem instructions decoding
+  // ---------------------------------------------------------------------------
+
+  wire fence = misc_mem_type & funct3 == `RISCV_FUNCT3_FENCE;
+
   // Illegal instruction detection
   // ---------------------------------------------------------------------------
 
@@ -130,11 +135,12 @@ module rvx_core_decoder #(
       op_type & ~(add | sub | slt | sltu | is_and | is_or | is_xor | sll | srl | sra | mul | mulh | mulhsu | mulhu);
   wire illegal_op_imm = op_imm_type & ~(addi | slti | sltiu | andi | ori | xori | slli | srli | srai);
   wire illegal_system = system_type & ~(csr_type | ecall_s1 | ebreak_s1 | mret_s1);
+  wire illegal_misc_mem = misc_mem_type & ~fence;
   wire unknown_type = ~(branch_type | jal_type | jalr_type | auipc_type | lui_type | load_type | store_type |
                         system_type | op_type | op_imm_type | misc_mem_type);
 
   assign illegal_instruction_s1 = unknown_type | illegal_store | illegal_load | illegal_jalr | illegal_branch |
-      illegal_op | illegal_op_imm | illegal_system;
+      illegal_op | illegal_op_imm | illegal_system | illegal_misc_mem;
 
   // Load and Store instructions decoding
   // ---------------------------------------------------------------------------
