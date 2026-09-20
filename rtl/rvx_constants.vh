@@ -42,6 +42,9 @@
 `define RISCV_CSR_MCYCLEH_ADDR 12'hB80
 `define RISCV_CSR_MINSTRETH_ADDR 12'hB82
 
+// RVX Clock Frequency Register
+`define RVX_CSR_CLOCK_FREQUENCY_ADDR 12'h7C0
+
 /* ------------------------------------------------------------------
  * RISC-V ISA Instruction Encodings
  *

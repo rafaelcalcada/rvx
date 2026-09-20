@@ -50,6 +50,7 @@ module rvx_core_csr_file (
   wire [31:0] interrupt_address_offset;
   wire [31:0] csr_data_mask;
 
+  reg  [31:0] csr_clock_frequency;  // RVX Clock Frequency Register (custom CSR)
   wire [31:0] csr_mstatus;
   reg         csr_mstatus_mie;
   reg         csr_mstatus_mpie;
@@ -132,30 +133,37 @@ module rvx_core_csr_file (
 
   always @* begin : csr_data_out_mux
     case (csr_address_s2)
-      `RISCV_CSR_MARCHID_ADDR:   csr_data_out_s2 = 32'h00000018;  // RVX microarchitecture ID
-      `RISCV_CSR_MIMPID_ADDR:    csr_data_out_s2 = 32'h00000007;  // Version 4.0.0
-      `RISCV_CSR_UCYCLE_ADDR:    csr_data_out_s2 = csr_mcycle[31:0];
-      `RISCV_CSR_UCYCLEH_ADDR:   csr_data_out_s2 = csr_mcycle[63:32];
-      `RISCV_CSR_UTIME_ADDR:     csr_data_out_s2 = csr_utime[31:0];
-      `RISCV_CSR_UTIMEH_ADDR:    csr_data_out_s2 = csr_utime[63:32];
-      `RISCV_CSR_UINSTRET_ADDR:  csr_data_out_s2 = csr_minstret[31:0];
-      `RISCV_CSR_UINSTRETH_ADDR: csr_data_out_s2 = csr_minstret[63:32];
-      `RISCV_CSR_MSTATUS_ADDR:   csr_data_out_s2 = csr_mstatus;
-      `RISCV_CSR_MSTATUSH_ADDR:  csr_data_out_s2 = 32'h00000000;
-      `RISCV_CSR_MISA_ADDR:      csr_data_out_s2 = 32'h40000100;  // RV32I base ISA only
-      `RISCV_CSR_MIE_ADDR:       csr_data_out_s2 = csr_mie;
-      `RISCV_CSR_MTVEC_ADDR:     csr_data_out_s2 = csr_mtvec;
-      `RISCV_CSR_MSCRATCH_ADDR:  csr_data_out_s2 = csr_mscratch;
-      `RISCV_CSR_MEPC_ADDR:      csr_data_out_s2 = csr_mepc;
-      `RISCV_CSR_MCAUSE_ADDR:    csr_data_out_s2 = csr_mcause;
-      `RISCV_CSR_MTVAL_ADDR:     csr_data_out_s2 = csr_mtval;
-      `RISCV_CSR_MIP_ADDR:       csr_data_out_s2 = csr_mip;
-      `RISCV_CSR_MCYCLE_ADDR:    csr_data_out_s2 = csr_mcycle[31:0];
-      `RISCV_CSR_MCYCLEH_ADDR:   csr_data_out_s2 = csr_mcycle[63:32];
-      `RISCV_CSR_MINSTRET_ADDR:  csr_data_out_s2 = csr_minstret[31:0];
-      `RISCV_CSR_MINSTRETH_ADDR: csr_data_out_s2 = csr_minstret[63:32];
-      default:                   csr_data_out_s2 = 32'h00000000;
+      `RISCV_CSR_MARCHID_ADDR:       csr_data_out_s2 = 32'h00000018;  // RVX microarchitecture ID
+      `RISCV_CSR_MIMPID_ADDR:        csr_data_out_s2 = 32'h00000007;  // Version 4
+      `RISCV_CSR_UCYCLE_ADDR:        csr_data_out_s2 = csr_mcycle[31:0];
+      `RISCV_CSR_UCYCLEH_ADDR:       csr_data_out_s2 = csr_mcycle[63:32];
+      `RISCV_CSR_UTIME_ADDR:         csr_data_out_s2 = csr_utime[31:0];
+      `RISCV_CSR_UTIMEH_ADDR:        csr_data_out_s2 = csr_utime[63:32];
+      `RISCV_CSR_UINSTRET_ADDR:      csr_data_out_s2 = csr_minstret[31:0];
+      `RISCV_CSR_UINSTRETH_ADDR:     csr_data_out_s2 = csr_minstret[63:32];
+      `RISCV_CSR_MSTATUS_ADDR:       csr_data_out_s2 = csr_mstatus;
+      `RISCV_CSR_MSTATUSH_ADDR:      csr_data_out_s2 = 32'h00000000;
+      `RISCV_CSR_MISA_ADDR:          csr_data_out_s2 = 32'h40000100;  // RV32I base ISA only
+      `RISCV_CSR_MIE_ADDR:           csr_data_out_s2 = csr_mie;
+      `RISCV_CSR_MTVEC_ADDR:         csr_data_out_s2 = csr_mtvec;
+      `RISCV_CSR_MSCRATCH_ADDR:      csr_data_out_s2 = csr_mscratch;
+      `RISCV_CSR_MEPC_ADDR:          csr_data_out_s2 = csr_mepc;
+      `RISCV_CSR_MCAUSE_ADDR:        csr_data_out_s2 = csr_mcause;
+      `RISCV_CSR_MTVAL_ADDR:         csr_data_out_s2 = csr_mtval;
+      `RISCV_CSR_MIP_ADDR:           csr_data_out_s2 = csr_mip;
+      `RISCV_CSR_MCYCLE_ADDR:        csr_data_out_s2 = csr_mcycle[31:0];
+      `RISCV_CSR_MCYCLEH_ADDR:       csr_data_out_s2 = csr_mcycle[63:32];
+      `RISCV_CSR_MINSTRET_ADDR:      csr_data_out_s2 = csr_minstret[31:0];
+      `RISCV_CSR_MINSTRETH_ADDR:     csr_data_out_s2 = csr_minstret[63:32];
+      `RVX_CSR_CLOCK_FREQUENCY_ADDR: csr_data_out_s2 = csr_clock_frequency;  // RVX Clock Frequency Register
+      default:                       csr_data_out_s2 = 32'h00000000;
     endcase
+  end
+
+  always @(posedge clock) begin : csr_clock_frequency_update
+    if (!reset_n) csr_clock_frequency <= 32'h00000000;
+    else if (clock_enable && csr_address_s2 == `RVX_CSR_CLOCK_FREQUENCY_ADDR && csr_write_request_s2)
+      csr_clock_frequency <= csr_write_data;
   end
 
   always @(posedge clock) begin : csr_mstatus_update
