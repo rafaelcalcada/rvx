@@ -57,7 +57,8 @@ module rvx #(
   localparam DBUS_GPIO_REGION_INDEX = 3;
   localparam DBUS_SPI_REGION_INDEX = 4;
   localparam DBUS_I2C_REGION_INDEX = 5;
-  localparam DBUS_NUM_PERIPHERALS = 6;
+  localparam DBUS_PLIC_REGION_INDEX = 6;
+  localparam DBUS_NUM_PERIPHERALS = 7;
 
   localparam [31:0] DBUS_TCM_BASE_ADDRESS = 32'h00001000;
   localparam [31:0] DBUS_TCM_REGION_SIZE = TCM_SIZE_IN_BYTES;
@@ -76,6 +77,9 @@ module rvx #(
 
   localparam [31:0] DBUS_I2C_BASE_ADDRESS = 32'h40004000;
   localparam [31:0] DBUS_I2C_REGION_SIZE = 16;
+
+  localparam [31:0] DBUS_PLIC_BASE_ADDRESS = 32'h40005000;
+  localparam [31:0] DBUS_PLIC_REGION_SIZE = 128;
 
   // Instruction Bus signals (read-only)
   // ---------------------------------------------------------------------------
@@ -112,14 +116,15 @@ module rvx #(
   // Interrupt configuration
   // ---------------------------------------------------------------------------
 
-  assign irq_fast     = {14'b0, irq_i2c, irq_uart};
-  assign irq_external = 1'b0;  // unused
   assign irq_software = 1'b0;  // unused
+
+  // PLIC interrupt sources: UART and I2C are wired internally, the remaining
+  // 14 lines are exposed on the top-level plic_irq_sources port.
+  wire [15:0] plic_irq_source_lines = {14'b0, irq_i2c, irq_uart};
 
   // Interrupt signals
   // ---------------------------------------------------------------------------
 
-  wire [15:0] irq_fast;
   wire        irq_external;
   wire        irq_timer;
   wire        irq_software;
@@ -161,7 +166,6 @@ module rvx #(
       .dbus_wresponse(dbus_controller_wresponse),
 
       // Interrupt requests
-      .irq_fast    (irq_fast),
       .irq_external(irq_external),
       .irq_timer   (irq_timer),
       .irq_software(irq_software),
@@ -175,6 +179,7 @@ module rvx #(
 
       .NUM_PERIPHERALS(DBUS_NUM_PERIPHERALS),
       .BASE_ADDRESSES({
+        DBUS_PLIC_BASE_ADDRESS,
         DBUS_I2C_BASE_ADDRESS,
         DBUS_SPI_BASE_ADDRESS,
         DBUS_GPIO_BASE_ADDRESS,
@@ -183,6 +188,7 @@ module rvx #(
         DBUS_TCM_BASE_ADDRESS
       }),
       .REGION_SIZES({
+        DBUS_PLIC_REGION_SIZE,
         DBUS_I2C_REGION_SIZE,
         DBUS_SPI_REGION_SIZE,
         DBUS_GPIO_REGION_SIZE,
@@ -319,7 +325,7 @@ module rvx #(
       .uart_tx(uart_tx),
       .uart_rx(uart_rx),
 
-      // UART interrupt request (connected to Fast Interrupt 0)
+      // UART interrupt request (connected to PLIC source 0)
       .uart_irq(irq_uart)
 
   );
@@ -421,8 +427,32 @@ module rvx #(
       .sda_output(i2c_sda_output),
       .scl_output(i2c_scl_output),
 
-      // I2C interrupt request (connected to Fast Interrupt 1)
+      // I2C interrupt request (connected to PLIC source 1)
       .i2c_irq(irq_i2c)
+  );
+
+  rvx_plic rvx_plic_instance (
+
+      // Global signals
+      .clock  (clock),
+      .reset_n(reset_n),
+
+      // Register read/write
+      .rw_address    (dbus_peripheral_address[6:0]),
+      .read_data     (dbus_peripheral_rdata[32*DBUS_PLIC_REGION_INDEX+:32]),
+      .read_request  (dbus_peripheral_rrequest[DBUS_PLIC_REGION_INDEX]),
+      .read_response (dbus_peripheral_rresponse[DBUS_PLIC_REGION_INDEX]),
+      .write_data    (dbus_peripheral_wdata),
+      .write_strobe  (dbus_peripheral_wstrobe),
+      .write_request (dbus_peripheral_wrequest[DBUS_PLIC_REGION_INDEX]),
+      .write_response(dbus_peripheral_wresponse[DBUS_PLIC_REGION_INDEX]),
+
+      // Interrupt request lines
+      .irq_sources(plic_irq_source_lines),
+
+      // External interrupt request
+      .irq_external(irq_external)
+
   );
 
 endmodule

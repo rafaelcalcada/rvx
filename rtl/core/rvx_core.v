@@ -30,10 +30,9 @@ module rvx_core #(
     output wire        dbus_wrequest,
 
     // Interrupt signals
-    input wire [15:0] irq_fast,
-    input wire        irq_external,
-    input wire        irq_software,
-    input wire        irq_timer,
+    input wire irq_external,
+    input wire irq_software,
+    input wire irq_timer,
 
     // Memory-mapped timer
     input wire [63:0] memory_mapped_timer
@@ -463,7 +462,6 @@ module rvx_core #(
       .instruction_s1                   (instruction_s1),
       .illegal_instruction_s1           (illegal_instruction_s1),
       .irq_external_s1                  (irq_external),
-      .irq_fast_s1                      (irq_fast),
       .irq_software_s1                  (irq_software),
       .irq_timer_s1                     (irq_timer),
       .memory_mapped_timer_s1           (memory_mapped_timer),
@@ -471,6 +469,7 @@ module rvx_core #(
       .misaligned_load_s1               (misaligned_load_s1),
       .misaligned_store_s1              (misaligned_store_s1),
       .program_counter_s1               (program_counter_s1),
+      .next_program_counter_s1          (next_program_counter_s1),
       .take_trap_s1                     (take_trap_s1),
       .target_address_s1                (target_address_s1),
 
