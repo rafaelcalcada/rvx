@@ -17,7 +17,6 @@ module rvx_core_csr_file (
     input wire [31:0] instruction_s1,
     input wire        illegal_instruction_s1,
     input wire        irq_external_s1,
-    input wire [15:0] irq_fast_s1,
     input wire        irq_software_s1,
     input wire        irq_timer_s1,
     input wire [63:0] memory_mapped_timer_s1,
@@ -55,12 +54,10 @@ module rvx_core_csr_file (
   reg         csr_mstatus_mie;
   reg         csr_mstatus_mpie;
   wire [31:0] csr_mie;
-  reg  [15:0] csr_mie_mfie;
   reg         csr_mie_meie;
   reg         csr_mie_msie;
   reg         csr_mie_mtie;
   wire [31:0] csr_mip;
-  reg  [15:0] csr_mip_mfip;
   reg         csr_mip_meip;
   reg         csr_mip_msip;
   reg         csr_mip_mtip;
@@ -84,7 +81,7 @@ module rvx_core_csr_file (
       {csr_mtvec[31:2], 2'b00} + interrupt_address_offset : {csr_mtvec[31:2], 2'b00};
 
   assign interrupt_pending_s1 = (csr_mie_meie & csr_mip_meip) | (csr_mie_mtie & csr_mip_mtip) |
-      (csr_mie_msie & csr_mip_msip) | (|(csr_mie_mfie & csr_mip_mfip));
+      (csr_mie_msie & csr_mip_msip);
 
   assign global_interrupt_enable_s1 = csr_mstatus_mie;
 
@@ -101,8 +98,7 @@ module rvx_core_csr_file (
   };
 
   assign csr_mie = {
-    csr_mie_mfie,  // RVX Fast Interrupt Enable
-    4'b0,
+    20'b0,
     csr_mie_meie,  // M-mode External Interrupt Enable
     3'b0,
     csr_mie_mtie,  // M-mode Timer Interrupt Enable
@@ -112,8 +108,7 @@ module rvx_core_csr_file (
   };
 
   assign csr_mip = {
-    csr_mip_mfip,  // RVX Fast Interrupt Pending
-    4'b0,
+    20'b0,
     csr_mip_meip,  // M-mode External Interrupt Pending
     3'b0,
     csr_mip_mtip,  // M-mode Timer Interrupt Pending
@@ -190,13 +185,11 @@ module rvx_core_csr_file (
 
   always @(posedge clock) begin : csr_mie_update
     if (!reset_n) begin
-      csr_mie_mfie <= 16'b0;
       csr_mie_meie <= 1'b0;
       csr_mie_mtie <= 1'b0;
       csr_mie_msie <= 1'b0;
     end
     else if (clock_enable & csr_address_s2 == `RISCV_CSR_MIE_ADDR && csr_write_request_s2) begin
-      csr_mie_mfie <= csr_write_data[31:16];
       csr_mie_meie <= csr_write_data[11];
       csr_mie_mtie <= csr_write_data[7];
       csr_mie_msie <= csr_write_data[3];
@@ -205,13 +198,11 @@ module rvx_core_csr_file (
 
   always @(posedge clock) begin : csr_mip_update
     if (!reset_n) begin
-      csr_mip_mfip <= 16'b0;
       csr_mip_meip <= 1'b0;
       csr_mip_mtip <= 1'b0;
       csr_mip_msip <= 1'b0;
     end
     else begin
-      csr_mip_mfip <= irq_fast_s1;
       csr_mip_meip <= irq_external_s1;
       csr_mip_mtip <= irq_timer_s1;
       csr_mip_msip <= irq_software_s1;
@@ -303,70 +294,6 @@ module rvx_core_csr_file (
       else if (ecall_s1) begin
         csr_mcause_code           <= 5'd11;
         csr_mcause_interrupt_flag <= 1'b0;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[0] & csr_mip_mfip[0]) begin
-        csr_mcause_code           <= 5'd16;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[1] & csr_mip_mfip[1]) begin
-        csr_mcause_code           <= 5'd17;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[2] & csr_mip_mfip[2]) begin
-        csr_mcause_code           <= 5'd18;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[3] & csr_mip_mfip[3]) begin
-        csr_mcause_code           <= 5'd19;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[4] & csr_mip_mfip[4]) begin
-        csr_mcause_code           <= 5'd20;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[5] & csr_mip_mfip[5]) begin
-        csr_mcause_code           <= 5'd21;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[6] & csr_mip_mfip[6]) begin
-        csr_mcause_code           <= 5'd22;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[7] & csr_mip_mfip[7]) begin
-        csr_mcause_code           <= 5'd23;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[8] & csr_mip_mfip[8]) begin
-        csr_mcause_code           <= 5'd24;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[9] & csr_mip_mfip[9]) begin
-        csr_mcause_code           <= 5'd25;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[10] & csr_mip_mfip[10]) begin
-        csr_mcause_code           <= 5'd26;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[11] & csr_mip_mfip[11]) begin
-        csr_mcause_code           <= 5'd27;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[12] & csr_mip_mfip[12]) begin
-        csr_mcause_code           <= 5'd28;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[13] & csr_mip_mfip[13]) begin
-        csr_mcause_code           <= 5'd29;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[14] & csr_mip_mfip[14]) begin
-        csr_mcause_code           <= 5'd30;
-        csr_mcause_interrupt_flag <= 1'b1;
-      end
-      else if (csr_mstatus_mie & csr_mie_mfie[15] & csr_mip_mfip[15]) begin
-        csr_mcause_code           <= 5'd31;
-        csr_mcause_interrupt_flag <= 1'b1;
       end
       else if (csr_mstatus_mie & csr_mie_meie & csr_mip_meip) begin
         csr_mcause_code           <= 5'd11;
