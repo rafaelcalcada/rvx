@@ -30,7 +30,8 @@ module rvx_core_integer_file (
   reg [31:0] integer_file [31:1];
   // verilog_format: on
 
-  wire        write_enable = clock_enable & write_request_s2;
+  // x0 is hard-wired to zero in RISC-V and must never be written.
+  wire        write_enable = clock_enable & write_request_s2 & (rd_address_s2 != 5'b00000);
   wire        forward_rs1 = rs1_address_s1 == rd_address_s2 && write_enable;
   wire        forward_rs2 = rs2_address_s1 == rd_address_s2 && write_enable;
   wire [31:0] rs1_mux = forward_rs1 ? rd_data_s2 : integer_file[rs1_address_s1];
