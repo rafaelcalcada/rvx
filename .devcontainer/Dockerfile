@@ -63,22 +63,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends libncursesw5-de
   cd /tmp/tig-2.5.4 && make prefix=/usr/local && make install prefix=/usr/local && \
   rm -rf /tmp/tig-2.5.4
 
+# 10. Install LZ4 development files for Verilator FST support
+RUN apt-get update && apt-get install -y --no-install-recommends liblz4-dev && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
+
 USER rvx
 WORKDIR /home/rvx
 
-# 10. Create a default Python virtual environment with docs tooling
+# 11. Create a default Python virtual environment with docs tooling
 RUN python3 -m venv /home/rvx/.venv && \
   /home/rvx/.venv/bin/pip install --no-cache-dir --upgrade pip && \
   /home/rvx/.venv/bin/pip install --no-cache-dir mkdocs mkdocs-material
 
 ENV PATH="/home/rvx/.venv/bin:/home/rvx/.local/bin:${PATH}"
 
-# 11. Install the RVX SDK for the rvx user
+# 12. Install the RVX SDK for the rvx user
 RUN git clone --depth 1 https://github.com/rafaelcalcada/rvx-sdk.git /tmp/rvx-sdk && \
   cd /tmp/rvx-sdk && make install && \
   rm -rf /tmp/rvx-sdk
 
-# 12. Add bash aliases and docs environment settings
+# 13. Add bash aliases and docs environment settings
 RUN echo "alias ll='ls -la'" >> /home/rvx/.bash_aliases && \
   echo "alias ..='cd ..'" >> /home/rvx/.bash_aliases && \
   echo "alias e='exit 0'" >> /home/rvx/.bash_aliases && \
