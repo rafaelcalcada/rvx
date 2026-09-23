@@ -13,7 +13,7 @@ all: simulator tests run
 
 tests:
 	test -d build || mkdir -p build
-	cmake -B build --toolchain $(HOME)/.local/rvx-sdk/cmake/RVXToolchain.cmake -DCMAKE_BUILD_TYPE=Debug ${QUIET} ${REDIRECT}
+	cmake -B build --toolchain /home/rvx/.local/rvx-sdk/cmake/RVXToolchain.cmake -DCMAKE_BUILD_TYPE=Debug ${QUIET} ${REDIRECT}
 	cmake --build build -j$(nproc) ${REDIRECT}
 
 run:
