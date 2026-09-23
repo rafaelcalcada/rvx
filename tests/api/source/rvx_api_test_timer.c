@@ -11,7 +11,7 @@ extern RvxUartRegs *uart_controller;
 RvxTimerRegs *timer_controller = (RvxTimerRegs *)RVX_TIMER_CONTROLLER_ADDRESS;
 
 /// @brief Set up the timer interrupt handler.
-RVX_TRAP_HANDLER_M(rvx_trap_handler_timer_m)
+void rvx_irq_handler_timer_m()
 {
   rvx_timer_stop_counter(timer_controller);
   rvx_uart_send_string(uart_controller, "Passed.");

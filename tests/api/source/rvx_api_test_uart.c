@@ -11,6 +11,7 @@ extern RvxUartRegs *uart_controller;
 /// @{
 uint8_t uart_received_byte = 0;                ///< Last byte received via UART interrupt
 volatile bool uart_received_byte_flag = false; ///< Flag indicating a byte has been received via UART interrupt
+RvxPlicRegs *plic_controller = (RvxPlicRegs *)RVX_PLIC_CONTROLLER_ADDRESS;
 /// @}
 
 /// @name RVX API UART Test Utility Functions
@@ -20,8 +21,8 @@ void transfer_byte_busy_wait(uint8_t tx_byte);
 void transfer_byte_interrupt(uint8_t tx_byte);
 /// @}
 
-// UART interrupt signal is connected to Fast Interrupt 0
-RVX_TRAP_HANDLER_M(rvx_trap_handler_uart_m)
+/// @brief Interrupt handler for UART0.
+void rvx_irq_handler_uart0()
 {
   uart_received_byte = rvx_uart_read(uart_controller);
   uart_received_byte_flag = true;
@@ -30,6 +31,8 @@ RVX_TRAP_HANDLER_M(rvx_trap_handler_uart_m)
 /// @brief Run RVX API UART integration tests.
 void run_rvx_api_uart_test()
 {
+  rvx_plic_enable_source(plic_controller, 0); // Enable UART0 interrupt
+  rvx_plic_set_priority(plic_controller, 0, RVX_PLIC_MAX_PRIORITY);
   unsigned int uart_tests_error_count = 0;
 
   // Save reset values of UART registers before any modifications
@@ -79,15 +82,14 @@ void run_rvx_api_uart_test()
   rvx_test_update_error_count(&uart_tests_error_count);
 
   rvx_test_start("\nTest 7: Send bytes and read them back (interrupt). ");
-  rvx_irq_set_mode_m(RVX_IRQ_MODE_VECTORED);
-  rvx_irq_enable_m(RVX_IRQ_UART_BITMASK);
+  rvx_irq_enable_m(RVX_IRQ_EXTERNAL_BITMASK);
   transfer_byte_interrupt(0xa5);
   transfer_byte_interrupt(0x5a);
   transfer_byte_interrupt(0xff);
   transfer_byte_interrupt(0x00);
   transfer_byte_interrupt(0xc3);
   transfer_byte_interrupt(0x3c);
-  rvx_irq_disable_m(RVX_IRQ_UART_BITMASK);
+  rvx_irq_disable_m(RVX_IRQ_EXTERNAL_BITMASK);
   rvx_test_finish("\n  All bytes transferred successfully. (Passed)");
   rvx_test_update_error_count(&uart_tests_error_count);
 
@@ -134,11 +136,11 @@ void transfer_byte_interrupt(uint8_t tx_byte)
   rvx_uart_receive(uart_controller); // Clear RX register
   RVX_TEST_ASSERT(rvx_uart_rx_ready(uart_controller) == false);
   uart_received_byte_flag = false;
-  rvx_irq_enable_global_m();
+  rvx_irq_global_enable_m();
   rvx_uart_send(uart_controller, tx_byte); // Send byte
   while (!uart_received_byte_flag)         // Wait until UART interrupt handler sets the flag
     ;
-  rvx_irq_disable_global_m();
+  rvx_irq_global_disable_m();
   uart_received_byte_flag = false;
   RVX_TEST_ASSERT_EQ(uart_received_byte, tx_byte);
 }
