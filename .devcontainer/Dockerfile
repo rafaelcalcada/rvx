@@ -73,7 +73,12 @@ RUN python3 -m venv /home/rvx/.venv && \
 
 ENV PATH="/home/rvx/.venv/bin:/home/rvx/.local/bin:${PATH}"
 
-# 11. Add bash aliases and docs environment settings
+# 11. Install the RVX SDK for the rvx user
+RUN git clone --depth 1 https://github.com/rafaelcalcada/rvx-sdk.git /tmp/rvx-sdk && \
+  cd /tmp/rvx-sdk && make install && \
+  rm -rf /tmp/rvx-sdk
+
+# 12. Add bash aliases and docs environment settings
 RUN echo "alias ll='ls -la'" >> /home/rvx/.bash_aliases && \
   echo "alias ..='cd ..'" >> /home/rvx/.bash_aliases && \
   echo "alias e='exit 0'" >> /home/rvx/.bash_aliases && \
