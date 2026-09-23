@@ -23,4 +23,4 @@ jobs:
       - name: Build and run tests
         working-directory: tests
         run: |
-          make --quiet
+          make
