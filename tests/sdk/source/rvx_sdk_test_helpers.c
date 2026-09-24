@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
-#include "rvx_api_test_helpers.h"
+#include "rvx_sdk_test_helpers.h"
 
 // Pointer to the UART controller registers.
 extern RvxUartRegs *uart_controller;
@@ -95,8 +95,6 @@ void rvx_test_print_double_word_hex(uint64_t value)
 
 /**
  * @brief Start a test by printing a message and resetting the local error flag.
- *
- * @param test_message The message to print at the start of the test.
  */
 void rvx_test_start(const char *test_message)
 {
@@ -117,11 +115,6 @@ void rvx_test_finish(const char *success_message)
 
 /**
  * @brief Update the local error count based on the global error flag.
- *
- * Each set of tests maintains its own local error count. This function increments the local
- * error count if any assertion in the last test that was run failed.
- *
- * @param local_error_count Pointer to the local error count variable.
  */
 void rvx_test_update_error_count(unsigned int *local_error_count)
 {

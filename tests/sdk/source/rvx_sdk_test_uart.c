@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025 RVX Project Contributors
 
 #include "rvx.h"
-#include "rvx_api_test_helpers.h"
+#include "rvx_sdk_test_helpers.h"
 
 // Pointer to the UART controller registers.
 extern RvxUartRegs *uart_controller;
@@ -14,7 +14,7 @@ volatile bool uart_received_byte_flag = false; ///< Flag indicating a byte has b
 RvxPlicRegs *plic_controller = (RvxPlicRegs *)RVX_PLIC_CONTROLLER_ADDRESS;
 /// @}
 
-/// @name RVX API UART Test Utility Functions
+/// @name RVX SDK UART Test Utility Functions
 /// @{
 void wait_tx_complete();
 void transfer_byte_busy_wait(uint8_t tx_byte);
@@ -28,7 +28,7 @@ void rvx_irq_handler_uart0()
   uart_received_byte_flag = true;
 }
 
-/// @brief Run RVX API UART integration tests.
+/// @brief Run RVX SDK UART integration tests.
 void run_rvx_api_uart_test()
 {
   rvx_plic_enable_source(plic_controller, 0); // Enable UART0 interrupt
@@ -41,7 +41,7 @@ void run_rvx_api_uart_test()
   uint32_t status_reg_reset_value = uart_controller->RVX_UART_STATUS_REG;
 
   rvx_uart_set_baud_rate(uart_controller, 1000000, 50000000);
-  rvx_uart_send_string(uart_controller, "\nRVX API - UART integration tests\n--------------------------------\n");
+  rvx_uart_send_string(uart_controller, "\nRVX SDK - UART integration tests\n--------------------------------\n");
 
   rvx_test_start("\nTest 1: Initialize UART at 9600 baud. ");
   RVX_TEST_ASSERT(uart_controller->RVX_UART_BAUD_REG == 50);
@@ -93,9 +93,9 @@ void run_rvx_api_uart_test()
   rvx_test_finish("\n  All bytes transferred successfully. (Passed)");
   rvx_test_update_error_count(&uart_tests_error_count);
 
-  const char *error_msg = "\n\nERROR: Some RVX API integration tests for the UART controller failed. "
+  const char *error_msg = "\n\nERROR: Some RVX SDK integration tests for the UART controller failed. "
                           "Check the test output for details.\n";
-  const char *success_msg = "\n\nRVX API UART tests: All tests passed successfully.\n";
+  const char *success_msg = "\n\nRVX SDK UART tests: All tests passed successfully.\n";
 
   if (uart_tests_error_count)
     rvx_uart_send_string(uart_controller, error_msg);

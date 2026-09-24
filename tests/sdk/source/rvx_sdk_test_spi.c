@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025 RVX Project Contributors
 
 #include "rvx.h"
-#include "rvx_api_test_helpers.h"
+#include "rvx_sdk_test_helpers.h"
 
 // Pointer to the UART controller registers.
 extern RvxUartRegs *uart_controller;
@@ -20,7 +20,7 @@ void run_rvx_api_spi_test()
   unsigned int spi_tests_error_count = 0;
 
   rvx_uart_set_baud_rate(uart_controller, 1000000, 50000000);
-  rvx_uart_send_string(uart_controller, "\nRVX API - SPI integration tests\n---------------------------------------\n");
+  rvx_uart_send_string(uart_controller, "\nRVX SDK - SPI integration tests\n---------------------------------------\n");
 
   rvx_gpio_pin_mode(gpio_controller, 0, RVX_GPIO_OUTPUT); // Use GPIO pin 0 as CS for subordinate 1
   rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_HIGH);  // Deassert CS for subordinate 1
@@ -100,9 +100,9 @@ void run_rvx_api_spi_test()
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&spi_tests_error_count);
 
-  const char *error_msg = "\n\nERROR: Some RVX API integration tests for the SPI controller failed. "
+  const char *error_msg = "\n\nERROR: Some RVX SDK integration tests for the SPI controller failed. "
                           "Check the test output for details.\n";
-  const char *success_msg = "\n\nRVX API SPI tests: All tests passed successfully.\n";
+  const char *success_msg = "\n\nRVX SDK SPI tests: All tests passed successfully.\n";
 
   if (spi_tests_error_count)
     rvx_uart_send_string(uart_controller, error_msg);

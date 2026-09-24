@@ -11,7 +11,7 @@ all:
 	$(MAKE) -C testbenches/i2c
 	$(MAKE) -C testbenches/plic
 	$(MAKE) -C compliance
-	$(MAKE) -C api
+	$(MAKE) -C sdk
 
 clean:
 	$(MAKE) -C testbenches/gpio clean

@@ -13,8 +13,8 @@
       "name": "RVX SDK"
     },
     {
-      "path": "/workspaces/rvx/tests/api",
-      "name": "RVX API Tests"
+      "path": "/workspaces/rvx/tests/sdk",
+      "name": "RVX SDK Tests"
     },
     {
       "path": "/workspaces/rvx/tests/compliance",

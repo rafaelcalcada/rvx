@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2026 RVX Project Contributors
 
 #include "rvx.h"
-#include "rvx_api_test_helpers.h"
+#include "rvx_sdk_test_helpers.h"
 
 extern void run_rvx_api_uart_test();
 extern void run_rvx_api_gpio_test();

@@ -26,7 +26,7 @@ simulator:
 
 clean:
 	rm -rf build
-	@echo "RVX API test artifacts removed."
+	@echo "RVX SDK test artifacts removed."
 
 clean-all: clean
 	$(MAKE) -C ${RVX_SIMULATOR_PATH} clean

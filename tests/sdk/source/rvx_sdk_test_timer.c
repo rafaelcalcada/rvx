@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025 RVX Project Contributors
 
 #include "rvx.h"
-#include "rvx_api_test_helpers.h"
+#include "rvx_sdk_test_helpers.h"
 
 // Pointer to the UART controller registers.
 extern RvxUartRegs *uart_controller;
@@ -17,13 +17,13 @@ void rvx_irq_handler_timer_m()
   rvx_uart_send_string(uart_controller, "Passed.");
 }
 
-/// @brief Run RVX API Timer integration tests.
+/// @brief Run RVX SDK Timer integration tests.
 void run_rvx_api_timer_test()
 {
   unsigned int timer_tests_error_count = 0;
 
   rvx_uart_set_baud_rate(uart_controller, 1000000, 50000000);
-  rvx_uart_send_string(uart_controller, "\nRVX API - Timer integration tests\n---------------------------------\n");
+  rvx_uart_send_string(uart_controller, "\nRVX SDK - Timer integration tests\n---------------------------------\n");
 
   rvx_test_start("\nTest 1: Timer COUNTER ENABLE register is 1 after reset. ");
   RVX_TEST_ASSERT(rvx_timer_is_counting(timer_controller) == true);
@@ -78,9 +78,9 @@ void run_rvx_api_timer_test()
   rvx_test_finish("(Passed)");
   rvx_test_update_error_count(&timer_tests_error_count);
 
-  const char *error_msg = "\n\nERROR: Some RVX API integration tests for the Timer controller failed. "
+  const char *error_msg = "\n\nERROR: Some RVX SDK integration tests for the Timer controller failed. "
                           "Check the test output for details.\n";
-  const char *success_msg = "\n\nRVX API Timer tests: All tests passed successfully.\n";
+  const char *success_msg = "\n\nRVX SDK Timer tests: All tests passed successfully.\n";
 
   if (timer_tests_error_count)
     rvx_uart_send_string(uart_controller, error_msg);

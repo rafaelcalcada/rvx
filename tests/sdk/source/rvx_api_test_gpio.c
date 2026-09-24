@@ -2,7 +2,7 @@
 // Copyright (c) 2020-2025 RVX Project Contributors
 
 #include "rvx.h"
-#include "rvx_api_test_helpers.h"
+#include "rvx_sdk_test_helpers.h"
 
 /// @brief Run RVX API GPIO integration tests.
 void run_rvx_api_gpio_test()

@@ -17,12 +17,12 @@ find_package(RVX CONFIG REQUIRED)
 # Build the executable and generate the boot image
 
 set(SOURCE_FILES
-  source/rvx_api_test.c
-  source/rvx_api_test_helpers.c
-  source/rvx_api_test_uart.c
-  source/rvx_api_test_gpio.c
-  source/rvx_api_test_spi.c
-  source/rvx_api_test_timer.c
+  source/rvx_sdk_test.c
+  source/rvx_sdk_test_helpers.c
+  source/rvx_sdk_test_uart.c
+  source/rvx_sdk_test_gpio.c
+  source/rvx_sdk_test_spi.c
+  source/rvx_sdk_test_timer.c
 )
 
 add_executable(${APP_NAME} ${SOURCE_FILES})
