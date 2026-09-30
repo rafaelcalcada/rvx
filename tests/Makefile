@@ -21,4 +21,4 @@ clean:
 	$(MAKE) -C testbenches/i2c clean
 	$(MAKE) -C testbenches/plic clean
 	$(MAKE) -C compliance clean-all
-	$(MAKE) -C api clean-all
+	$(MAKE) -C sdk clean-all
