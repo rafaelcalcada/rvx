@@ -1,0 +1,31 @@
+// Program for the single-port memory testbench (RV32I)
+//
+// 0x00: lui   x3, 0x1         // x3 = 0x1000
+// 0x04: addi  x1, x0, 0
+// 0x08: addi  x2, x0, 4
+// 0x0c: lw    x4, 0(x3)       // loop: increment the counter at 0x1000
+// 0x10: addi  x4, x4, 1
+// 0x14: sw    x4, 0(x3)
+// 0x18: addi  x1, x1, 1
+// 0x1c: blt   x1, x2, 0x0c
+// 0x20: addi  x6, x0, 1       // write 1 to the done flag at 0x1004
+// 0x24: sw    x6, 4(x3)
+// 0x28: jal   x0, 0x28
+
+@0
+000011b7
+00000093
+00400113
+0001a203
+00120213
+0041a023
+00108093
+fe20c8e3
+00100313
+0061a223
+0000006f
+
+// Counter (starts at 16) and done flag
+@400
+00000010
+00000000

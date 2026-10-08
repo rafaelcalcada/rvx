@@ -10,6 +10,7 @@ all:
 	$(MAKE) -C testbenches/timer
 	$(MAKE) -C testbenches/i2c
 	$(MAKE) -C testbenches/plic
+	$(MAKE) -C testbenches/single_port_memory
 	$(MAKE) -C compliance
 	$(MAKE) -C api
 
@@ -20,5 +21,6 @@ clean:
 	$(MAKE) -C testbenches/timer clean
 	$(MAKE) -C testbenches/i2c clean
 	$(MAKE) -C testbenches/plic clean
+	$(MAKE) -C testbenches/single_port_memory clean
 	$(MAKE) -C compliance clean-all
 	$(MAKE) -C api clean-all
