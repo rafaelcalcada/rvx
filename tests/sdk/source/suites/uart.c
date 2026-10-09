@@ -13,7 +13,6 @@ typedef struct
   uint32_t status_register_reset_value;
 } RvxUartResetValues;
 
-static RvxPlicRegs *const plic_controller = (RvxPlicRegs *)RVX_PLIC_CONTROLLER_ADDRESS;
 static volatile uint8_t uart_received_byte;
 static volatile bool uart_received_byte_flag;
 static RvxUartResetValues uart_reset_values;
@@ -43,8 +42,8 @@ void rvx_irq_handler_uart0(void)
 static void uart_test_suite_set_up(RvxTestSuite *suite)
 {
   (void)suite;
-  rvx_plic_enable_source(plic_controller, 0);
-  rvx_plic_set_priority(plic_controller, 0, RVX_PLIC_MAX_PRIORITY);
+  rvx_plic_enable_source(RVX_PLIC0, 0);
+  rvx_plic_set_priority(RVX_PLIC0, 0, RVX_PLIC_MAX_PRIORITY);
 
   uart_reset_values.baud_register_reset_value = RVX_UART0->RVX_UART_BAUD_REG;
   uart_reset_values.read_register_reset_value = RVX_UART0->RVX_UART_READ_REG;
