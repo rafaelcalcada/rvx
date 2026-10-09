@@ -4,6 +4,7 @@
 .PHONY: all clean
 
 all:
+	$(MAKE) -C testbenches/bus_controller
 	$(MAKE) -C testbenches/gpio
 	$(MAKE) -C testbenches/spi
 	$(MAKE) -C testbenches/uart
@@ -14,6 +15,7 @@ all:
 	$(MAKE) -C sdk
 
 clean:
+	$(MAKE) -C testbenches/bus_controller clean
 	$(MAKE) -C testbenches/gpio clean
 	$(MAKE) -C testbenches/spi clean
 	$(MAKE) -C testbenches/uart clean
