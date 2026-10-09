@@ -15,6 +15,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(RVX_ENABLE_ZMMUL FALSE)
 set(RVX_RAM_SIZE_IN_BYTES 32768)
 set(RVX_MIN_FREE_SPACE_IN_BYTES 2048)
+set(RVX_DIR "/workspaces/rvx/sdk")
 find_package(RVX CONFIG REQUIRED)
 
 # Build the executable and generate the boot image
