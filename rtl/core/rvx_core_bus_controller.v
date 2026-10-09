@@ -61,34 +61,34 @@ module rvx_core_bus_controller (
   reg        prev_dbus_rrequest;
   reg        prev_dbus_wrequest;
 
-  // Held bus response registers
+  // Buffered response registers
   // ---------------------------------------------------------------------------
 
-  reg        ibus_rresponse_held;
-  reg [31:0] ibus_rdata_held;
-  reg        dbus_rresponse_held;
-  reg [31:0] dbus_rdata_held;
-  reg        dbus_wresponse_held;
+  reg        ibus_rresponse_buf;
+  reg [31:0] ibus_rdata_buf;
+  reg        dbus_rresponse_buf;
+  reg [31:0] dbus_rdata_buf;
+  reg        dbus_wresponse_buf;
 
   always @(posedge clock) begin
     if (!reset_n | clock_enable) begin
-      ibus_rresponse_held <= 1'b0;
-      ibus_rdata_held     <= 32'h00000000;
-      dbus_rresponse_held <= 1'b0;
-      dbus_rdata_held     <= 32'h00000000;
-      dbus_wresponse_held <= 1'b0;
+      ibus_rresponse_buf <= 1'b0;
+      ibus_rdata_buf     <= 32'h00000000;
+      dbus_rresponse_buf <= 1'b0;
+      dbus_rdata_buf     <= 32'h00000000;
+      dbus_wresponse_buf <= 1'b0;
     end
     else begin
-      if (ibus_rresponse & !ibus_rresponse_held) begin
-        ibus_rresponse_held <= 1'b1;
-        ibus_rdata_held     <= ibus_rdata;
+      if (ibus_rresponse & !ibus_rresponse_buf) begin
+        ibus_rresponse_buf <= 1'b1;
+        ibus_rdata_buf     <= ibus_rdata;
       end
-      if (dbus_rresponse & !dbus_rresponse_held) begin
-        dbus_rresponse_held <= 1'b1;
-        dbus_rdata_held     <= dbus_rdata;
+      if (dbus_rresponse & !dbus_rresponse_buf) begin
+        dbus_rresponse_buf <= 1'b1;
+        dbus_rdata_buf     <= dbus_rdata;
       end
-      if (dbus_wresponse & !dbus_wresponse_held) begin
-        dbus_wresponse_held <= 1'b1;
+      if (dbus_wresponse & !dbus_wresponse_buf) begin
+        dbus_wresponse_buf <= 1'b1;
       end
     end
   end
@@ -96,13 +96,9 @@ module rvx_core_bus_controller (
   // Bus acknowledge
   // ---------------------------------------------------------------------------
 
-  wire ibus_racknowledge;
-  wire dbus_racknowledge;
-  wire dbus_wacknowledge;
-
-  assign ibus_racknowledge = ibus_rresponse | ibus_rresponse_held;
-  assign dbus_racknowledge = dbus_rresponse | dbus_rresponse_held;
-  assign dbus_wacknowledge = dbus_wresponse | dbus_wresponse_held;
+  wire ibus_racknowledge = ibus_rresponse | ibus_rresponse_buf;
+  wire dbus_racknowledge = dbus_rresponse | dbus_rresponse_buf;
+  wire dbus_wacknowledge = dbus_wresponse | dbus_wresponse_buf;
 
   // Global clock enable
   // ---------------------------------------------------------------------------
@@ -117,8 +113,8 @@ module rvx_core_bus_controller (
 
   assign ibus_rrequest = !reset_n ? 1'b0 : (clock_enable ? 1'b1 : (prev_ibus_rrequest & ~ibus_racknowledge));
 
-  assign instruction_s1 = flush_pipeline_s1 ? `RISCV_NOP_INSTRUCTION :
-      (!clock_enable ? prev_instruction : (ibus_rresponse_held ? ibus_rdata_held : ibus_rdata));
+  assign instruction_s1 = flush_pipeline_s1 ?
+      `RISCV_NOP_INSTRUCTION : (!clock_enable ? prev_instruction : (ibus_rresponse_buf ? ibus_rdata_buf : ibus_rdata));
 
   always @(posedge clock) begin
     if (!reset_n) begin
@@ -158,7 +154,7 @@ module rvx_core_bus_controller (
 
   assign dbus_wstrobe = !reset_n ? 4'b0 : (clock_enable ? store_strobe_s1 : prev_dbus_wstrobe);
 
-  assign memory_data_s2 = dbus_rresponse_held ? dbus_rdata_held : dbus_rdata;
+  assign memory_data_s2 = dbus_rresponse_buf ? dbus_rdata_buf : dbus_rdata;
 
   always @(posedge clock) begin
     if (!reset_n) begin
