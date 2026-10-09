@@ -20,9 +20,6 @@ static const size_t rvx_sdk_test_suite_count = RVX_ARRAY_SIZE(rvx_sdk_test_suite
 
 int main(void)
 {
-  const RvxSetup rvx_setup = {.clock_frequency = 50000000U};
-  rvx_init(&rvx_setup);
-
   const bool all_tests_passed = rvx_test_run_suites(rvx_sdk_test_suites, rvx_sdk_test_suite_count);
 
   if (all_tests_passed)

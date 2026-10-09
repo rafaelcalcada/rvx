@@ -39,7 +39,8 @@ struct RvxTestSuite
   void *context;
 };
 
-#define RVX_TEST_UART_BAUD_RATE_HZ 1000000U
+#define RVX_TEST_CLOCK_FREQUENCY_HZ 50000000U
+#define RVX_TEST_UART_BAUD_RATE 1000000U
 
 // Stringify `x`
 #define STRINGIFY(x) #x

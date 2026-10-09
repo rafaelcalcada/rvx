@@ -20,6 +20,7 @@ static RvxUartResetValues uart_reset_values;
 
 static void uart_test_suite_set_up(RvxTestSuite *suite);
 static void uart_test_initialization(RvxTestSuite *suite);
+static void uart_test_baud_rate_configuration(RvxTestSuite *suite);
 static void uart_test_baud_register_reset(RvxTestSuite *suite);
 static void uart_test_read_register_reset(RvxTestSuite *suite);
 static void uart_test_status_register_reset(RvxTestSuite *suite);
@@ -49,12 +50,53 @@ static void uart_test_suite_set_up(RvxTestSuite *suite)
   uart_reset_values.read_register_reset_value = RVX_UART0->RVX_UART_READ_REG;
   uart_reset_values.status_register_reset_value = RVX_UART0->RVX_UART_STATUS_REG;
 
-  rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE_HZ);
+  rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE, RVX_TEST_CLOCK_FREQUENCY_HZ);
 }
 
 static void uart_test_initialization(RvxTestSuite *suite)
 {
   RVX_TEST_ASSERT_EQ(suite, RVX_UART0->RVX_UART_BAUD_REG, 50);
+  RVX_TEST_ASSERT_EQ(suite, rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE, RVX_TEST_CLOCK_FREQUENCY_HZ),
+                     50U);
+  RVX_TEST_ASSERT_EQ(suite, RVX_UART0->RVX_UART_BAUD_REG, 50);
+}
+
+static void uart_test_baud_rate_configuration(RvxTestSuite *suite)
+{
+  static const struct
+  {
+    uint32_t clock_frequency;
+    uint32_t baud_rate;
+    uint32_t expected_return;
+    uint32_t expected_register;
+  } cases[] = {
+      {12000000U, 9600U, 1250U, 1250U},
+      {12000000U, 115200U, 104U, 104U},
+      {12000000U, 230400U, 52U, 52U},
+      {11U, 4U, 3U, 3U},
+      {10U, 4U, 3U, 3U},
+      {7U, 3U, 3U, 3U},
+      {8U, 3U, 3U, 3U},
+      {12000000U, 12000000U, 1U, 1U},
+      {UINT32_MAX, 1U, UINT32_MAX, UINT32_MAX},
+      {UINT32_MAX, 2U, 2147483648U, 2147483648U},
+      {UINT32_MAX, UINT32_MAX - 1U, 1U, 1U},
+      {0U, 9600U, 0U, 123U},
+      {12000000U, 0U, 0U, 123U},
+      {12000000U, 12000001U, 0U, 123U},
+  };
+
+  for (size_t index = 0; index < RVX_ARRAY_SIZE(cases); index++)
+  {
+    RvxUart uart = {.RVX_UART_BAUD_REG = 123U};
+    const uint32_t ticks_per_bit = rvx_uart_set_baud_rate(&uart, cases[index].baud_rate, cases[index].clock_frequency);
+
+    RVX_TEST_ASSERT_EQ(suite, ticks_per_bit, cases[index].expected_return);
+    RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_BAUD_REG, cases[index].expected_register);
+    RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_WRITE_REG, 0U);
+    RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_READ_REG, 0U);
+    RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_STATUS_REG, 0U);
+  }
 }
 
 static void uart_test_baud_register_reset(RvxTestSuite *suite)
@@ -193,11 +235,12 @@ static void transfer_byte_interrupt(RvxTestSuite *suite, uint8_t tx_byte)
 }
 
 static const RvxTestCase uart_test_cases[] = {
-    {"Initialize UART at 1,000,000 baud.", uart_test_initialization},
+    {"Initialize UART at 1,000,000 baud with a 50 MHz clock.", uart_test_initialization},
     {"UART BAUD register has its reset value.", uart_test_baud_register_reset},
     {"UART READ register has its reset value.", uart_test_read_register_reset},
     {"UART STATUS register has its reset value.", uart_test_status_register_reset},
     {"UART loopback receives the test output newline.", uart_test_receive_after_test_output},
+    {"Configure baud rate with rounding and reject invalid inputs.", uart_test_baud_rate_configuration},
     {"Send and receive bytes using polling.", uart_test_busy_wait_transfer},
     {"Send and receive bytes using interrupts.", uart_test_interrupt_transfer},
 };

@@ -4,83 +4,81 @@
 #include "rvx.h"
 #include "rvx_sdk_test_framework.h"
 
-static RvxGpioRegs *const gpio_controller = (RvxGpioRegs *)RVX_GPIO_CONTROLLER_ADDRESS;
-
 static void gpio_test_suite_set_up(RvxTestSuite *suite)
 {
   (void)suite;
-  rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE_HZ);
+  rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE, RVX_TEST_CLOCK_FREQUENCY_HZ);
 }
 
 static void gpio_test_output_register_reset(RvxTestSuite *suite)
 {
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_OUTPUT_REG, 0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_OUTPUT_REG, 0);
 }
 
 static void gpio_test_output_enable_register_reset(RvxTestSuite *suite)
 {
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_OUTPUT_ENABLE_REG, 0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_OUTPUT_ENABLE_REG, 0);
 }
 
 static void gpio_test_read_register_reset(RvxTestSuite *suite)
 {
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_READ_REG, 0xa5a5a5a5);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_READ_REG, 0xa5a5a5a5);
 }
 
 static void gpio_test_pin_output_mode(RvxTestSuite *suite)
 {
-  rvx_gpio_pin_mode(gpio_controller, 2, RVX_GPIO_OUTPUT);
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_OUTPUT_ENABLE_REG, 0x4);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(gpio_controller, 2), RVX_GPIO_LOW);
+  rvx_gpio_pin_direction(RVX_GPIO0, 2, RVX_GPIO_OUTPUT);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_OUTPUT_ENABLE_REG, 0x4);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0, 2), RVX_GPIO_LOW);
 }
 
 static void gpio_test_pin_input_mode(RvxTestSuite *suite)
 {
-  rvx_gpio_pin_mode(gpio_controller, 2, RVX_GPIO_INPUT);
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_OUTPUT_ENABLE_REG, 0x0);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(gpio_controller, 2), RVX_GPIO_HIGH);
+  rvx_gpio_pin_direction(RVX_GPIO0, 2, RVX_GPIO_INPUT);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_OUTPUT_ENABLE_REG, 0x0);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0, 2), RVX_GPIO_HIGH);
 }
 
 static void gpio_test_port_output_mode(RvxTestSuite *suite)
 {
-  rvx_gpio_port_mode(gpio_controller, 0xF00FF00F);
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_OUTPUT_ENABLE_REG, 0xF00FF00F);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(gpio_controller), 0x05a005a0);
+  rvx_gpio_port_direction(RVX_GPIO0, 0xF00FF00F);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_OUTPUT_ENABLE_REG, 0xF00FF00F);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(RVX_GPIO0), 0x05a005a0);
 }
 
 static void gpio_test_port_input_mode(RvxTestSuite *suite)
 {
-  rvx_gpio_port_mode(gpio_controller, 0xF00F0000);
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_OUTPUT_ENABLE_REG, 0xF00F0000);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(gpio_controller), 0x05a0a5a5);
+  rvx_gpio_port_direction(RVX_GPIO0, 0xF00F0000);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_OUTPUT_ENABLE_REG, 0xF00F0000);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(RVX_GPIO0), 0x05a0a5a5);
 }
 
 static void gpio_test_pin_write(RvxTestSuite *suite)
 {
-  rvx_gpio_pin_write(gpio_controller, 16, RVX_GPIO_HIGH);
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_OUTPUT_REG, 0x00010000);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(gpio_controller), 0x05a1a5a5);
+  rvx_gpio_pin_write(RVX_GPIO0, 16, RVX_GPIO_HIGH);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_OUTPUT_REG, 0x00010000);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(RVX_GPIO0), 0x05a1a5a5);
 }
 
 static void gpio_test_pin_clear(RvxTestSuite *suite)
 {
-  rvx_gpio_pin_clear(gpio_controller, 16);
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_OUTPUT_REG, 0x00000000);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(gpio_controller), 0x05a0a5a5);
+  rvx_gpio_pin_clear(RVX_GPIO0, 16);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_OUTPUT_REG, 0x00000000);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(RVX_GPIO0), 0x05a0a5a5);
 }
 
 static void gpio_test_pin_set(RvxTestSuite *suite)
 {
-  rvx_gpio_pin_write(gpio_controller, 16, RVX_GPIO_HIGH);
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_OUTPUT_REG, 0x00010000);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(gpio_controller), 0x05a1a5a5);
+  rvx_gpio_pin_write(RVX_GPIO0, 16, RVX_GPIO_HIGH);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_OUTPUT_REG, 0x00010000);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(RVX_GPIO0), 0x05a1a5a5);
 }
 
 static void gpio_test_port_write(RvxTestSuite *suite)
 {
-  rvx_gpio_port_write(gpio_controller, 0xf0000000);
-  RVX_TEST_ASSERT_EQ(suite, gpio_controller->RVX_GPIO_OUTPUT_REG, 0xf0000000);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(gpio_controller), 0xf5a0a5a5);
+  rvx_gpio_port_write(RVX_GPIO0, 0xf0000000);
+  RVX_TEST_ASSERT_EQ(suite, RVX_GPIO0->RVX_GPIO_OUTPUT_REG, 0xf0000000);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_port_read(RVX_GPIO0), 0xf5a0a5a5);
 }
 
 static const RvxTestCase gpio_test_cases[] = {

@@ -4,92 +4,89 @@
 #include "rvx.h"
 #include "rvx_sdk_test_framework.h"
 
-static RvxSpiRegs *const spi_controller = (RvxSpiRegs *)RVX_SPI_CONTROLLER_ADDRESS;
-static RvxGpioRegs *const gpio_controller = (RvxGpioRegs *)RVX_GPIO_CONTROLLER_ADDRESS;
-
-static void transfer_test(RvxTestSuite *suite, RvxSpiRegs *spi_controller);
+static void transfer_test(RvxTestSuite *suite, RvxSpi *spi);
 
 static void spi_test_suite_set_up(RvxTestSuite *suite)
 {
   (void)suite;
-  rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE_HZ);
-  rvx_gpio_pin_mode(gpio_controller, 0, RVX_GPIO_OUTPUT);
-  rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_HIGH);
+  rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE, RVX_TEST_CLOCK_FREQUENCY_HZ);
+  rvx_gpio_pin_direction(RVX_GPIO0, 0, RVX_GPIO_OUTPUT);
+  rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_HIGH);
 }
 
 static void spi_test_mode_reset(RvxTestSuite *suite)
 {
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_MODE, RVX_SPI_MODE_0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_0);
 }
 
 static void spi_test_mode_one(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(spi_controller, RVX_SPI_MODE_1);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_MODE, RVX_SPI_MODE_1);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_1);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_1);
 }
 
 static void spi_test_mode_zero(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(spi_controller, RVX_SPI_MODE_0);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_MODE, RVX_SPI_MODE_0);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_0);
 }
 
 static void spi_test_internal_chip_select(RvxTestSuite *suite)
 {
-  rvx_spi_assert_cs(spi_controller);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_CHIP_SELECT, 0);
-  rvx_spi_deassert_cs(spi_controller);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_CHIP_SELECT, 1);
+  rvx_spi_assert_cs(RVX_SPI0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_CHIP_SELECT_REG, 0);
+  rvx_spi_deassert_cs(RVX_SPI0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_CHIP_SELECT_REG, 1);
 }
 
 static void spi_test_subordinate_zero_mode_zero(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(spi_controller, RVX_SPI_MODE_0);
-  rvx_spi_set_divider(spi_controller, 50);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_DIVIDER, 24);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_MODE, RVX_SPI_MODE_0);
-  rvx_spi_assert_cs(spi_controller);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_CHIP_SELECT, 0);
-  transfer_test(suite, spi_controller);
-  rvx_spi_deassert_cs(spi_controller);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_0);
+  rvx_spi_set_divider(RVX_SPI0, 50);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_0);
+  rvx_spi_assert_cs(RVX_SPI0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_CHIP_SELECT_REG, 0);
+  transfer_test(suite, RVX_SPI0);
+  rvx_spi_deassert_cs(RVX_SPI0);
 }
 
 static void spi_test_subordinate_one_mode_one(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(spi_controller, RVX_SPI_MODE_1);
-  rvx_spi_set_divider(spi_controller, 50);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_DIVIDER, 24);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_MODE, RVX_SPI_MODE_1);
-  rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_LOW);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(gpio_controller, 0), RVX_GPIO_LOW);
-  transfer_test(suite, spi_controller);
-  rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_HIGH);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(gpio_controller, 0), RVX_GPIO_HIGH);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_1);
+  rvx_spi_set_divider(RVX_SPI0, 50);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_1);
+  rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_LOW);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0, 0), RVX_GPIO_LOW);
+  transfer_test(suite, RVX_SPI0);
+  rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_HIGH);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0, 0), RVX_GPIO_HIGH);
 }
 
 static void spi_test_subordinate_one_mode_two(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(spi_controller, RVX_SPI_MODE_2);
-  rvx_spi_set_divider(spi_controller, 50);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_DIVIDER, 24);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_MODE, RVX_SPI_MODE_2);
-  rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_LOW);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(gpio_controller, 0), RVX_GPIO_LOW);
-  transfer_test(suite, spi_controller);
-  rvx_gpio_pin_write(gpio_controller, 0, RVX_GPIO_HIGH);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(gpio_controller, 0), RVX_GPIO_HIGH);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_2);
+  rvx_spi_set_divider(RVX_SPI0, 50);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_2);
+  rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_LOW);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0, 0), RVX_GPIO_LOW);
+  transfer_test(suite, RVX_SPI0);
+  rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_HIGH);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0, 0), RVX_GPIO_HIGH);
 }
 
 static void spi_test_subordinate_zero_mode_three(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(spi_controller, RVX_SPI_MODE_3);
-  rvx_spi_set_divider(spi_controller, 50);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_DIVIDER, 24);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_MODE, RVX_SPI_MODE_3);
-  rvx_spi_assert_cs(spi_controller);
-  RVX_TEST_ASSERT_EQ(suite, spi_controller->RVX_SPI_CHIP_SELECT, 0);
-  transfer_test(suite, spi_controller);
-  rvx_spi_deassert_cs(spi_controller);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_3);
+  rvx_spi_set_divider(RVX_SPI0, 50);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_3);
+  rvx_spi_assert_cs(RVX_SPI0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_CHIP_SELECT_REG, 0);
+  transfer_test(suite, RVX_SPI0);
+  rvx_spi_deassert_cs(RVX_SPI0);
 }
 
 static const RvxTestCase spi_test_cases[] = {
@@ -110,20 +107,29 @@ const RvxTestSuiteDescriptor rvx_sdk_spi_test_suite = {
     .set_up = spi_test_suite_set_up,
 };
 
-static void transfer_test(RvxTestSuite *suite, RvxSpiRegs *spi_controller)
+static void transfer_test(RvxTestSuite *suite, RvxSpi *spi)
 {
   uint8_t received_byte;
-  rvx_spi_transfer(spi_controller, 0xa5);
-  received_byte = rvx_spi_transfer(spi_controller, 0x5a);
+
+  RVX_TEST_ASSERT(suite, rvx_spi_ready(spi));
+  rvx_spi_write(spi, 0xa5);
+  RVX_TEST_ASSERT(suite, !rvx_spi_ready(spi));
+  while (!rvx_spi_ready(spi))
+    ;
+  rvx_spi_write(spi, 0x5a);
+  while (!rvx_spi_ready(spi))
+    ;
+  received_byte = rvx_spi_read(spi);
   RVX_TEST_ASSERT_EQ(suite, received_byte, 0xa5);
-  received_byte = rvx_spi_transfer(spi_controller, 0xff);
+
+  received_byte = rvx_spi_transfer(spi, 0xff);
   RVX_TEST_ASSERT_EQ(suite, received_byte, 0x5a);
-  received_byte = rvx_spi_transfer(spi_controller, 0x00);
+  received_byte = rvx_spi_transfer(spi, 0x00);
   RVX_TEST_ASSERT_EQ(suite, received_byte, 0xff);
-  received_byte = rvx_spi_transfer(spi_controller, 0x3c);
+  received_byte = rvx_spi_transfer(spi, 0x3c);
   RVX_TEST_ASSERT_EQ(suite, received_byte, 0x00);
-  received_byte = rvx_spi_transfer(spi_controller, 0xc3);
+  received_byte = rvx_spi_transfer(spi, 0xc3);
   RVX_TEST_ASSERT_EQ(suite, received_byte, 0x3c);
-  received_byte = rvx_spi_transfer(spi_controller, 0x00);
+  received_byte = rvx_spi_transfer(spi, 0x00);
   RVX_TEST_ASSERT_EQ(suite, received_byte, 0xc3);
 }
