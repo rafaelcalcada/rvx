@@ -28,7 +28,7 @@ RVX_IRQ_HANDLER_M void rvx_irq_handler_timer_m(void)
 static void timer_test_suite_set_up(RvxTestSuite *suite)
 {
   (void)suite;
-  rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE, RVX_TEST_CLOCK_FREQUENCY_HZ);
+  rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE);
 }
 
 static void timer_test_delay(void)

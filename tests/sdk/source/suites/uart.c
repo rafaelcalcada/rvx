@@ -49,14 +49,13 @@ static void uart_test_suite_set_up(RvxTestSuite *suite)
   uart_reset_values.read_register_reset_value = RVX_UART0->RVX_UART_READ_REG;
   uart_reset_values.status_register_reset_value = RVX_UART0->RVX_UART_STATUS_REG;
 
-  rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE, RVX_TEST_CLOCK_FREQUENCY_HZ);
+  rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE);
 }
 
 static void uart_test_initialization(RvxTestSuite *suite)
 {
   RVX_TEST_ASSERT_EQ(suite, RVX_UART0->RVX_UART_BAUD_REG, 50);
-  RVX_TEST_ASSERT_EQ(suite, rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE, RVX_TEST_CLOCK_FREQUENCY_HZ),
-                     50U);
+  RVX_TEST_ASSERT_EQ(suite, rvx_uart_set_baud_rate(RVX_UART0, RVX_TEST_UART_BAUD_RATE), 50U);
   RVX_TEST_ASSERT_EQ(suite, RVX_UART0->RVX_UART_BAUD_REG, 50);
 }
 
@@ -85,10 +84,14 @@ static void uart_test_baud_rate_configuration(RvxTestSuite *suite)
       {12000000U, 12000001U, 0U, 123U},
   };
 
+  const uint32_t original_clock_frequency = rvx_get_clock_frequency();
+
   for (size_t index = 0; index < RVX_ARRAY_SIZE(cases); index++)
   {
     RvxUart uart = {.RVX_UART_BAUD_REG = 123U};
-    const uint32_t ticks_per_bit = rvx_uart_set_baud_rate(&uart, cases[index].baud_rate, cases[index].clock_frequency);
+    RVX_CSR_WRITE(RVX_CSR_CLOCK_FREQUENCY_ADDR, cases[index].clock_frequency);
+    const uint32_t ticks_per_bit = rvx_uart_set_baud_rate(&uart, cases[index].baud_rate);
+    RVX_CSR_WRITE(RVX_CSR_CLOCK_FREQUENCY_ADDR, original_clock_frequency);
 
     RVX_TEST_ASSERT_EQ(suite, ticks_per_bit, cases[index].expected_return);
     RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_BAUD_REG, cases[index].expected_register);
