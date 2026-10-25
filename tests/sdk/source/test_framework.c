@@ -15,7 +15,7 @@ static void rvx_test_print_unsigned(unsigned int value)
     value /= 10;
   } while (value != 0);
 
-  rvx_uart_print(RVX_UART0_BASE, &buffer[index]);
+  rvx_uart_print(RVX_UART0, &buffer[index]);
 }
 
 static void rvx_test_suite_start(RvxTestSuite *suite)
@@ -23,9 +23,9 @@ static void rvx_test_suite_start(RvxTestSuite *suite)
   suite->total_tests = 0;
   suite->failed_tests = 0;
   suite->current_test_failed = false;
-  rvx_uart_print(RVX_UART0_BASE, "\n");
-  rvx_uart_print(RVX_UART0_BASE, suite->name);
-  rvx_uart_print(RVX_UART0_BASE, "\n--------------------------------\n");
+  rvx_uart_print(RVX_UART0, "\n");
+  rvx_uart_print(RVX_UART0, suite->name);
+  rvx_uart_print(RVX_UART0, "\n--------------------------------\n");
 }
 
 static void rvx_test_case_run(RvxTestSuite *suite, const RvxTestCase *test_case)
@@ -33,41 +33,41 @@ static void rvx_test_case_run(RvxTestSuite *suite, const RvxTestCase *test_case)
   suite->total_tests++;
   suite->current_test_failed = false;
 
-  rvx_uart_print(RVX_UART0_BASE, "\nTest ");
+  rvx_uart_print(RVX_UART0, "\nTest ");
   rvx_test_print_unsigned(suite->total_tests);
-  rvx_uart_print(RVX_UART0_BASE, ": ");
-  rvx_uart_print(RVX_UART0_BASE, test_case->name);
-  rvx_uart_print(RVX_UART0_BASE, " ");
+  rvx_uart_print(RVX_UART0, ": ");
+  rvx_uart_print(RVX_UART0, test_case->name);
+  rvx_uart_print(RVX_UART0, " ");
 
   test_case->run(suite);
 
   if (suite->current_test_failed)
   {
     suite->failed_tests++;
-    rvx_uart_print(RVX_UART0_BASE, "(Failed)");
+    rvx_uart_print(RVX_UART0, "(Failed)");
     return;
   }
 
-  rvx_uart_print(RVX_UART0_BASE, "(Passed)");
+  rvx_uart_print(RVX_UART0, "(Passed)");
 }
 
 static void rvx_test_suite_report_result(const RvxTestSuite *suite)
 {
-  rvx_uart_print(RVX_UART0_BASE, "\n\n");
-  rvx_uart_print(RVX_UART0_BASE, suite->name);
-  rvx_uart_print(RVX_UART0_BASE, ": ");
+  rvx_uart_print(RVX_UART0, "\n\n");
+  rvx_uart_print(RVX_UART0, suite->name);
+  rvx_uart_print(RVX_UART0, ": ");
 
   if (suite->failed_tests != 0)
   {
     rvx_test_print_unsigned(suite->failed_tests);
-    rvx_uart_print(RVX_UART0_BASE, " of ");
+    rvx_uart_print(RVX_UART0, " of ");
     rvx_test_print_unsigned(suite->total_tests);
-    rvx_uart_print(RVX_UART0_BASE, " tests failed.\n");
+    rvx_uart_print(RVX_UART0, " tests failed.\n");
     return;
   }
 
   rvx_test_print_unsigned(suite->total_tests);
-  rvx_uart_print(RVX_UART0_BASE, " tests passed.\n");
+  rvx_uart_print(RVX_UART0, " tests passed.\n");
 }
 
 bool rvx_test_run_suite(const RvxTestSuiteDescriptor *descriptor)
@@ -110,11 +110,11 @@ void rvx_test_assert(RvxTestSuite *suite, bool condition, const char *expression
   if (condition)
     return;
 
-  rvx_uart_print(RVX_UART0_BASE, "\n  Assertion failed: ");
-  rvx_uart_print(RVX_UART0_BASE, expression);
-  rvx_uart_print(RVX_UART0_BASE, " (line ");
+  rvx_uart_print(RVX_UART0, "\n  Assertion failed: ");
+  rvx_uart_print(RVX_UART0, expression);
+  rvx_uart_print(RVX_UART0, " (line ");
   rvx_test_print_unsigned(line);
-  rvx_uart_print(RVX_UART0_BASE, ").");
+  rvx_uart_print(RVX_UART0, ").");
   suite->current_test_failed = true;
 }
 
@@ -124,17 +124,17 @@ void rvx_test_assert_eq(RvxTestSuite *suite, uint64_t actual, uint64_t expected,
   if (actual == expected)
     return;
 
-  rvx_uart_print(RVX_UART0_BASE, "\n  Assertion failed: ");
-  rvx_uart_print(RVX_UART0_BASE, actual_expression);
-  rvx_uart_print(RVX_UART0_BASE, " == ");
-  rvx_uart_print(RVX_UART0_BASE, expected_expression);
-  rvx_uart_print(RVX_UART0_BASE, " (line ");
+  rvx_uart_print(RVX_UART0, "\n  Assertion failed: ");
+  rvx_uart_print(RVX_UART0, actual_expression);
+  rvx_uart_print(RVX_UART0, " == ");
+  rvx_uart_print(RVX_UART0, expected_expression);
+  rvx_uart_print(RVX_UART0, " (line ");
   rvx_test_print_unsigned(line);
-  rvx_uart_print(RVX_UART0_BASE, ").\n    Expected: ");
+  rvx_uart_print(RVX_UART0, ").\n    Expected: ");
   rvx_test_print_double_word_hex(expected);
-  rvx_uart_print(RVX_UART0_BASE, "\n    Actual: ");
+  rvx_uart_print(RVX_UART0, "\n    Actual: ");
   rvx_test_print_double_word_hex(actual);
-  rvx_uart_write(RVX_UART0_BASE, '\n');
+  rvx_uart_write(RVX_UART0, '\n');
   suite->current_test_failed = true;
 }
 
@@ -153,7 +153,7 @@ void rvx_test_print_byte(const uint8_t read_data)
   str_val[2] = high_nibble < 10 ? high_nibble + '0' : high_nibble - 10 + 'a';
   str_val[3] = low_nibble < 10 ? low_nibble + '0' : low_nibble - 10 + 'a';
   str_val[4] = '\0';
-  rvx_uart_print(RVX_UART0_BASE, str_val);
+  rvx_uart_print(RVX_UART0, str_val);
 }
 
 /**
@@ -172,5 +172,5 @@ void rvx_test_print_double_word_hex(uint64_t value)
     buffer[17 - i] = hex_chars[(value >> (i * 4)) & 0xF];
   }
   buffer[18] = '\0';
-  rvx_uart_print(RVX_UART0_BASE, buffer);
+  rvx_uart_print(RVX_UART0, buffer);
 }

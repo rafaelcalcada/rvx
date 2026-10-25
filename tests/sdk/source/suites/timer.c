@@ -20,15 +20,15 @@ static void timer_test_interrupt(RvxTestSuite *suite);
 /// @brief Interrupt handler for TIMER0.
 void rvx_timer0_interrupt_handler(void)
 {
-  rvx_timer_stop_counter(RVX_TIMER0_BASE);
-  rvx_timer_set_compare(RVX_TIMER0_BASE, 0xFFFFFFFFFFFFFFFFULL);
+  rvx_timer_stop_counter(RVX_TIMER0);
+  rvx_timer_set_compare(RVX_TIMER0, 0xFFFFFFFFFFFFFFFFULL);
   timer_interrupt_received = true;
 }
 
 static void timer_test_suite_set_up(RvxTestSuite *suite)
 {
   (void)suite;
-  rvx_uart_set_clock_divider(RVX_UART0_BASE, 50U);
+  rvx_uart_set_clock_divider(RVX_UART0, 50U);
 }
 
 static void timer_test_delay(void)
@@ -39,44 +39,44 @@ static void timer_test_delay(void)
 
 static void timer_test_counter_enable_reset(RvxTestSuite *suite)
 {
-  RVX_TEST_ASSERT(suite, rvx_timer_is_counting(RVX_TIMER0_BASE));
+  RVX_TEST_ASSERT(suite, rvx_timer_is_counting(RVX_TIMER0));
 }
 
 static void timer_test_set_counter(RvxTestSuite *suite)
 {
-  rvx_timer_stop_counter(RVX_TIMER0_BASE);
-  rvx_timer_set_counter(RVX_TIMER0_BASE, 0x123456789ABCDEF0ULL);
-  RVX_TEST_ASSERT_EQ(suite, rvx_timer_get_counter(RVX_TIMER0_BASE), 0x123456789ABCDEF0ULL);
+  rvx_timer_stop_counter(RVX_TIMER0);
+  rvx_timer_set_counter(RVX_TIMER0, 0x123456789ABCDEF0ULL);
+  RVX_TEST_ASSERT_EQ(suite, rvx_timer_get_counter(RVX_TIMER0), 0x123456789ABCDEF0ULL);
 }
 
 static void timer_test_compare_reset(RvxTestSuite *suite)
 {
-  RVX_TEST_ASSERT_EQ(suite, rvx_timer_get_compare(RVX_TIMER0_BASE), 0xFFFFFFFFFFFFFFFFULL);
+  RVX_TEST_ASSERT_EQ(suite, rvx_timer_get_compare(RVX_TIMER0), 0xFFFFFFFFFFFFFFFFULL);
 }
 
 static void timer_test_counter_increments(RvxTestSuite *suite)
 {
-  rvx_timer_reset_counter(RVX_TIMER0_BASE);
-  rvx_timer_start_counter(RVX_TIMER0_BASE);
+  rvx_timer_reset_counter(RVX_TIMER0);
+  rvx_timer_start_counter(RVX_TIMER0);
   timer_test_delay();
-  RVX_TEST_ASSERT(suite, rvx_timer_get_counter(RVX_TIMER0_BASE) > 0);
+  RVX_TEST_ASSERT(suite, rvx_timer_get_counter(RVX_TIMER0) > 0);
 }
 
 static void timer_test_counter_stops(RvxTestSuite *suite)
 {
-  rvx_timer_stop_counter(RVX_TIMER0_BASE);
-  uint64_t expected_counter_value = rvx_timer_get_counter(RVX_TIMER0_BASE);
+  rvx_timer_stop_counter(RVX_TIMER0);
+  uint64_t expected_counter_value = rvx_timer_get_counter(RVX_TIMER0);
   timer_test_delay();
-  RVX_TEST_ASSERT_EQ(suite, rvx_timer_get_counter(RVX_TIMER0_BASE), expected_counter_value);
+  RVX_TEST_ASSERT_EQ(suite, rvx_timer_get_counter(RVX_TIMER0), expected_counter_value);
 }
 
 static void timer_test_interrupt(RvxTestSuite *suite)
 {
   timer_interrupt_received = false;
-  rvx_timer_reset_counter(RVX_TIMER0_BASE);
-  rvx_timer_set_compare(RVX_TIMER0_BASE, 50);
+  rvx_timer_reset_counter(RVX_TIMER0);
+  rvx_timer_set_compare(RVX_TIMER0, 50);
   rvx_interrupt_enable_m();
-  rvx_timer_start_counter(RVX_TIMER0_BASE);
+  rvx_timer_start_counter(RVX_TIMER0);
   timer_test_delay();
   rvx_interrupt_disable_m();
   RVX_TEST_ASSERT(suite, timer_interrupt_received);

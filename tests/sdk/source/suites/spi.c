@@ -9,34 +9,34 @@ static void transfer_test(RvxTestSuite *suite, RvxSpi *spi);
 static void spi_test_suite_set_up(RvxTestSuite *suite)
 {
   (void)suite;
-  rvx_uart_set_clock_divider(RVX_UART0_BASE, 50U);
-  rvx_gpio_pin_direction(RVX_GPIO0_BASE, 0, RVX_GPIO_OUTPUT);
-  rvx_gpio_pin_write(RVX_GPIO0_BASE, 0, RVX_GPIO_HIGH);
+  rvx_uart_set_clock_divider(RVX_UART0, 50U);
+  rvx_gpio_pin_direction(RVX_GPIO0, 0, RVX_GPIO_OUTPUT);
+  rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_HIGH);
 }
 
 static void spi_test_mode_reset(RvxTestSuite *suite)
 {
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_MODE_REG, RVX_SPI_MODE_0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_0);
 }
 
 static void spi_test_mode_one(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(RVX_SPI0_BASE, RVX_SPI_MODE_1);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_MODE_REG, RVX_SPI_MODE_1);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_1);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_1);
 }
 
 static void spi_test_mode_zero(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(RVX_SPI0_BASE, RVX_SPI_MODE_0);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_MODE_REG, RVX_SPI_MODE_0);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_0);
 }
 
 static void spi_test_internal_chip_select(RvxTestSuite *suite)
 {
-  rvx_spi_assert_cs(RVX_SPI0_BASE);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_CHIP_SELECT_REG, 0);
-  rvx_spi_deassert_cs(RVX_SPI0_BASE);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_CHIP_SELECT_REG, 1);
+  rvx_spi_assert_cs(RVX_SPI0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_CHIP_SELECT_REG, 0);
+  rvx_spi_deassert_cs(RVX_SPI0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_CHIP_SELECT_REG, 1);
 }
 
 static void spi_test_clock_divider_configuration(RvxTestSuite *suite)
@@ -66,52 +66,52 @@ static void spi_test_clock_divider_configuration(RvxTestSuite *suite)
 
 static void spi_test_subordinate_zero_mode_zero(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(RVX_SPI0_BASE, RVX_SPI_MODE_0);
-  rvx_spi_set_clock_divider(RVX_SPI0_BASE, 50U);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_DIVIDER_REG, 24);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_MODE_REG, RVX_SPI_MODE_0);
-  rvx_spi_assert_cs(RVX_SPI0_BASE);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_CHIP_SELECT_REG, 0);
-  transfer_test(suite, RVX_SPI0_BASE);
-  rvx_spi_deassert_cs(RVX_SPI0_BASE);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_0);
+  rvx_spi_set_clock_divider(RVX_SPI0, 50U);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_0);
+  rvx_spi_assert_cs(RVX_SPI0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_CHIP_SELECT_REG, 0);
+  transfer_test(suite, RVX_SPI0);
+  rvx_spi_deassert_cs(RVX_SPI0);
 }
 
 static void spi_test_subordinate_one_mode_one(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(RVX_SPI0_BASE, RVX_SPI_MODE_1);
-  rvx_spi_set_clock_divider(RVX_SPI0_BASE, 50U);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_DIVIDER_REG, 24);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_MODE_REG, RVX_SPI_MODE_1);
-  rvx_gpio_pin_write(RVX_GPIO0_BASE, 0, RVX_GPIO_LOW);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0_BASE, 0), RVX_GPIO_LOW);
-  transfer_test(suite, RVX_SPI0_BASE);
-  rvx_gpio_pin_write(RVX_GPIO0_BASE, 0, RVX_GPIO_HIGH);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0_BASE, 0), RVX_GPIO_HIGH);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_1);
+  rvx_spi_set_clock_divider(RVX_SPI0, 50U);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_1);
+  rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_LOW);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0, 0), RVX_GPIO_LOW);
+  transfer_test(suite, RVX_SPI0);
+  rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_HIGH);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0, 0), RVX_GPIO_HIGH);
 }
 
 static void spi_test_subordinate_one_mode_two(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(RVX_SPI0_BASE, RVX_SPI_MODE_2);
-  rvx_spi_set_clock_divider(RVX_SPI0_BASE, 50U);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_DIVIDER_REG, 24);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_MODE_REG, RVX_SPI_MODE_2);
-  rvx_gpio_pin_write(RVX_GPIO0_BASE, 0, RVX_GPIO_LOW);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0_BASE, 0), RVX_GPIO_LOW);
-  transfer_test(suite, RVX_SPI0_BASE);
-  rvx_gpio_pin_write(RVX_GPIO0_BASE, 0, RVX_GPIO_HIGH);
-  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0_BASE, 0), RVX_GPIO_HIGH);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_2);
+  rvx_spi_set_clock_divider(RVX_SPI0, 50U);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_2);
+  rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_LOW);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0, 0), RVX_GPIO_LOW);
+  transfer_test(suite, RVX_SPI0);
+  rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_HIGH);
+  RVX_TEST_ASSERT_EQ(suite, rvx_gpio_pin_read(RVX_GPIO0, 0), RVX_GPIO_HIGH);
 }
 
 static void spi_test_subordinate_zero_mode_three(RvxTestSuite *suite)
 {
-  rvx_spi_set_mode(RVX_SPI0_BASE, RVX_SPI_MODE_3);
-  rvx_spi_set_clock_divider(RVX_SPI0_BASE, 50U);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_DIVIDER_REG, 24);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_MODE_REG, RVX_SPI_MODE_3);
-  rvx_spi_assert_cs(RVX_SPI0_BASE);
-  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0_BASE->RVX_SPI_CHIP_SELECT_REG, 0);
-  transfer_test(suite, RVX_SPI0_BASE);
-  rvx_spi_deassert_cs(RVX_SPI0_BASE);
+  rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_3);
+  rvx_spi_set_clock_divider(RVX_SPI0, 50U);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_3);
+  rvx_spi_assert_cs(RVX_SPI0);
+  RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_CHIP_SELECT_REG, 0);
+  transfer_test(suite, RVX_SPI0);
+  rvx_spi_deassert_cs(RVX_SPI0);
 }
 
 static const RvxTestCase spi_test_cases[] = {
