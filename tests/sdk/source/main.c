@@ -6,12 +6,14 @@
 
 extern const RvxTestSuiteDescriptor rvx_sdk_uart_test_suite;
 extern const RvxTestSuiteDescriptor rvx_sdk_gpio_test_suite;
+extern const RvxTestSuiteDescriptor rvx_sdk_i2c_test_suite;
 extern const RvxTestSuiteDescriptor rvx_sdk_spi_test_suite;
 extern const RvxTestSuiteDescriptor rvx_sdk_timer_test_suite;
 
 static const RvxTestSuiteDescriptor *const rvx_sdk_test_suites[] = {
     &rvx_sdk_uart_test_suite,
     &rvx_sdk_gpio_test_suite,
+    &rvx_sdk_i2c_test_suite,
     &rvx_sdk_spi_test_suite,
     &rvx_sdk_timer_test_suite,
 };

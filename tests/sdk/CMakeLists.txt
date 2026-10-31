@@ -25,6 +25,7 @@ set(RVX_SDK_TEST_SOURCES
   source/test_framework.c
   source/suites/uart.c
   source/suites/gpio.c
+  source/suites/i2c.c
   source/suites/spi.c
   source/suites/timer.c
 )

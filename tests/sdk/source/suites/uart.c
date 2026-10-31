@@ -20,6 +20,7 @@ static RvxUartResetValues uart_reset_values;
 static void uart_test_suite_set_up(RvxTestSuite *suite);
 static void uart_test_initialization(RvxTestSuite *suite);
 static void uart_test_clock_divider_configuration(RvxTestSuite *suite);
+static void uart_test_baud_rate_configuration(RvxTestSuite *suite);
 static void uart_test_baud_register_reset(RvxTestSuite *suite);
 static void uart_test_read_register_reset(RvxTestSuite *suite);
 static void uart_test_status_register_reset(RvxTestSuite *suite);
@@ -86,6 +87,23 @@ static void uart_test_clock_divider_configuration(RvxTestSuite *suite)
     RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_READ_REG, 0U);
     RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_STATUS_REG, 0U);
   }
+}
+
+static void uart_test_baud_rate_configuration(RvxTestSuite *suite)
+{
+  RvxUart uart = {.RVX_UART_BAUD_REG = 123U};
+
+  rvx_uart_set_baud_rate(&uart, 9600U);
+  RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_BAUD_REG, 5208U);
+
+  rvx_uart_set_baud_rate(&uart, 9000000U);
+  RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_BAUD_REG, 6U);
+
+  rvx_uart_set_baud_rate(&uart, 0U);
+  RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_BAUD_REG, 6U);
+
+  rvx_uart_set_baud_rate(&uart, 50000001U);
+  RVX_TEST_ASSERT_EQ(suite, uart.RVX_UART_BAUD_REG, 6U);
 }
 
 static void uart_test_baud_register_reset(RvxTestSuite *suite)
@@ -230,6 +248,7 @@ static const RvxTestCase uart_test_cases[] = {
     {"UART STATUS register has its reset value.", uart_test_status_register_reset},
     {"UART loopback receives the test output newline.", uart_test_receive_after_test_output},
     {"Configure UART clock dividers and ignore zero.", uart_test_clock_divider_configuration},
+    {"Configure UART baud rates to the closest supported values.", uart_test_baud_rate_configuration},
     {"Send and receive bytes using polling.", uart_test_busy_wait_transfer},
     {"Send and receive bytes using interrupts.", uart_test_interrupt_transfer},
 };

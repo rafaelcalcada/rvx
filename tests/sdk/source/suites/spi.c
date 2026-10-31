@@ -39,6 +39,32 @@ static void spi_test_internal_chip_select(RvxTestSuite *suite)
   RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_CHIP_SELECT_REG, 1);
 }
 
+static void spi_test_frequency_configuration(RvxTestSuite *suite)
+{
+  static const struct
+  {
+    uint32_t requested_frequency;
+    uint16_t expected_divider;
+    uint32_t expected_register;
+  } cases[] = {
+      {1000000U, 50U, 24U},
+      {10400000U, 6U, 2U},
+      {25000000U, 2U, 0U},
+      {1U, 65534U, 32766U},
+      {0U, 0U, 123U},
+      {25000001U, 0U, 123U},
+  };
+
+  for (size_t index = 0; index < RVX_ARRAY_SIZE(cases); index++)
+  {
+    RvxSpi spi = {.RVX_SPI_DIVIDER_REG = 123U};
+    const uint16_t selected_divider = rvx_spi_set_frequency(&spi, cases[index].requested_frequency);
+
+    RVX_TEST_ASSERT_EQ(suite, selected_divider, cases[index].expected_divider);
+    RVX_TEST_ASSERT_EQ(suite, spi.RVX_SPI_DIVIDER_REG, cases[index].expected_register);
+  }
+}
+
 static void spi_test_clock_divider_configuration(RvxTestSuite *suite)
 {
   static const struct
@@ -120,6 +146,7 @@ static const RvxTestCase spi_test_cases[] = {
     {"Set the SPI MODE register back to MODE 0.", spi_test_mode_zero},
     {"Assert and deassert the SPI chip select.", spi_test_internal_chip_select},
     {"Configure SPI clock dividers and ignore invalid values.", spi_test_clock_divider_configuration},
+    {"Configure the SPI clock frequency.", spi_test_frequency_configuration},
     {"Transfer with subordinate 0 in MODE 0.", spi_test_subordinate_zero_mode_zero},
     {"Transfer with subordinate 1 in MODE 1.", spi_test_subordinate_one_mode_one},
     {"Transfer with subordinate 1 in MODE 2.", spi_test_subordinate_one_mode_two},
