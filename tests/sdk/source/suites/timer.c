@@ -28,7 +28,7 @@ void rvx_timer0_interrupt_handler(void)
 static void timer_test_suite_set_up(RvxTestSuite *suite)
 {
   (void)suite;
-  rvx_uart_set_clock_divider(RVX_UART0, 50U);
+  rvx_uart_set_baud_rate(RVX_UART0, 1000000U);
 }
 
 static void timer_test_delay(void)

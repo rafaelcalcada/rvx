@@ -9,7 +9,7 @@ static void transfer_test(RvxTestSuite *suite, RvxSpi *spi);
 static void spi_test_suite_set_up(RvxTestSuite *suite)
 {
   (void)suite;
-  rvx_uart_set_clock_divider(RVX_UART0, 50U);
+  rvx_uart_set_baud_rate(RVX_UART0, 1000000U);
   rvx_gpio_pin_direction(RVX_GPIO0, 0, RVX_GPIO_OUTPUT);
   rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_HIGH);
 }
@@ -93,7 +93,7 @@ static void spi_test_clock_divider_configuration(RvxTestSuite *suite)
 static void spi_test_subordinate_zero_mode_zero(RvxTestSuite *suite)
 {
   rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_0);
-  rvx_spi_set_clock_divider(RVX_SPI0, 50U);
+  rvx_spi_set_frequency(RVX_SPI0, 1000000U);
   RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
   RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_0);
   rvx_spi_assert_cs(RVX_SPI0);
@@ -105,7 +105,7 @@ static void spi_test_subordinate_zero_mode_zero(RvxTestSuite *suite)
 static void spi_test_subordinate_one_mode_one(RvxTestSuite *suite)
 {
   rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_1);
-  rvx_spi_set_clock_divider(RVX_SPI0, 50U);
+  rvx_spi_set_frequency(RVX_SPI0, 1000000U);
   RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
   RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_1);
   rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_LOW);
@@ -118,7 +118,7 @@ static void spi_test_subordinate_one_mode_one(RvxTestSuite *suite)
 static void spi_test_subordinate_one_mode_two(RvxTestSuite *suite)
 {
   rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_2);
-  rvx_spi_set_clock_divider(RVX_SPI0, 50U);
+  rvx_spi_set_frequency(RVX_SPI0, 1000000U);
   RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
   RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_2);
   rvx_gpio_pin_write(RVX_GPIO0, 0, RVX_GPIO_LOW);
@@ -131,7 +131,7 @@ static void spi_test_subordinate_one_mode_two(RvxTestSuite *suite)
 static void spi_test_subordinate_zero_mode_three(RvxTestSuite *suite)
 {
   rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_3);
-  rvx_spi_set_clock_divider(RVX_SPI0, 50U);
+  rvx_spi_set_frequency(RVX_SPI0, 1000000U);
   RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_DIVIDER_REG, 24);
   RVX_TEST_ASSERT_EQ(suite, RVX_SPI0->RVX_SPI_MODE_REG, RVX_SPI_MODE_3);
   rvx_spi_assert_cs(RVX_SPI0);

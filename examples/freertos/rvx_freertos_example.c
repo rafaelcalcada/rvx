@@ -7,8 +7,8 @@
 
 extern void freertos_risc_v_trap_handler(); ///< FreeRTOS trap handler (provided by FreeRTOS)
 
-// RVX setup configuration for FreeRTOS (uses same clock frequency from FreeRTOSConfig.h, installs FreeRTOS trap
-// handler)
+// RVX setup configuration for FreeRTOS
+// Uses clock frequency defined in FreeRTOSConfig.h, installs FreeRTOS trap handler
 const RvxSetup rvx_setup = {.clock_frequency = configCPU_CLOCK_HZ, .trap_handler = &freertos_risc_v_trap_handler};
 
 void led_0_task(void *pvParameters); ///< FreeRTOS Task for blinking LED 0
@@ -21,8 +21,8 @@ void main(void)
   // RVX initialization
   rvx_init(&rvx_setup);
 
-  // Initialize UART at 9600 baud
-  rvx_uart_set_clock_divider(RVX_UART0, configCPU_CLOCK_HZ / 9600U);
+  // Initialize UART at 9600 baud per second
+  rvx_uart_set_baud_rate(RVX_UART0, 9600U);
 
   // Print welcome message
   rvx_uart_print(RVX_UART0, "RVX FreeRTOS Example Project\n\n");

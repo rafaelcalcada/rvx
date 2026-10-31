@@ -50,7 +50,7 @@ static void uart_test_suite_set_up(RvxTestSuite *suite)
   uart_reset_values.read_register_reset_value = RVX_UART0->RVX_UART_READ_REG;
   uart_reset_values.status_register_reset_value = RVX_UART0->RVX_UART_STATUS_REG;
 
-  rvx_uart_set_clock_divider(RVX_UART0, 50U);
+  rvx_uart_set_baud_rate(RVX_UART0, 1000000U);
 }
 
 static void uart_test_initialization(RvxTestSuite *suite)

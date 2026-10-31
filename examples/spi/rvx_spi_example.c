@@ -14,16 +14,16 @@ void main(void)
   // RVX initialization
   rvx_init(&rvx_setup);
 
-  // Initialize UART at 9600 baud (12000000 / 1250 = 9600)
-  rvx_uart_set_clock_divider(RVX_UART0, 1250U);
+  // Initialize UART at 9600 baud per second
+  rvx_uart_set_baud_rate(RVX_UART0, 9600U);
 
   // Print welcome message
   rvx_uart_print(RVX_UART0, "RVX SPI Example Project\n\n");
   rvx_uart_print(RVX_UART0, "This example reads the manufacturer ID of the FPGA board's SPI flash memory.\n");
 
-  // Initialize the SPI controller to mode 0 and 1 MHz frequency (12000000 / 12 = 1000000)
+  // Initialize the SPI controller to mode 0 and 1 MHz frequency
   rvx_spi_set_mode(RVX_SPI0, RVX_SPI_MODE_0);
-  rvx_spi_set_clock_divider(RVX_SPI0, 12U);
+  rvx_spi_set_frequency(RVX_SPI0, 1000000U);
 
   // Read Manufacturer ID from SPI Flash
   rvx_uart_print(RVX_UART0, "\nReading Manufacturer ID from SPI Flash...\n");

@@ -28,8 +28,8 @@ void main(void)
   // RVX initialization
   rvx_init(&rvx_setup);
 
-  // Initialize UART at 9600 baud (rvx_setup.clock_frequency / 1250 = 9600)
-  rvx_uart_set_clock_divider(RVX_UART0, 1250U);
+  // Initialize UART at 9600 baud per second
+  rvx_uart_set_baud_rate(RVX_UART0, 9600U);
 
   // Print welcome message
   rvx_uart_print(RVX_UART0, "RVX UART Example Project\n\n");
