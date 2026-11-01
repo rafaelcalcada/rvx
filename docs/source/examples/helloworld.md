@@ -63,29 +63,26 @@ module hello_world (
   end
 
   rvx #(
-
-  // Please adjust these two parameters accordingly
-  .CLOCK_FREQUENCY          (50000000                   ),
-  .MEMORY_INIT_FILE         ("/path/to/hello_world.hex" )
+  .RAM_SIZE_IN_BYTES        (32768                      ),
+  .BOOT_IMAGE_PATH          ("rvx_hello_world_example.mem")
 
   ) rvx_instance (
 
   .clock                    (clock                      ),
-  .reset                    (reset_debounced            ),
+  .reset_n                  (!reset_debounced           ),
   .uart_tx                  (uart_tx                    ),
-
-  // Unused inputs need to be hardwired to zero
-  .halt                     (1'b0                       ),
-  .uart_rx                  (1'b0                       ),
+  .uart_rx                  (1'b1                       ),
   .gpio_input               (1'b0                       ),
-  .miso                     (1'b0                       ),
-
-  // Unused outputs can be left open
+  .spi_miso                 (1'b1                       ),
+  .i2c_sda_input            (1'b1                       ),
+  .i2c_scl_input            (1'b1                       ),
   .gpio_output_enable       (                           ),
   .gpio_output              (                           ),
-  .sclk                     (                           ),
-  .mosi                     (                           ),
-  .cs                       (                           ));
+  .spi_sclk                 (                           ),
+  .spi_mosi                 (                           ),
+  .spi_cs                   (                           ),
+  .i2c_sda_output            (                           ),
+  .i2c_scl_output            (                           ));
 
 endmodule
 ```

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2020-2026 RVX Project Contributors
 
-module rvx_tcm #(
+module rvx_ram #(
 
     // Size of the memory in bytes
     parameter SIZE_IN_BYTES = 8192,
@@ -38,7 +38,7 @@ module rvx_tcm #(
 
   localparam NUM_WORDS = SIZE_IN_BYTES / 4;
 
-  reg  [31:0] tcm [BASE_ADDRESS/4 : BASE_ADDRESS/4 + NUM_WORDS - 1];
+  reg  [31:0] ram [BASE_ADDRESS/4 : BASE_ADDRESS/4 + NUM_WORDS - 1];
 
   // verilator lint_off UNUSED
   wire [31:0] port0_effective_address;
@@ -59,8 +59,8 @@ module rvx_tcm #(
 
   integer i;
   initial begin
-    for (i = BASE_ADDRESS/4; i < BASE_ADDRESS/4 + NUM_WORDS; i = i + 1) tcm[i] = 32'h00000000;
-    if (BOOT_IMAGE_PATH != "") $readmemh(BOOT_IMAGE_PATH, tcm);
+    for (i = BASE_ADDRESS/4; i < BASE_ADDRESS/4 + NUM_WORDS; i = i + 1) ram[i] = 32'h00000000;
+    if (BOOT_IMAGE_PATH != "") $readmemh(BOOT_IMAGE_PATH, ram);
   end
 
   assign port0_effective_address = $unsigned(port0_address[31:0]) >> 2;
@@ -72,7 +72,7 @@ module rvx_tcm #(
       port0_rresponse <= 1'b0;
     end
     else if(port0_rrequest && !port0_invalid_address) begin
-      port0_rdata <= tcm[port0_effective_address];
+      port0_rdata <= ram[port0_effective_address];
       port0_rresponse <= 1'b1;
     end
     else begin
@@ -84,7 +84,7 @@ module rvx_tcm #(
       port1_rresponse <= 1'b0;
     end
     else if(port1_rrequest && !port1_invalid_address) begin
-      port1_rdata <= tcm[port1_effective_address];
+      port1_rdata <= ram[port1_effective_address];
       port1_rresponse <= 1'b1;
     end
     else begin
@@ -96,10 +96,10 @@ module rvx_tcm #(
   always @(posedge clock) begin
     if (port1_wrequest && !port1_invalid_address) begin
       port1_wresponse <= 1'b1;
-      if (port1_wstrobe[0]) tcm[port1_effective_address][7:0] <= port1_wdata[7:0];
-      if (port1_wstrobe[1]) tcm[port1_effective_address][15:8] <= port1_wdata[15:8];
-      if (port1_wstrobe[2]) tcm[port1_effective_address][23:16] <= port1_wdata[23:16];
-      if (port1_wstrobe[3]) tcm[port1_effective_address][31:24] <= port1_wdata[31:24];
+      if (port1_wstrobe[0]) ram[port1_effective_address][7:0] <= port1_wdata[7:0];
+      if (port1_wstrobe[1]) ram[port1_effective_address][15:8] <= port1_wdata[15:8];
+      if (port1_wstrobe[2]) ram[port1_effective_address][23:16] <= port1_wdata[23:16];
+      if (port1_wstrobe[3]) ram[port1_effective_address][31:24] <= port1_wdata[31:24];
     end
     else port1_wresponse <= 1'b0;
   end

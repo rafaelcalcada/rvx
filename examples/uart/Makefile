@@ -8,8 +8,7 @@ MAKEFLAGS += --no-print-directory
 all: build
 
 build:
-	@test -d build || mkdir -p build
-	@cmake -B build --toolchain ../../sdk/RVXToolchain.cmake -DCMAKE_BUILD_TYPE=Release
+	@test -d build || (mkdir -p build && cmake -B build --toolchain ../../sdk/RVXToolchain.cmake -DCMAKE_BUILD_TYPE=Release)
 	@cmake --build build -j$(nproc)
 
 clean:

@@ -14,16 +14,16 @@ module rvx_spi (
     output reg  [31:0] read_data,
     input  wire        read_request,
     output reg         read_response,
-    input  wire [31:0] write_data,
+    input  wire [15:0] write_data,
     input  wire [ 3:0] write_strobe,
     input  wire        write_request,
     output reg         write_response,
 
     // SPI signals
-    output reg  sclk,
-    output reg  mosi,
-    input  wire miso,
-    output wire cs
+    output reg  spi_sclk,
+    output reg  spi_mosi,
+    input  wire spi_miso,
+    output reg  spi_cs
 
 );
 
@@ -37,7 +37,6 @@ module rvx_spi (
   reg         cpol;
   reg         cpha;
   reg         start_flag;
-  reg         chip_select;
   reg         leading_cycle;
   reg  [ 3:0] spi_state;
   reg  [ 7:0] tx_reg;
@@ -60,7 +59,7 @@ module rvx_spi (
       read_response <= 1'b1;
       case (rw_address)
         `RVX_SPI_MODE_REG_ADDR:        read_data <= {30'b0, cpol, cpha};
-        `RVX_SPI_CHIP_SELECT_REG_ADDR: read_data <= {31'b0, chip_select};
+        `RVX_SPI_CHIP_SELECT_REG_ADDR: read_data <= {31'b0, spi_cs};
         `RVX_SPI_DIVIDER_REG_ADDR:     read_data <= {16'b0, divider};
         `RVX_SPI_WRITE_REG_ADDR:       read_data <= {24'b0, tx_reg};
         `RVX_SPI_READ_REG_ADDR:        read_data <= {24'b0, rx_reg};
@@ -70,7 +69,7 @@ module rvx_spi (
     end
     else begin
       read_response <= 1'b0;
-      read_data     <= write_data;
+      read_data     <= 32'b0;
     end
   end
 
@@ -85,7 +84,7 @@ module rvx_spi (
       write_response <= 1'b0;
       cpol           <= 1'b0;
       cpha           <= 1'b0;
-      chip_select    <= 1'b1;
+      spi_cs         <= 1'b1;
       divider        <= 16'b0;
     end
     else if (valid_write_request == 1'b1) begin
@@ -96,10 +95,10 @@ module rvx_spi (
           cpol <= write_data[1];
         end
         `RVX_SPI_CHIP_SELECT_REG_ADDR: begin
-          chip_select <= write_data[0];
+          spi_cs <= write_data[0];
         end
         `RVX_SPI_DIVIDER_REG_ADDR: begin
-          divider <= write_data[15:0];
+          divider <= write_data;
         end
         default: ;
       endcase
@@ -132,8 +131,8 @@ module rvx_spi (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      sclk          <= cpol;
-      mosi          <= 1'b0;
+      spi_sclk      <= cpol;
+      spi_mosi      <= 1'b0;
       leading_cycle <= 1'b0;
       bit_counter   <= 4'b0;
       cycle_counter <= 16'b0;
@@ -143,8 +142,8 @@ module rvx_spi (
       case (spi_state)
         STATE_RESET: spi_state <= STATE_READY;
         STATE_READY: begin
-          sclk          <= cpol;
-          mosi          <= 1'b0;
+          spi_sclk      <= cpol;
+          spi_mosi      <= 1'b0;
           bit_counter   <= 4'b0;
           cycle_counter <= 16'b0;
           if (start_flag == 1'b1) begin
@@ -153,8 +152,8 @@ module rvx_spi (
           end
         end
         STATE_CPOL: begin
-          sclk          <= cpol;
-          mosi          <= tx_reg[bit_select];
+          spi_sclk      <= cpol;
+          spi_mosi      <= tx_reg[bit_select];
           cycle_counter <= cycle_counter < divider ? cycle_counter + 1 : 0;
           if (cycle_counter >= divider) begin
             if (leading_cycle == 1'b1) begin
@@ -184,8 +183,8 @@ module rvx_spi (
           end
         end
         STATE_CPOL_N: begin
-          sclk          <= ~cpol;
-          mosi          <= tx_reg[bit_select];
+          spi_sclk      <= ~cpol;
+          spi_mosi      <= tx_reg[bit_select];
           cycle_counter <= cycle_counter < divider ? cycle_counter + 1 : 0;
           if (cycle_counter >= divider) begin
             if (leading_cycle == 1'b1) begin
@@ -215,8 +214,8 @@ module rvx_spi (
           end
         end
         default: begin
-          sclk          <= cpol;
-          mosi          <= 1'b0;
+          spi_sclk      <= cpol;
+          spi_mosi      <= 1'b0;
           leading_cycle <= 1'b0;
           bit_counter   <= 4'b0;
           cycle_counter <= 16'b0;
@@ -237,25 +236,20 @@ module rvx_spi (
       sclk_prev <= cpol;
     end
     else begin
-      sclk_prev <= sclk;
+      sclk_prev <= spi_sclk;
     end
   end
 
   // Detect the sampling edge based on CPOL and CPHA
-  assign sample_edge = (cpol ^ cpha) ? (sclk_prev && !sclk) : (!sclk_prev && sclk);
+  assign sample_edge = (cpol ^ cpha) ? (sclk_prev && !spi_sclk) : (!sclk_prev && spi_sclk);
 
   always @(posedge clock) begin
     if (!reset_n) begin
       rx_reg <= 8'h00;
     end
     else if (sample_edge) begin
-      rx_reg[7:0] <= {rx_reg[6:0], miso};
+      rx_reg[7:0] <= {rx_reg[6:0], spi_miso};
     end
   end
-
-  // Chip select output
-  // ---------------------------------------------------------------------------
-
-  assign cs = chip_select;
 
 endmodule

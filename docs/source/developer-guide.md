@@ -140,8 +140,8 @@ cmake_minimum_required(VERSION 3.28)
 # Name of the project/executable to be generated
 set(APP_NAME "rvx_hello_world")
 
-# Size of RVX tightly coupled memory (TCM)
-# Set this to the same value you provided for the TCM_SIZE_IN_BYTES parameter of RVX top module.
+# Size of RVX RAM
+# Set this to the same value you provided for the RAM_SIZE_IN_BYTES parameter of RVX top module.
 set(RVX_MEMORY_SIZE 8192)
 
 # Memory space reserved for stack growth
@@ -193,7 +193,7 @@ Once the build completes, you should see output similar to this:
 Generated files:
 
 Boot image (SPI flash): build/rvx_hello_world.bin
-Boot image (FPGA/TCM):  build/rvx_hello_world.mem
+Boot image (FPGA/RAM):  build/rvx_hello_world.mem
 ELF binary:             build/rvx_hello_world.elf
 Disassembly:            build/rvx_hello_world.disasm
 
@@ -204,9 +204,9 @@ Booting RVX: https://rafaelcalcada.github.io/rvx/devguide/#booting-rvx
 
 ## Booting RVX { #booting-rvx }
 
-RVX can boot from either an external SPI flash memory connected to its SPI interface or from its internal TCM memory. The generated `.bin` boot image is intended for booting from SPI flash, while the `.mem` image is intended for booting from TCM.
+RVX can boot from either an external SPI flash memory connected to its SPI interface or from its internal RAM. The generated `.bin` boot image is intended for booting from SPI flash, while the `.mem` image is intended for loading into RAM.
 
-When you power on RVX, it will first attempt to boot from an external SPI flash memory. If no valid boot image is found there, it will attempt to boot from TCM.
+When you power on RVX, it will first attempt to boot from an external SPI flash memory. If no valid boot image is found there, it will attempt to boot from RAM.
 
 ### Booting from SPI flash
 
@@ -214,11 +214,11 @@ To boot from SPI flash, you need to write the `.bin` boot image into an SPI flas
 
 The exact method for programming the SPI flash will depend on the specific flash chip you are using, but it typically involves using a programmer device that connects to your computer via USB and can read/write data to the flash chip.
 
-### Booting from TCM
+### Booting from RAM
 
-In FPGA implementations, you can boot RVX without an external SPI flash by loading the `.mem` boot image into RVX tightly coupled memory (TCM) when programming the FPGA. To do this, set the [`TCM_BOOT_IMAGE_PATH`](design.md#configuration-parameters) parameter of RVX top module instance to the path of the `.mem` boot image. This will embed the boot image into the FPGA bitstream.
+In FPGA implementations, you can boot RVX without an external SPI flash by loading the `.mem` boot image into RVX RAM when programming the FPGA. To do this, set the `BOOT_IMAGE_PATH` parameter of the RVX top module instance to the path of the `.mem` boot image. This will embed the boot image into the FPGA bitstream.
 
-When you power on the FPGA, the bootloader will find the boot image in the TCM and start executing it. Make sure that RVX is not connected to an external SPI flash (or, if it is, that the flash does not contain a boot image); otherwise, RVX will attempt to boot from SPI flash first.
+When you power on the FPGA, the bootloader will find the boot image in RAM and start executing it. Make sure that RVX is not connected to an external SPI flash (or, if it is, that the flash does not contain a boot image); otherwise, RVX will attempt to boot from SPI flash first.
 
 ## Running the application { #running }
 

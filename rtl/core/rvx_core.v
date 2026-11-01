@@ -35,7 +35,7 @@ module rvx_core #(
     input wire irq_timer,
 
     // Memory-mapped timer
-    input wire [63:0] memory_mapped_timer
+    input wire [63:0] timer
 
 );
 
@@ -464,7 +464,7 @@ module rvx_core #(
       .irq_external_s1                  (irq_external),
       .irq_software_s1                  (irq_software),
       .irq_timer_s1                     (irq_timer),
-      .memory_mapped_timer_s1           (memory_mapped_timer),
+      .timer_s1                         (timer),
       .misaligned_instruction_address_s1(misaligned_instruction_address_s1),
       .misaligned_load_s1               (misaligned_load_s1),
       .misaligned_store_s1              (misaligned_store_s1),

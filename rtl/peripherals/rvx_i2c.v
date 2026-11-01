@@ -20,10 +20,10 @@ module rvx_i2c (
     output reg         write_response,
 
     // I2C signals
-    input  wire sda_input,
-    input  wire scl_input,
-    output reg  sda_output,
-    output reg  scl_output
+    input  wire i2c_sda_input,
+    input  wire i2c_scl_input,
+    output reg  i2c_sda_output,
+    output reg  i2c_scl_output
 
 );
 
@@ -37,16 +37,6 @@ module rvx_i2c (
   reg rx_ack_bit;
   reg [8:0] rx_reg;
 
-  // Control and status signals
-  // ---------------------------------------------------------------------------
-
-  reg busy;
-  reg start;
-  reg [2:0] command;
-  wire [3:0] status = {scl_input, sda_input, rx_ack_bit, busy | start};
-  wire clock_stretching = busy && scl_input == 1'b0 && scl_data_shift_reg[17] == 1'b1 &&
-      command == `RVX_I2C_COMMAND_DATA;
-
   // Shift registers for start, restart, stop, and data commands.
   // They are used to generate the appropriate SDA and SCL waveforms.
   // ---------------------------------------------------------------------------
@@ -59,6 +49,16 @@ module rvx_i2c (
   reg [3:0] scl_stop_shift_reg;
   reg [17:0] sda_data_shift_reg;
   reg [17:0] scl_data_shift_reg;
+
+  // Control and status signals
+  // ---------------------------------------------------------------------------
+
+  reg busy;
+  reg start;
+  reg [2:0] command;
+  wire [3:0] status = {i2c_scl_input, i2c_sda_input, rx_ack_bit, busy | start};
+  wire clock_stretching = busy && i2c_scl_input == 1'b0 && scl_data_shift_reg[17] == 1'b1 &&
+      command == `RVX_I2C_COMMAND_DATA;
 
   // Counters
   // ---------------------------------------------------------------------------
@@ -84,7 +84,7 @@ module rvx_i2c (
         `RVX_I2C_DIVIDER_REG_ADDR: read_data <= {16'b0, divider};
         `RVX_I2C_DATA_REG_ADDR:    read_data <= {24'b0, rx_data};
         `RVX_I2C_COMMAND_REG_ADDR: read_data <= {29'b0, command};
-        `RVX_I2C_STATUS_REG_ADDR: read_data <= {28'b0, status};
+        `RVX_I2C_STATUS_REG_ADDR:  read_data <= {28'b0, status};
         default:                   read_data <= {32'b0};
       endcase
     end
@@ -216,7 +216,7 @@ module rvx_i2c (
       scl_data_shift_reg <= {scl_data_shift_reg[0+:17], 1'b0};
       // Sample SDA on the rising edge of SCL (halfway through the bit period)
       if (shift_counter[0]) begin
-        rx_reg <= {rx_reg[0+:8], sda_input};
+        rx_reg <= {rx_reg[0+:8], i2c_sda_input};
       end
     end
   end
@@ -226,30 +226,30 @@ module rvx_i2c (
 
   always @(posedge clock) begin
     if (!reset_n) begin
-      sda_output <= 1'b1;
-      scl_output <= 1'b1;
+      i2c_sda_output <= 1'b1;
+      i2c_scl_output <= 1'b1;
     end
     else if (busy) begin
       case (command)
         `RVX_I2C_COMMAND_START: begin
-          sda_output <= sda_start_shift_reg[3];
-          scl_output <= scl_start_shift_reg[3];
+          i2c_sda_output <= sda_start_shift_reg[3];
+          i2c_scl_output <= scl_start_shift_reg[3];
         end
         `RVX_I2C_COMMAND_RESTART: begin
-          sda_output <= sda_restart_shift_reg[3];
-          scl_output <= scl_restart_shift_reg[3];
+          i2c_sda_output <= sda_restart_shift_reg[3];
+          i2c_scl_output <= scl_restart_shift_reg[3];
         end
         `RVX_I2C_COMMAND_STOP: begin
-          sda_output <= sda_stop_shift_reg[3];
-          scl_output <= scl_stop_shift_reg[3];
+          i2c_sda_output <= sda_stop_shift_reg[3];
+          i2c_scl_output <= scl_stop_shift_reg[3];
         end
         `RVX_I2C_COMMAND_DATA: begin
-          sda_output <= sda_data_shift_reg[17];
-          scl_output <= scl_data_shift_reg[17];
+          i2c_sda_output <= sda_data_shift_reg[17];
+          i2c_scl_output <= scl_data_shift_reg[17];
         end
         default: begin
-          sda_output <= 1'b1;
-          scl_output <= 1'b1;
+          i2c_sda_output <= 1'b1;
+          i2c_scl_output <= 1'b1;
         end
       endcase
     end

@@ -3,16 +3,16 @@
 
 module rvx #(
 
-    // Size of the tightly-coupled memory (TCM) in bytes
-    parameter TCM_SIZE_IN_BYTES = 8192,
+    // Size of RAM in bytes
+    parameter RAM_SIZE_IN_BYTES = 8192,
 
-    // (FPGA Only) Path to the boot image to be loaded into the TCM at startup
-    parameter TCM_BOOT_IMAGE_PATH = "",
+    // (FPGA Only) Path to the boot image to be loaded into RAM at startup
+    parameter BOOT_IMAGE_PATH = "",
 
     // Number of GPIO pins
     parameter GPIO_PIN_COUNT = 1,
 
-    // Enable/disable the ZMMUL extension
+    // Enable/disable the Zmmul extension
     parameter ENABLE_ZMMUL = 0
 
 ) (
@@ -24,10 +24,10 @@ module rvx #(
     input  wire [GPIO_PIN_COUNT-1:0] gpio_input,
     output wire [GPIO_PIN_COUNT-1:0] gpio_output_enable,
     output wire [GPIO_PIN_COUNT-1:0] gpio_output,
-    output wire                      sclk,
-    output wire                      mosi,
-    input  wire                      miso,
-    output wire                      cs,
+    output wire                      spi_sclk,
+    output wire                      spi_mosi,
+    input  wire                      spi_miso,
+    output wire                      spi_cs,
     input  wire                      i2c_sda_input,
     input  wire                      i2c_scl_input,
     output wire                      i2c_sda_output,
@@ -39,19 +39,19 @@ module rvx #(
   // ---------------------------------------------------------------------------
 
   localparam IBUS_BOOTLOADER_ROM_REGION_INDEX = 0;
-  localparam IBUS_TCM_REGION_INDEX = 1;
+  localparam IBUS_RAM_REGION_INDEX = 1;
   localparam IBUS_NUM_PERIPHERALS = 2;
 
   localparam [31:0] IBUS_BOOTLOADER_ROM_BASE_ADDRESS = 32'h00000000;
   localparam [31:0] IBUS_BOOTLOADER_ROM_REGION_SIZE = 4096;
 
-  localparam [31:0] IBUS_TCM_BASE_ADDRESS = 32'h00001000;
-  localparam [31:0] IBUS_TCM_REGION_SIZE = TCM_SIZE_IN_BYTES;
+  localparam [31:0] IBUS_RAM_BASE_ADDRESS = 32'h00001000;
+  localparam [31:0] IBUS_RAM_REGION_SIZE = RAM_SIZE_IN_BYTES;
 
   // RVX Interconnect - Data Bus Configuration
   // ---------------------------------------------------------------------------
 
-  localparam DBUS_TCM_REGION_INDEX = 0;
+  localparam DBUS_RAM_REGION_INDEX = 0;
   localparam DBUS_UART_REGION_INDEX = 1;
   localparam DBUS_TIMER_REGION_INDEX = 2;
   localparam DBUS_GPIO_REGION_INDEX = 3;
@@ -60,8 +60,8 @@ module rvx #(
   localparam DBUS_PLIC_REGION_INDEX = 6;
   localparam DBUS_NUM_PERIPHERALS = 7;
 
-  localparam [31:0] DBUS_TCM_BASE_ADDRESS = 32'h00001000;
-  localparam [31:0] DBUS_TCM_REGION_SIZE = TCM_SIZE_IN_BYTES;
+  localparam [31:0] DBUS_RAM_BASE_ADDRESS = 32'h00001000;
+  localparam [31:0] DBUS_RAM_REGION_SIZE = RAM_SIZE_IN_BYTES;
 
   localparam [31:0] DBUS_UART_BASE_ADDRESS = 32'h40000000;
   localparam [31:0] DBUS_UART_REGION_SIZE = 16;
@@ -113,26 +113,17 @@ module rvx #(
   wire [   DBUS_NUM_PERIPHERALS-1:0] dbus_peripheral_wrequest;
   wire [   DBUS_NUM_PERIPHERALS-1:0] dbus_peripheral_wresponse;
 
-  // Interrupt configuration
-  // ---------------------------------------------------------------------------
-
-  assign irq_software = 1'b0;  // unused
-
-  // UART is irq_sources[0], which the PLIC maps to source ID 1.
-  wire [15:0] plic_irq_source_lines = {14'b0, irq_timer, irq_uart};
-
   // Interrupt signals
   // ---------------------------------------------------------------------------
 
-  wire        irq_external;
-  wire        irq_timer;
-  wire        irq_software;
-  wire        irq_uart;
+  wire                               plic0_irq;
+  wire                               timer0_irq;
+  wire                               uart0_irq;
 
-  // Memory-mapped timer
+  // Timer 0 output
   // ---------------------------------------------------------------------------
 
-  wire [63:0] timer;
+  wire [                       63:0] timer0;
 
   // Module instantiations
   // ---------------------------------------------------------------------------
@@ -141,7 +132,7 @@ module rvx #(
 
       .ENABLE_ZMMUL(ENABLE_ZMMUL)
 
-  ) rvx_core_instance (
+  ) rvx_core0 (
 
       // Global signals
       .clock  (clock),
@@ -164,12 +155,12 @@ module rvx #(
       .dbus_wresponse(dbus_controller_wresponse),
 
       // Interrupt requests
-      .irq_external(irq_external),
-      .irq_timer   (irq_timer),
-      .irq_software(irq_software),
+      .irq_external(plic0_irq),
+      .irq_timer   (timer0_irq),
+      .irq_software(1'b0),
 
       // Memory-mapped timer
-      .memory_mapped_timer(timer)
+      .timer(timer0)
 
   );
 
@@ -183,7 +174,7 @@ module rvx #(
         DBUS_GPIO_BASE_ADDRESS,
         DBUS_TIMER_BASE_ADDRESS,
         DBUS_UART_BASE_ADDRESS,
-        DBUS_TCM_BASE_ADDRESS
+        DBUS_RAM_BASE_ADDRESS
       }),
       .REGION_SIZES({
         DBUS_PLIC_REGION_SIZE,
@@ -192,10 +183,10 @@ module rvx #(
         DBUS_GPIO_REGION_SIZE,
         DBUS_TIMER_REGION_SIZE,
         DBUS_UART_REGION_SIZE,
-        DBUS_TCM_REGION_SIZE
+        DBUS_RAM_REGION_SIZE
       })
 
-  ) rvx_interconnect_dbus_instance (
+  ) rvx_dbus (
 
       // Global signals
       .clock  (clock),
@@ -226,10 +217,10 @@ module rvx #(
   rvx_interconnect #(
 
       .NUM_PERIPHERALS(IBUS_NUM_PERIPHERALS),
-      .BASE_ADDRESSES ({IBUS_TCM_BASE_ADDRESS, IBUS_BOOTLOADER_ROM_BASE_ADDRESS}),
-      .REGION_SIZES   ({IBUS_TCM_REGION_SIZE, IBUS_BOOTLOADER_ROM_REGION_SIZE})
+      .BASE_ADDRESSES ({IBUS_RAM_BASE_ADDRESS, IBUS_BOOTLOADER_ROM_BASE_ADDRESS}),
+      .REGION_SIZES   ({IBUS_RAM_REGION_SIZE, IBUS_BOOTLOADER_ROM_REGION_SIZE})
 
-  ) rvx_interconnect_ibus_instance (
+  ) rvx_ibus (
 
       // Global signals
       .clock  (clock),
@@ -260,7 +251,7 @@ module rvx #(
 
   );
 
-  rvx_bootloader_rom rvx_bootloader_rom_instance (
+  rvx_bootloader_rom rvx_rom0 (
 
       // Global signals
       .clock  (clock),
@@ -274,13 +265,13 @@ module rvx #(
 
   );
 
-  rvx_tcm #(
+  rvx_ram #(
 
-      .SIZE_IN_BYTES  (TCM_SIZE_IN_BYTES),
-      .BOOT_IMAGE_PATH(TCM_BOOT_IMAGE_PATH),
-      .BASE_ADDRESS   (DBUS_TCM_BASE_ADDRESS)
+      .SIZE_IN_BYTES  (RAM_SIZE_IN_BYTES),
+      .BOOT_IMAGE_PATH(BOOT_IMAGE_PATH),
+      .BASE_ADDRESS   (DBUS_RAM_BASE_ADDRESS)
 
-  ) rvx_tightly_coupled_memory_instance (
+  ) rvx_ram0 (
 
       // Global signals
       .clock  (clock),
@@ -288,22 +279,22 @@ module rvx #(
 
       // Port 0 (read-only) - Instruction bus
       .port0_address  (ibus_peripheral_address),
-      .port0_rdata    (ibus_peripheral_rdata[32*IBUS_TCM_REGION_INDEX+:32]),
-      .port0_rrequest (ibus_peripheral_rrequest[IBUS_TCM_REGION_INDEX]),
-      .port0_rresponse(ibus_peripheral_rresponse[IBUS_TCM_REGION_INDEX]),
+      .port0_rdata    (ibus_peripheral_rdata[32*IBUS_RAM_REGION_INDEX+:32]),
+      .port0_rrequest (ibus_peripheral_rrequest[IBUS_RAM_REGION_INDEX]),
+      .port0_rresponse(ibus_peripheral_rresponse[IBUS_RAM_REGION_INDEX]),
 
       // Port 1 (read/write) - Data bus
       .port1_address  (dbus_peripheral_address),
-      .port1_rdata    (dbus_peripheral_rdata[32*DBUS_TCM_REGION_INDEX+:32]),
-      .port1_rrequest (dbus_peripheral_rrequest[DBUS_TCM_REGION_INDEX]),
-      .port1_rresponse(dbus_peripheral_rresponse[DBUS_TCM_REGION_INDEX]),
+      .port1_rdata    (dbus_peripheral_rdata[32*DBUS_RAM_REGION_INDEX+:32]),
+      .port1_rrequest (dbus_peripheral_rrequest[DBUS_RAM_REGION_INDEX]),
+      .port1_rresponse(dbus_peripheral_rresponse[DBUS_RAM_REGION_INDEX]),
       .port1_wdata    (dbus_peripheral_wdata),
       .port1_wstrobe  (dbus_peripheral_wstrobe),
-      .port1_wrequest (dbus_peripheral_wrequest[DBUS_TCM_REGION_INDEX]),
-      .port1_wresponse(dbus_peripheral_wresponse[DBUS_TCM_REGION_INDEX])
+      .port1_wrequest (dbus_peripheral_wrequest[DBUS_RAM_REGION_INDEX]),
+      .port1_wresponse(dbus_peripheral_wresponse[DBUS_RAM_REGION_INDEX])
   );
 
-  rvx_uart rvx_uart_instance (
+  rvx_uart rvx_uart0 (
 
       // Global signals
       .clock  (clock),
@@ -324,11 +315,11 @@ module rvx #(
       .uart_rx(uart_rx),
 
       // UART interrupt request (connected to PLIC source ID 1)
-      .uart_irq(irq_uart)
+      .uart_irq(uart0_irq)
 
   );
 
-  rvx_timer rvx_timer_instance (
+  rvx_timer rvx_timer0 (
 
       // Global signals
       .clock  (clock),
@@ -345,10 +336,10 @@ module rvx #(
       .write_response(dbus_peripheral_wresponse[DBUS_TIMER_REGION_INDEX]),
 
       // Timer interrupt request
-      .timer_irq(irq_timer),
+      .timer_irq(timer0_irq),
 
       // Timer output
-      .timer(timer)
+      .timer(timer0)
 
   );
 
@@ -356,7 +347,7 @@ module rvx #(
 
       .PIN_COUNT(GPIO_PIN_COUNT)
 
-  ) rvx_gpio_instance (
+  ) rvx_gpio0 (
 
       // Global signals
       .clock  (clock),
@@ -379,7 +370,7 @@ module rvx #(
 
   );
 
-  rvx_spi rvx_spi_instance (
+  rvx_spi rvx_spi0 (
 
       // Global signals
       .clock  (clock),
@@ -390,20 +381,20 @@ module rvx #(
       .read_data     (dbus_peripheral_rdata[32*DBUS_SPI_REGION_INDEX+:32]),
       .read_request  (dbus_peripheral_rrequest[DBUS_SPI_REGION_INDEX]),
       .read_response (dbus_peripheral_rresponse[DBUS_SPI_REGION_INDEX]),
-      .write_data    (dbus_peripheral_wdata),
+      .write_data    (dbus_peripheral_wdata[15:0]),
       .write_strobe  (dbus_peripheral_wstrobe),
       .write_request (dbus_peripheral_wrequest[DBUS_SPI_REGION_INDEX]),
       .write_response(dbus_peripheral_wresponse[DBUS_SPI_REGION_INDEX]),
 
       // SPI signals
-      .sclk(sclk),
-      .mosi(mosi),
-      .miso(miso),
-      .cs  (cs)
+      .spi_sclk(spi_sclk),
+      .spi_mosi(spi_mosi),
+      .spi_miso(spi_miso),
+      .spi_cs  (spi_cs)
 
   );
 
-  rvx_i2c rvx_i2c_instance (
+  rvx_i2c rvx_i2c0 (
 
       // Global signals
       .clock  (clock),
@@ -420,13 +411,13 @@ module rvx #(
       .write_response(dbus_peripheral_wresponse[DBUS_I2C_REGION_INDEX]),
 
       // I2C signals
-      .sda_input (i2c_sda_input),
-      .scl_input (i2c_scl_input),
-      .sda_output(i2c_sda_output),
-      .scl_output(i2c_scl_output)
+      .i2c_sda_input (i2c_sda_input),
+      .i2c_scl_input (i2c_scl_input),
+      .i2c_sda_output(i2c_sda_output),
+      .i2c_scl_output(i2c_scl_output)
   );
 
-  rvx_plic rvx_plic_instance (
+  rvx_plic rvx_plic0 (
 
       // Global signals
       .clock  (clock),
@@ -437,16 +428,16 @@ module rvx #(
       .read_data     (dbus_peripheral_rdata[32*DBUS_PLIC_REGION_INDEX+:32]),
       .read_request  (dbus_peripheral_rrequest[DBUS_PLIC_REGION_INDEX]),
       .read_response (dbus_peripheral_rresponse[DBUS_PLIC_REGION_INDEX]),
-      .write_data    (dbus_peripheral_wdata),
+      .write_data    (dbus_peripheral_wdata[15:0]),
       .write_strobe  (dbus_peripheral_wstrobe),
       .write_request (dbus_peripheral_wrequest[DBUS_PLIC_REGION_INDEX]),
       .write_response(dbus_peripheral_wresponse[DBUS_PLIC_REGION_INDEX]),
 
       // Interrupt request lines
-      .irq_sources(plic_irq_source_lines),
+      .plic_sources({14'b0, timer0_irq, uart0_irq}),
 
       // External interrupt request
-      .irq_external(irq_external)
+      .plic_irq(plic0_irq)
 
   );
 

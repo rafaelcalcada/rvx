@@ -40,13 +40,10 @@ The table below lists the configuration parameters of RVX Top Module, `rvx.v`:
 
 | Parameter name and description                                                            | Value type          | Default value    |
 | ----------------------------------------------------------------------------------------- | ------------------- | ---------------- |
-| **BOOT_ADDRESS**</br>Memory address of the first instruction to be fetched and executed.  | 32-bit hexadecimal  | `32'h00000000`   |
-| **CLOCK_FREQUENCY**</br>Frequency (in Hertz) of the `clock` input signal.                 | Integer             | `50000000`       |
-| **UART_BAUD_RATE**</br>Baud rate of the UART module (in bauds per second).                | Integer             | `9600`           |
-| **MEMORY_SIZE**</br>Size of the memory module (in bytes).                                 | Integer             | `8192`           |
-| **MEMORY_INIT_FILE**</br>Absolute path to the memory initialization file.                 | String              | `(empty string)` |
-| **GPIO_WIDTH**</br>Number of general-purpose I/O pins.                                    | Integer             | `1`              |
-| **SPI_NUM_CHIP_SELECT**</br>Number of Chip Select (CS) lines for the SPI Controller.      | Integer             | `1`              |
+| **RAM_SIZE_IN_BYTES**</br>Size of RAM in bytes.                                          | Integer             | `8192`           |
+| **BOOT_IMAGE_PATH**</br>Path to the boot image loaded into RAM.                           | String              | `(empty string)` |
+| **GPIO_PIN_COUNT**</br>Number of general-purpose I/O pins.                               | Integer             | `1`              |
+| **ENABLE_ZMMUL**</br>Enable the Zmmul extension.                                          | Boolean             | `0`              |
 
 ## I/O Signals
 
@@ -55,17 +52,20 @@ The input/output signals of RVX Top Module, `rvx.v`, are listed in the table bel
 | Pin name and description                        | Direction | Size                  |
 | ----------------------------------------------- | --------- | --------------------- |
 | **clock**</br>Clock input.                      | Input     | 1 bit                 |
-| **reset**</br>Reset pin (active-high).          | Input     | 1 bit                 |
-| **halt**</br>Halt pin (active-high).            | Input     | 1 bit                 |
+| **reset_n**</br>Reset pin (active-low).         | Input     | 1 bit                 |
 | **uart_rx**</br>UART receiver pin.              | Input     | 1 bit                 |
 | **uart_tx**</br>UART transmitter pin.           | Output    | 1 bit                 |
-| **gpio_input**</br>GPIO input signals.          | Input     | `GPIO_WIDTH`          |
-| **gpio_output_enable**</br>GPIO output enable.  | Output    | `GPIO_WIDTH`          |
-| **gpio_output**</br>GPIO output signals.        | Output    | `GPIO_WIDTH`          |
-| **sclk**</br>SPI Controller clock.              | Output    | 1 bit                 |
-| **miso**</br>SPI Peripheral In Controller Out.  | Output    | 1 bit                 |
-| **mosi**</br>SPI Peripheral Out Controller In.  | Input     | 1 bit                 |
-| **cs**</br>SPI Chip Select lines.               | Output    | `SPI_NUM_CHIP_SELECT` |
+| **gpio_input**</br>GPIO input signals.          | Input     | `GPIO_PIN_COUNT`      |
+| **gpio_output_enable**</br>GPIO output enable.  | Output    | `GPIO_PIN_COUNT`      |
+| **gpio_output**</br>GPIO output signals.        | Output    | `GPIO_PIN_COUNT`      |
+| **spi_sclk**</br>SPI clock.                     | Output    | 1 bit                 |
+| **spi_mosi**</br>SPI Manager Out, Subordinate In. | Output  | 1 bit                 |
+| **spi_miso**</br>SPI Manager In, Subordinate Out. | Input   | 1 bit                 |
+| **spi_cs**</br>SPI chip select.                 | Output    | 1 bit                 |
+| **i2c_sda_input**</br>I2C SDA input.            | Input     | 1 bit                 |
+| **i2c_sda_output**</br>I2C SDA output.          | Output    | 1 bit                 |
+| **i2c_scl_input**</br>I2C SCL input.            | Input     | 1 bit                 |
+| **i2c_scl_output**</br>I2C SCL output.          | Output    | 1 bit                 |
 
 ## Memory Map
 

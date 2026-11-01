@@ -4,7 +4,7 @@
 module rvx_simulator #(
 
     /* verilator public_flat_rd_on */
-    parameter TCM_SIZE_IN_BYTES = 2097152,
+    parameter RAM_SIZE_IN_BYTES = 2097152,
     parameter ENABLE_ZMMUL      = 1
     /* verilator public_off */
 
@@ -16,10 +16,10 @@ module rvx_simulator #(
 );
 
   // SPI signals
-  wire        sclk;
-  wire        mosi;
-  wire        miso;
-  wire        cs;
+  wire        spi_sclk;
+  wire        spi_mosi;
+  wire        spi_miso;
+  wire        spi_cs;
 
   // GPIO outputs
   // verilator lint_off UNUSEDSIGNAL
@@ -31,7 +31,7 @@ module rvx_simulator #(
 
   rvx #(
 
-      .TCM_SIZE_IN_BYTES(TCM_SIZE_IN_BYTES),
+      .RAM_SIZE_IN_BYTES(RAM_SIZE_IN_BYTES),
       .ENABLE_ZMMUL     (ENABLE_ZMMUL),
       .GPIO_PIN_COUNT   (32)
 
@@ -41,10 +41,10 @@ module rvx_simulator #(
       .reset_n    (reset_n),
       .uart_rx    (uart_loopback),
       .uart_tx    (uart_loopback),
-      .sclk       (sclk),
-      .mosi       (mosi),
-      .miso       (miso),
-      .cs         (cs),
+      .spi_sclk   (spi_sclk),
+      .spi_mosi   (spi_mosi),
+      .spi_miso   (spi_miso),
+      .spi_cs     (spi_cs),
       .gpio_output(gpio_output),
 
       // The GPIO and I2C input ports are hardwired to a known value for simulation purposes
@@ -63,23 +63,23 @@ module rvx_simulator #(
 
   test_spi_subordinate_0 test_spi_subordinate_0_instance (
 
-      .clock  (clock),
-      .reset_n(reset_n),
-      .sclk   (sclk),
-      .mosi   (mosi),
-      .miso   (miso),
-      .cs     (cs)
+      .clock   (clock),
+      .reset_n (reset_n),
+      .spi_sclk(spi_sclk),
+      .spi_mosi(spi_mosi),
+      .spi_miso(spi_miso),
+      .spi_cs  (spi_cs)
 
   );
 
   test_spi_subordinate_1 test_spi_subordinate_1_instance (
 
-      .clock  (clock),
-      .reset_n(reset_n),
-      .sclk   (sclk),
-      .mosi   (mosi),
-      .miso   (miso),
-      .cs     (gpio_output[0])
+      .clock   (clock),
+      .reset_n (reset_n),
+      .spi_sclk(spi_sclk),
+      .spi_mosi(spi_mosi),
+      .spi_miso(spi_miso),
+      .spi_cs  (gpio_output[0])
 
   );
 
@@ -94,10 +94,10 @@ module test_spi_subordinate_0 (
 
     input  wire clock,
     input  wire reset_n,
-    input  wire sclk,
-    input  wire mosi,
-    input  wire cs,
-    output wire miso
+    input  wire spi_sclk,
+    input  wire spi_mosi,
+    input  wire spi_cs,
+    output wire spi_miso
 
 );
 
@@ -112,24 +112,24 @@ module test_spi_subordinate_0 (
       sclk_prev <= 1'b0;
     end
     else begin
-      sclk_prev <= sclk;
+      sclk_prev <= spi_sclk;
     end
   end
 
   // Sample on rising edge of SCLK
-  assign sample_edge = !sclk_prev && sclk;
+  assign sample_edge = !sclk_prev && spi_sclk;
 
   always @(posedge clock) begin
     if (!reset_n) rx_data <= 8'h00;
-    else if (!cs & sample_edge) rx_data <= {rx_data[6:0], mosi};
+    else if (!spi_cs & sample_edge) rx_data <= {rx_data[6:0], spi_mosi};
   end
 
   always @(negedge clock) begin
     if (!reset_n) tx_bit <= 1'b0;
-    else if (!cs & sample_edge) tx_bit <= rx_data[7];
+    else if (!spi_cs & sample_edge) tx_bit <= rx_data[7];
   end
 
-  assign miso = cs ? 1'bZ : tx_bit;
+  assign spi_miso = spi_cs ? 1'bZ : tx_bit;
 
 endmodule
 
@@ -141,10 +141,10 @@ module test_spi_subordinate_1 (
 
     input  wire clock,
     input  wire reset_n,
-    input  wire sclk,
-    input  wire mosi,
-    input  wire cs,
-    output wire miso
+    input  wire spi_sclk,
+    input  wire spi_mosi,
+    input  wire spi_cs,
+    output wire spi_miso
 
 );
 
@@ -159,24 +159,24 @@ module test_spi_subordinate_1 (
       sclk_prev <= 1'b0;
     end
     else begin
-      sclk_prev <= sclk;
+      sclk_prev <= spi_sclk;
     end
   end
 
   // Sample on falling edge of SCLK
-  assign sample_edge = sclk_prev && !sclk;
+  assign sample_edge = sclk_prev && !spi_sclk;
 
   always @(posedge clock) begin
     if (!reset_n) rx_data <= 8'h00;
-    else if (!cs & sample_edge) rx_data <= {rx_data[6:0], mosi};
+    else if (!spi_cs & sample_edge) rx_data <= {rx_data[6:0], spi_mosi};
   end
 
   always @(negedge clock) begin
     if (!reset_n) tx_bit <= 1'b0;
-    else if (!cs & sample_edge) tx_bit <= rx_data[7];
+    else if (!spi_cs & sample_edge) tx_bit <= rx_data[7];
   end
 
-  assign miso = cs ? 1'bZ : tx_bit;
+  assign spi_miso = spi_cs ? 1'bZ : tx_bit;
 
 endmodule
 // verilator lint_on DECLFILENAME

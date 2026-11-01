@@ -10,12 +10,12 @@ module rvx_arty_a7 #(
     input  wire clock,
     input  wire uart_rx,
     output wire uart_tx,
-    output wire sclk,
-    output wire mosi,
-    input  wire miso,
-    output wire cs,
-    inout  wire sda,
-    inout  wire scl,
+    output wire spi_sclk,
+    output wire spi_mosi,
+    input  wire spi_miso,
+    output wire spi_cs,
+    inout  wire i2c_sda,
+    inout  wire i2c_scl,
     input  wire push_button_0,  // Used for reset
     input  wire push_button_1,  // Used for toggling LED
     output wire led_4,
@@ -47,9 +47,9 @@ module rvx_arty_a7 #(
 
   rvx #(
 
-      .TCM_SIZE_IN_BYTES  (32768),
-      .TCM_BOOT_IMAGE_PATH("rvx_hello_world_example.mem"),
-      .GPIO_PIN_COUNT     (GPIO_PIN_COUNT)
+      .RAM_SIZE_IN_BYTES(32768),
+      .BOOT_IMAGE_PATH  ("rvx_hello_world_example.mem"),
+      .GPIO_PIN_COUNT   (GPIO_PIN_COUNT)
 
   ) rvx_instance (
 
@@ -57,22 +57,22 @@ module rvx_arty_a7 #(
       .reset_n           (!push_button_0_debounced),
       .uart_tx           (uart_tx),
       .uart_rx           (uart_rx),
-      .sclk              (sclk),
-      .mosi              (mosi),
-      .miso              (miso),
-      .cs                (cs),
+      .spi_sclk          (spi_sclk),
+      .spi_mosi          (spi_mosi),
+      .spi_miso          (spi_miso),
+      .spi_cs            (spi_cs),
       .gpio_input        (gpio_input),
       .gpio_output_enable(gpio_output_enable),
       .gpio_output       (gpio_output),
-      .i2c_sda_input     (sda),
-      .i2c_scl_input     (scl),
+      .i2c_sda_input     (i2c_sda),
+      .i2c_scl_input     (i2c_scl),
       .i2c_sda_output    (i2c_sda_output),
       .i2c_scl_output    (i2c_scl_output)
 
   );
 
-  assign sda           = (i2c_sda_output) ? 1'bz : 1'b0;
-  assign scl           = (i2c_scl_output) ? 1'bz : 1'b0;
+  assign i2c_sda       = (i2c_sda_output) ? 1'bz : 1'b0;
+  assign i2c_scl       = (i2c_scl_output) ? 1'bz : 1'b0;
   assign gpio_input[0] = gpio_output_enable[0] ? gpio_output[0] : led_4;
   assign gpio_input[1] = gpio_output_enable[1] ? gpio_output[1] : push_button_1_debounced;
   assign gpio_input[2] = gpio_output_enable[2] ? gpio_output[2] : led_5;

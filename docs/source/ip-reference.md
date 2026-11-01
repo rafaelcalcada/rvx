@@ -35,8 +35,8 @@ The main components of RVX are listed in the table below.
 |-----------|-------------|
 | **RVX Core** | The central processing unit that implements the RISC-V ISA and executes software applications. |
 | **RVX Interconnect** | A communication fabric that connects the RVX Core to the peripherals and memory, providing low-latency access to these components. |
-| **Tightly Coupled Memory (TCM)** | A high-speed memory block with low access latency and configurable size, tightly integrated with the RVX Core through the RVX Interconnect. |
-| **Bootloader ROM** | A small read-only memory that contains the bootloader program responsible for initializing the system and loading the application code into the TCM memory. |
+| **RAM** | A configurable memory block connected to the RVX Core through the RVX Interconnect. |
+| **Bootloader ROM** | A small read-only memory that contains the bootloader program responsible for initializing the system and loading the application code into RAM. |
 | **UART Module** | Provides a standard UART interface for serial communication, allowing RVX to send and receive data over a serial connection at configurable baud rates. |
 | **GPIO Module** | Provides a configurable number of general-purpose I/O pins that can be used for interfacing with external devices such as sensors, actuators, or other digital components. |
 | **I2C Module** | Provides an I2C interface for communicating with external I2C subordinate devices. |
@@ -64,12 +64,12 @@ The table below provides an overview of the organization of the `rtl/` folder:
 | **`rvx_constants.vh`** | Verilog header file that defines constants used by all modules, such as memory addresses, register offsets, and configuration options. |
 | **`core/`** | Directory containing the Verilog source files for the RVX Core. |
 | **`interconnect/`** | Directory containing the Verilog source files for the RVX Interconnect. |
-| **`memory/`** | Directory containing the Verilog source files for the TCM memory and the Bootloader ROM. |
+| **`memory/`** | Directory containing the Verilog source files for RAM and the Bootloader ROM. |
 | **`peripherals/`** | Directory containing the Verilog source files for the UART, GPIO, SPI, I2C, and Timer modules. |
 
 ## Top Module
 
-The top-level module of RVX is located in the `rtl/` folder and is named `rvx.v`. It instantiates and connects all components of the design, including the RVX Core, the RVX Interconnect, the TCM memory, the Bootloader ROM, and the peripheral modules.
+The top-level module of RVX is located in the `rtl/` folder and is named `rvx.v`. It instantiates and connects all components of the design, including the RVX Core, the RVX Interconnect, RAM, the Bootloader ROM, and the peripheral modules.
 
 ### Instantiation Template
 
@@ -85,10 +85,9 @@ rvx #(
     // The values shown below are the default values.
     // Adjust them as needed for your design.
 
-    .TCM_SIZE_IN_BYTES      (8192),
-    .TCM_BOOT_IMAGE_PATH    (""),
-    .SPI_BOOT_IMAGE_ADDRESS (32'h00000000),
-    .GPIO_WIDTH             (1),
+    .RAM_SIZE_IN_BYTES      (8192),
+    .BOOT_IMAGE_PATH        (""),
+    .GPIO_PIN_COUNT         (1),
     .ENABLE_ZMMUL           (0)
 
 ) my_rvx_instance (
@@ -109,24 +108,24 @@ rvx #(
     .gpio_output_enable     (),
     .gpio_output            (),
     .i2c_sda_input          (),
+    .i2c_scl_input          (),
     .i2c_sda_output         (),
-    .i2c_scl                ()
+    .i2c_scl_output         ()
 
 );
 ```
 
 ### Configuration Parameters
 
-The table below lists the configuration parameters of the top-level module of RVX. These parameters allow you to customize various aspects of the design, such as the size of the TCM memory, the number of GPIO pins, and the inclusion of optional features like the Zmmul extension.
+The table below lists the configuration parameters of the top-level module of RVX. These parameters allow you to customize various aspects of the design, such as the size of RAM, the number of GPIO pins, and the inclusion of optional features like the Zmmul extension.
 
 <p align="center"><caption><strong>Table 3.</strong> Configuration Parameters of RVX Top Module</caption></p>
 
 | Parameter name | Description | Default value |
 |---|---|---|
-| `TCM_SIZE_IN_BYTES` | Size of the TCM memory in bytes. Must be a power of 2 and, for FPGA implementations, must not exceed the available memory resources of the FPGA. | `8192` |
-| `TCM_BOOT_IMAGE_PATH` | Path to the boot image (`.mem`) to be loaded into the TCM memory while programming the FPGA. Leave it empty for ASIC implementations. | `""` |
-| `SPI_BOOT_IMAGE_ADDRESS` | Address of the boot image in the SPI flash. RVX bootloader will try to boot from an external SPI flash during system startup, and will look for the boot image at this address. | `32'h00000000` |
-| `GPIO_WIDTH` | Number of general-purpose I/O pins provided by the GPIO module. Up to 32 pins are supported. | `1` |
+| `RAM_SIZE_IN_BYTES` | Size of the RAM memory in bytes. Must be a power of 2 and, for FPGA implementations, must not exceed the available memory resources of the FPGA. | `8192` |
+| `BOOT_IMAGE_PATH` | Path to the boot image (`.mem`) to be loaded into RAM while programming the FPGA. Leave it empty for ASIC implementations. | `""` |
+| `GPIO_PIN_COUNT` | Number of general-purpose I/O pins provided by the GPIO module. Up to 32 pins are supported. | `1` |
 | `ENABLE_ZMMUL` | Whether to enable or disable the Zmmul extension for integer multiplication. Set to `1` to enable, or `0` to disable. | `0` |
 
 ### I/O Signals
@@ -145,9 +144,9 @@ The table below lists the I/O signals of the top module of RVX. The following se
 | `spi_mosi` | SPI <u>M</u>anager <u>O</u>ut <u>S</u>ubordinate <u>I</u>n. | Output | 1 bit |
 | `spi_miso` | SPI <u>M</u>anager <u>I</u>n <u>S</u>ubordinate <u>O</u>ut. | Input | 1 bit |
 | `spi_cs` | SPI chip select. | Output | 1 bit |
-| `gpio_input` | GPIO input. | Input | `GPIO_WIDTH` |
-| `gpio_output_enable` | GPIO output enable. | Output | `GPIO_WIDTH` |
-| `gpio_output` | GPIO output. | Output | `GPIO_WIDTH` |
+| `gpio_input` | GPIO input. | Input | `GPIO_PIN_COUNT` |
+| `gpio_output_enable` | GPIO output enable. | Output | `GPIO_PIN_COUNT` |
+| `gpio_output` | GPIO output. | Output | `GPIO_PIN_COUNT` |
 | `i2c_sda_input` | I2C SDA data input. | Input | 1 bit |
 | `i2c_sda_output` | I2C SDA data output. | Output | 1 bit |
 | `i2c_scl_input` | I2C SCL clock input. | Input | 1 bit |
@@ -239,7 +238,7 @@ RVX has a 32-bit address space in which the lower region is reserved for memory,
 | From | To | Size | Device |
 |---|---|---|---|
 | `0x00000000` | `0x00000FFF` | 4 KB | Bootloader ROM |
-| `0x00001000` | `0x00001000 + TCM_SIZE_IN_BYTES - 1` | `TCM_SIZE_IN_BYTES` | Tightly Coupled Memory (TCM) |
+| `0x00001000` | `0x00001000 + RAM_SIZE_IN_BYTES - 1` | `RAM_SIZE_IN_BYTES` | RAM |
 | `0x40000000` | `0x4000000F` | 16 B | UART Module |
 | `0x40001000` | `0x4000101F` | 32 B | Timer Module |
 | `0x40002000` | `0x4000201F` | 32 B | GPIO Module |

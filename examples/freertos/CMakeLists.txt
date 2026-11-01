@@ -9,9 +9,9 @@ project(${APP_NAME} LANGUAGES C ASM)
 
 # RVX setup
 
-set(RVX_ENABLE_ZMMUL FALSE)
 set(RVX_RAM_SIZE_IN_BYTES 32768)
 set(RVX_MIN_FREE_SPACE_IN_BYTES 0) # FreeRTOS allocates its own heap space
+set(RVX_ENABLE_ZMMUL_EXTENSION FALSE)
 set(RVX_DIR "../../sdk")
 find_package(RVX CONFIG REQUIRED)
 

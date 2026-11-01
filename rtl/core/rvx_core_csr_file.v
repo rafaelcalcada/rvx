@@ -19,7 +19,7 @@ module rvx_core_csr_file (
     input wire        irq_external_s1,
     input wire        irq_software_s1,
     input wire        irq_timer_s1,
-    input wire [63:0] memory_mapped_timer_s1,
+    input wire [63:0] timer_s1,
     input wire        misaligned_instruction_address_s1,
     input wire        misaligned_load_s1,
     input wire        misaligned_store_s1,
@@ -252,7 +252,7 @@ module rvx_core_csr_file (
   end
 
   always @(posedge clock) begin : csr_utime_update
-    csr_utime <= memory_mapped_timer_s1;
+    csr_utime <= timer_s1;
   end
 
   always @(posedge clock) begin : csr_mcause_update

@@ -55,10 +55,10 @@ module rvx_i2c_tb ();
       .write_response(),
 
       // I2C signals
-      .sda_input (sda_output),
-      .scl_input (scl_input),
-      .sda_output(),
-      .scl_output()
+      .i2c_sda_input (sda_output),
+      .i2c_scl_input (scl_input),
+      .i2c_sda_output(),
+      .i2c_scl_output()
   );
 
   // Loopback transmitter: receives the same register commands as instance0 and
@@ -80,10 +80,10 @@ module rvx_i2c_tb ();
       .write_response(),
 
       // I2C signals
-      .sda_input (),
-      .scl_input (scl_input),
-      .sda_output(sda_output),
-      .scl_output(scl_output_probe)
+      .i2c_sda_input (),
+      .i2c_scl_input (scl_input),
+      .i2c_sda_output(sda_output),
+      .i2c_scl_output(scl_output_probe)
   );
   // verilator lint_on PINCONNECTEMPTY
 

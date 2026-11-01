@@ -14,7 +14,7 @@ module rvx_spi_tb ();
   reg     [ 4:0] rw_address;
   wire    [31:0] read_data;
   reg            read_request;
-  reg     [31:0] write_data;
+  reg     [15:0] write_data;
   reg     [ 3:0] write_strobe;
   reg            write_request;
 
@@ -47,33 +47,33 @@ module rvx_spi_tb ();
       .write_response(),
 
       // SPI signals
-      .sclk(sclk),
-      .mosi(mosi),
-      .miso(miso),
-      .cs  (cs)
+      .spi_sclk(sclk),
+      .spi_mosi(mosi),
+      .spi_miso(miso),
+      .spi_cs  (cs)
 
   );
   // verilator lint_on PINCONNECTEMPTY
 
   test_spi_subordinate_0 test_spi_subordinate_0_instance (
 
-      .clock  (clock),
-      .reset_n(reset_n),
-      .sclk   (sclk),
-      .mosi   (mosi),
-      .miso   (miso),
-      .cs     (cs)
+      .clock   (clock),
+      .reset_n (reset_n),
+      .spi_sclk(sclk),
+      .spi_mosi(mosi),
+      .spi_miso(miso),
+      .spi_cs  (cs)
 
   );
 
   test_spi_subordinate_1 test_spi_subordinate_1_instance (
 
-      .clock  (clock),
-      .reset_n(reset_n),
-      .sclk   (sclk),
-      .mosi   (mosi),
-      .miso   (miso),
-      .cs     (gpio_cs)
+      .clock   (clock),
+      .reset_n (reset_n),
+      .spi_sclk(sclk),
+      .spi_mosi(mosi),
+      .spi_miso(miso),
+      .spi_cs  (gpio_cs)
 
   );
 
@@ -104,7 +104,7 @@ module rvx_spi_tb ();
       read_request  = 1'b0;
       write_request = 1'b0;
       write_strobe  = 4'b0;
-      write_data    = 32'b0;
+      write_data    = 16'b0;
       #(CLOCK_PERIOD * 2);
       reset_n = 1'b1;
       #(CLOCK_PERIOD * 2);
@@ -133,13 +133,13 @@ module rvx_spi_tb ();
       $display("Writing SPI register: %s", spi_reg_name(address));
       $display("Write value: 0x%08h", data);
       rw_address    = address;
-      write_data    = data;
+      write_data    = data[15:0];
       write_strobe  = 4'b1111;
       write_request = 1'b1;
       #(CLOCK_PERIOD);
       write_request = 1'b0;
       rw_address    = 5'h00;
-      write_data    = 32'b0;
+      write_data    = 16'b0;
       write_strobe  = 4'b0;
     end
   endtask
@@ -458,10 +458,10 @@ module test_spi_subordinate_0 (
 
     input  wire clock,
     input  wire reset_n,
-    input  wire sclk,
-    input  wire mosi,
-    input  wire cs,
-    output wire miso
+    input  wire spi_sclk,
+    input  wire spi_mosi,
+    input  wire spi_cs,
+    output wire spi_miso
 
 );
 
@@ -476,24 +476,24 @@ module test_spi_subordinate_0 (
       sclk_prev <= 1'b0;
     end
     else begin
-      sclk_prev <= sclk;
+      sclk_prev <= spi_sclk;
     end
   end
 
   // Sample on rising edge of SCLK
-  assign sample_edge = !sclk_prev && sclk;
+  assign sample_edge = !sclk_prev && spi_sclk;
 
   always @(posedge clock) begin
     if (!reset_n) rx_data <= 8'h00;
-    else if (!cs & sample_edge) rx_data <= {rx_data[6:0], mosi};
+    else if (!spi_cs & sample_edge) rx_data <= {rx_data[6:0], spi_mosi};
   end
 
   always @(negedge clock) begin
     if (!reset_n) tx_bit <= 1'b0;
-    else if (!cs & sample_edge) tx_bit <= rx_data[7];
+    else if (!spi_cs & sample_edge) tx_bit <= rx_data[7];
   end
 
-  assign miso = cs ? 1'bZ : tx_bit;
+  assign spi_miso = spi_cs ? 1'bZ : tx_bit;
 
 endmodule
 
@@ -505,10 +505,10 @@ module test_spi_subordinate_1 (
 
     input  wire clock,
     input  wire reset_n,
-    input  wire sclk,
-    input  wire mosi,
-    input  wire cs,
-    output wire miso
+    input  wire spi_sclk,
+    input  wire spi_mosi,
+    input  wire spi_cs,
+    output wire spi_miso
 
 );
 
@@ -523,24 +523,24 @@ module test_spi_subordinate_1 (
       sclk_prev <= 1'b0;
     end
     else begin
-      sclk_prev <= sclk;
+      sclk_prev <= spi_sclk;
     end
   end
 
   // Sample on falling edge of SCLK
-  assign sample_edge = sclk_prev && !sclk;
+  assign sample_edge = sclk_prev && !spi_sclk;
 
   always @(posedge clock) begin
     if (!reset_n) rx_data <= 8'h00;
-    else if (!cs & sample_edge) rx_data <= {rx_data[6:0], mosi};
+    else if (!spi_cs & sample_edge) rx_data <= {rx_data[6:0], spi_mosi};
   end
 
   always @(negedge clock) begin
     if (!reset_n) tx_bit <= 1'b0;
-    else if (!cs & sample_edge) tx_bit <= rx_data[7];
+    else if (!spi_cs & sample_edge) tx_bit <= rx_data[7];
   end
 
-  assign miso = cs ? 1'bZ : tx_bit;
+  assign spi_miso = spi_cs ? 1'bZ : tx_bit;
 
 endmodule
 // verilator lint_on DECLFILENAME

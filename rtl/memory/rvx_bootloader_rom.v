@@ -312,7 +312,7 @@ module rvx_bootloader_rom #(
   end
 
   always @(posedge clock) begin
-    if (!reset_n) rresponse <= 1'b0;
+    if (!reset_n | invalid_address) rresponse <= 1'b0;
     else rresponse <= rrequest;
   end
 
