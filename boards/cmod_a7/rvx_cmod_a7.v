@@ -47,7 +47,7 @@ module rvx_cmod_a7 #(
   rvx #(
 
       .RAM_SIZE_IN_BYTES(32768),
-      .BOOT_IMAGE_PATH  ("rvx_freertos_example.mem"),
+      .BOOT_IMAGE_PATH  ("rvx_hello_world_example.mem"),
       .GPIO_PIN_COUNT   (GPIO_PIN_COUNT)
 
   ) rvx_instance (
