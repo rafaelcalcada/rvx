@@ -16,3 +16,20 @@
 .md-typeset__table {
   width: 100%;
 }
+
+.md-header,
+.md-tabs {
+  background: linear-gradient(to left, #fff0f0, #e5eaff);
+}
+
+.md-nav--primary.md-nav--integrated>.md-nav__list>.md-nav__item--active>.md-nav__link--active {
+  font-weight: 700;
+}
+
+[dir="ltr"] .md-nav--primary.md-nav--integrated .md-nav--secondary .md-nav__link {
+  padding-left: 0;
+}
+
+[dir="rtl"] .md-nav--primary.md-nav--integrated .md-nav--secondary .md-nav__link {
+  padding-right: 0;
+}

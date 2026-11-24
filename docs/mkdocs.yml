@@ -45,6 +45,7 @@ theme:
         - navigation.instant.progress
         - content.code.copy
         - content.code.select
+        - toc.integrate
 extra:
     analytics:
         provider: google
@@ -57,8 +58,3 @@ remote_branch: docs
 copyright: Copyright (c) 2020-2026 RVX Project Contributors
 nav:
     - Homepage: 'index.md'
-    - Developer Guide: 'developer-guide.md'
-    - IP Reference: 'ip-reference.md'
-    - Examples:
-        - Hello World: 'examples/helloworld.md'
-        - FreeRTOS: 'examples/freertos.md'
